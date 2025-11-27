@@ -61,8 +61,8 @@ playerRoutes.get('/:handle', async (c: Context) => {
     const stats = await getPlayerStats(handle)
     
     return c.json({
-      handle: player.xHandle,
-      profilePic: player.xProfilePic,
+      xHandle: player.xHandle,
+      xProfilePic: player.xProfilePic,
       verified: player.verified,
       verifiedAt: player.verifiedAt,
       card,

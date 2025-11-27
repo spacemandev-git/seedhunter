@@ -1,10 +1,23 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { page } from "$app/stores";
+  import { goto } from "$app/navigation";
   import { auth } from "$lib/stores";
   import "../app.css";
 
   let { children } = $props();
+  let loggingOut = $state(false);
+
+  async function handleLogout() {
+    if (loggingOut) return;
+    loggingOut = true;
+    try {
+      await auth.logout();
+      goto('/');
+    } finally {
+      loggingOut = false;
+    }
+  }
 
   // Tab configuration
   const tabs = [
@@ -40,10 +53,37 @@
         </div>
       {:else if auth.isLoggedIn}
         <div class="auth-status logged-in">
+          {#if auth.player?.xProfilePic}
+            <img 
+              src={auth.player.xProfilePic} 
+              alt="@{auth.player.xHandle}" 
+              class="user-avatar"
+            />
+          {:else}
+            <div class="user-avatar-placeholder">
+              {auth.player?.xHandle?.charAt(0).toUpperCase() || '?'}
+            </div>
+          {/if}
           <span class="user-handle">@{auth.player?.xHandle}</span>
           {#if auth.player?.verified}
             <span class="verified-icon" title="Verified">✓</span>
           {/if}
+          <button 
+            class="btn-logout" 
+            onclick={handleLogout}
+            disabled={loggingOut}
+            title="Logout"
+          >
+            {#if loggingOut}
+              <div class="spinner-small"></div>
+            {:else}
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                <polyline points="16 17 21 12 16 7" />
+                <line x1="21" y1="12" x2="9" y2="12" />
+              </svg>
+            {/if}
+          </button>
         </div>
       {:else}
         <a href="/auth/login" class="btn-primary btn-connect"> Connect </a>
@@ -184,6 +224,27 @@
     gap: var(--space-xs);
   }
 
+  .user-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--color-border);
+  }
+
+  .user-avatar-placeholder {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--color-primary);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 0.9rem;
+  }
+
   .user-handle {
     font-weight: 600;
     color: var(--color-primary);
@@ -201,6 +262,50 @@
     border-radius: 50%;
     font-size: 0.7rem;
     font-weight: bold;
+  }
+
+  .btn-logout {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    background: transparent;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    color: var(--color-text-muted);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+  }
+
+  .btn-logout:hover:not(:disabled) {
+    background: var(--color-error);
+    border-color: var(--color-error);
+    color: white;
+  }
+
+  .btn-logout:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .btn-logout svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .spinner-small {
+    width: 16px;
+    height: 16px;
+    border: 2px solid var(--color-border);
+    border-top-color: var(--color-primary);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
   }
 
   .btn-connect {

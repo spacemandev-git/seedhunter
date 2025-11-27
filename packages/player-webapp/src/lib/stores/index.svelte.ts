@@ -1,4 +1,4 @@
-import { getAuthToken, getPlayer, getLeaderboard } from '$lib/api/client'
+import { getAuthToken, getPlayer, getLeaderboard, logout as apiLogout, setAuthToken, disconnectWebSocket } from '$lib/api/client'
 import type { Player, LeaderboardEntry, Card, Trade, AdminLocation, ChatMessage } from '@seedhunter/shared'
 
 // ============================================
@@ -48,7 +48,15 @@ function createAuthStore() {
       state.loading = false
     },
     
-    logout() {
+    async logout() {
+      try {
+        await apiLogout()
+      } catch (err) {
+        // Even if API call fails, clear local state
+        console.error('Logout API error:', err)
+      }
+      disconnectWebSocket()
+      setAuthToken(null)
       state.player = null
     }
   }
