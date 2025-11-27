@@ -1,0 +1,52 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Build outputs
+dist/
+build/
+.svelte-kit/
+.output/
+.vercel/
+
+# Bun
+bun.lockb
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Testing
+coverage/
+
+# Card assembler intermediate files
+packages/card-assembler/data/raw_images/
+packages/card-assembler/data/styled_images/
+packages/card-assembler/output/
+
+# Database
+*.db
+*.db-journal
+
+# Android
+packages/admin-app/android/.gradle/
+packages/admin-app/android/app/build/
+packages/admin-app/android/build/
+packages/admin-app/android/local.properties
+
+# Capacitor
+packages/admin-app/.capacitor/

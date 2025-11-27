@@ -1,0 +1,29 @@
+{
+  "name": "@seedhunter/card-assembler",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "card-assembler": "./src/index.ts"
+  },
+  "scripts": {
+    "generate": "bun run src/index.ts generate",
+    "fetch": "bun run src/index.ts fetch",
+    "stylize": "bun run src/index.ts stylize",
+    "assemble": "bun run src/index.ts assemble",
+    "export": "bun run src/index.ts export",
+    "all": "bun run src/index.ts all",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@seedhunter/shared": "workspace:*",
+    "commander": "^12.0.0",
+    "openai": "^4.28.0",
+    "sharp": "^0.33.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "bun-types": "^1.0.0",
+    "typescript": "^5.3.3"
+  }
+}

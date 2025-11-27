@@ -1,0 +1,28 @@
+{
+  "name": "@seedhunter/player-webapp",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite dev",
+    "build": "vite build",
+    "preview": "vite preview",
+    "typecheck": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json"
+  },
+  "dependencies": {
+    "@seedhunter/shared": "workspace:*",
+    "leaflet": "^1.9.4",
+    "qrcode": "^1.5.3"
+  },
+  "devDependencies": {
+    "@sveltejs/adapter-static": "^3.0.0",
+    "@sveltejs/kit": "^2.0.0",
+    "@sveltejs/vite-plugin-svelte": "^3.0.0",
+    "@types/leaflet": "^1.9.8",
+    "@types/qrcode": "^1.5.5",
+    "svelte": "^5.0.0",
+    "svelte-check": "^3.6.0",
+    "typescript": "^5.3.3",
+    "vite": "^5.0.0"
+  }
+}
