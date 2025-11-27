@@ -1,118 +1,137 @@
 import { Hono } from 'hono'
 import type { Context } from 'hono'
-import { prisma } from '../db'
-import { CHAT_MAX_MESSAGES, CHAT_MESSAGE_MAX_LENGTH, CHAT_PRUNE_THRESHOLD } from '@seedhunter/shared'
+import { CHAT_MAX_MESSAGES, ErrorCodes } from '@seedhunter/shared'
+import {
+  addMessage,
+  getMessages,
+  deleteMessage,
+  validateMessage
+} from '../services/chat'
+import { requireAuth, requireAdmin } from '../middleware/auth'
+import { chatRateLimit } from '../middleware/rateLimit'
+import { broadcast } from '../ws/handler'
 
 export const chatRoutes = new Hono()
 
-// Get recent messages
+// Apply rate limiting to all chat routes
+chatRoutes.use('*', chatRateLimit)
+
+// Get recent messages (public, no auth required)
 chatRoutes.get('/messages', async (c: Context) => {
-  const limit = Math.min(parseInt(c.req.query('limit') || '100'), CHAT_MAX_MESSAGES)
-  const before = c.req.query('before')
-  
-  const messages = await prisma.chatMessage.findMany({
-    where: before ? {
-      createdAt: {
-        lt: new Date(before)
-      }
-    } : undefined,
-    orderBy: { createdAt: 'desc' },
-    take: limit,
-    include: {
-      sender: {
-        select: { xHandle: true }
-      }
-    }
-  })
-  
-  return c.json({
-    messages: messages.reverse().map(m => ({
-      id: m.id,
-      senderHandle: m.sender.xHandle,
-      content: m.content,
-      isAdmin: m.isAdmin,
-      createdAt: m.createdAt
-    }))
-  })
+  try {
+    const limit = Math.min(
+      parseInt(c.req.query('limit') || '100'),
+      CHAT_MAX_MESSAGES
+    )
+    const before = c.req.query('before')
+    
+    const messages = await getMessages(limit, before)
+    
+    return c.json({ messages })
+  } catch (error) {
+    console.error('Get messages error:', error)
+    return c.json({
+      error: 'Failed to get messages',
+      code: ErrorCodes.INTERNAL_ERROR
+    }, 500)
+  }
 })
 
-// Send a message
-chatRoutes.post('/messages', async (c: Context) => {
-  // TODO: Get user from JWT (player or admin)
-  // const user = c.get('user')
+// Send a message (auth required)
+chatRoutes.post('/messages', requireAuth, async (c: Context) => {
+  const player = c.get('player')
+  const admin = c.get('admin')
   
-  const body = await c.req.json<{ content: string }>()
-  
-  if (!body.content || typeof body.content !== 'string') {
-    return c.json({ error: 'Message content required' }, 400)
+  // Must be either a player or admin
+  if (!player && !admin) {
+    return c.json({
+      error: 'Authentication required',
+      code: ErrorCodes.UNAUTHORIZED
+    }, 401)
   }
   
-  if (body.content.length > CHAT_MESSAGE_MAX_LENGTH) {
-    return c.json({ error: `Message too long (max ${CHAT_MESSAGE_MAX_LENGTH} chars)` }, 400)
+  try {
+    const body = await c.req.json<{ content: string }>()
+    
+    if (!body.content || typeof body.content !== 'string') {
+      return c.json({
+        error: 'Message content required',
+        code: ErrorCodes.VALIDATION_ERROR
+      }, 400)
+    }
+    
+    // Get sender handle (player or admin)
+    const senderHandle = player?.xHandle || admin?.username
+    
+    if (!senderHandle) {
+      return c.json({
+        error: 'Could not determine sender',
+        code: ErrorCodes.INTERNAL_ERROR
+      }, 500)
+    }
+    
+    // Validate message (spam check, etc.)
+    const validation = validateMessage(senderHandle, body.content)
+    if (!validation.valid) {
+      return c.json({
+        error: validation.error || 'Invalid message',
+        code: ErrorCodes.VALIDATION_ERROR
+      }, 400)
+    }
+    
+    // Add message (profanity filtered unless admin)
+    const isAdmin = !!admin
+    const result = await addMessage(senderHandle, body.content, isAdmin)
+    
+    if ('error' in result) {
+      return c.json({
+        error: result.error,
+        code: ErrorCodes.VALIDATION_ERROR
+      }, 400)
+    }
+    
+    // Broadcast via WebSocket
+    broadcast('chat', {
+      type: 'chat',
+      message: result
+    })
+    
+    return c.json({ message: result }, 201)
+  } catch (error) {
+    console.error('Send message error:', error)
+    return c.json({
+      error: 'Failed to send message',
+      code: ErrorCodes.INTERNAL_ERROR
+    }, 500)
   }
-  
-  // TODO: Apply profanity filter
-  const filteredContent = body.content // filterProfanity(body.content)
-  
-  // TODO: Get actual sender info from JWT
-  // For now, return pending message
-  return c.json({ 
-    message: 'Chat message creation - implementation pending (requires auth)'
-  }, 501)
-  
-  // Implementation when auth is ready:
-  // const message = await prisma.chatMessage.create({
-  //   data: {
-  //     senderId: user.id,
-  //     content: filteredContent,
-  //     isAdmin: user.isAdmin || false
-  //   },
-  //   include: {
-  //     sender: { select: { xHandle: true } }
-  //   }
-  // })
-  
-  // // Prune old messages if needed
-  // const count = await prisma.chatMessage.count()
-  // if (count > CHAT_PRUNE_THRESHOLD) {
-  //   const oldMessages = await prisma.chatMessage.findMany({
-  //     orderBy: { createdAt: 'asc' },
-  //     take: count - CHAT_MAX_MESSAGES,
-  //     select: { id: true }
-  //   })
-  //   await prisma.chatMessage.deleteMany({
-  //     where: { id: { in: oldMessages.map(m => m.id) } }
-  //   })
-  // }
-  
-  // // TODO: Broadcast via WebSocket
-  
-  // return c.json({
-  //   message: {
-  //     id: message.id,
-  //     senderHandle: message.sender.xHandle,
-  //     content: message.content,
-  //     isAdmin: message.isAdmin,
-  //     createdAt: message.createdAt
-  //   }
-  // }, 201)
 })
 
 // Delete a message (admin only)
-chatRoutes.delete('/:msgId', async (c: Context) => {
-  // TODO: Verify admin JWT
-  
+chatRoutes.delete('/:msgId', requireAdmin, async (c: Context) => {
   const msgId = c.req.param('msgId')
   
   try {
-    await prisma.chatMessage.delete({
-      where: { id: msgId }
-    })
+    const deleted = await deleteMessage(msgId)
     
-    // TODO: Broadcast deletion via WebSocket
+    if (!deleted) {
+      return c.json({
+        error: 'Message not found',
+        code: ErrorCodes.VALIDATION_ERROR
+      }, 404)
+    }
+    
+    // Broadcast deletion via WebSocket
+    broadcast('chat', {
+      type: 'chat_deleted',
+      msgId
+    })
     
     return c.json({ success: true })
   } catch (error) {
-    return c.json({ error: 'Message not found' }, 404)
+    console.error('Delete message error:', error)
+    return c.json({
+      error: 'Failed to delete message',
+      code: ErrorCodes.INTERNAL_ERROR
+    }, 500)
   }
 })

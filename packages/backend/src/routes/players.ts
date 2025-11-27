@@ -1,190 +1,165 @@
 import { Hono } from 'hono'
 import type { Context } from 'hono'
-import { prisma } from '../db'
-import { LEADERBOARD_DEFAULT_LIMIT, LEADERBOARD_MAX_LIMIT } from '@seedhunter/shared'
+import { LEADERBOARD_DEFAULT_LIMIT, LEADERBOARD_MAX_LIMIT, ErrorCodes } from '@seedhunter/shared'
+import {
+  getPlayerByHandle,
+  getPlayerCard,
+  getPlayerStats,
+  getLeaderboard,
+  updatePlayerLocation,
+  getNearbyPlayers
+} from '../services/player'
+import { optionalAuth, requirePlayer } from '../middleware/auth'
+import { defaultRateLimit } from '../middleware/rateLimit'
 
 export const playerRoutes = new Hono()
+
+// Apply default rate limiting
+playerRoutes.use('*', defaultRateLimit)
+
+// Get leaderboard (this must come before /:handle to avoid conflict)
+playerRoutes.get('/', async (c: Context) => {
+  const limit = Math.min(
+    parseInt(c.req.query('limit') || String(LEADERBOARD_DEFAULT_LIMIT)),
+    LEADERBOARD_MAX_LIMIT
+  )
+  const offset = Math.max(0, parseInt(c.req.query('offset') || '0'))
+  
+  try {
+    const result = await getLeaderboard(limit, offset)
+    
+    return c.json({
+      entries: result.entries,
+      total: result.total,
+      offset,
+      limit
+    })
+  } catch (error) {
+    console.error('Leaderboard error:', error)
+    return c.json({
+      error: 'Failed to get leaderboard',
+      code: ErrorCodes.INTERNAL_ERROR
+    }, 500)
+  }
+})
 
 // Get player by handle
 playerRoutes.get('/:handle', async (c: Context) => {
   const handle = c.req.param('handle')
   
-  const player = await prisma.player.findUnique({
-    where: { xHandle: handle },
-    include: { card: true }
-  })
-  
-  if (!player) {
-    return c.json({ error: 'Player not found' }, 404)
+  try {
+    const player = await getPlayerByHandle(handle)
+    
+    if (!player) {
+      return c.json({
+        error: 'Player not found',
+        code: ErrorCodes.PLAYER_NOT_FOUND
+      }, 404)
+    }
+    
+    const card = await getPlayerCard(handle)
+    const stats = await getPlayerStats(handle)
+    
+    return c.json({
+      handle: player.xHandle,
+      profilePic: player.xProfilePic,
+      verified: player.verified,
+      verifiedAt: player.verifiedAt,
+      card,
+      stats
+    })
+  } catch (error) {
+    console.error('Get player error:', error)
+    return c.json({
+      error: 'Failed to get player',
+      code: ErrorCodes.INTERNAL_ERROR
+    }, 500)
   }
-  
-  // Calculate stats
-  const tradeCount = await prisma.trade.count({
-    where: {
-      OR: [
-        { playerAId: player.id },
-        { playerBId: player.id }
-      ]
-    }
-  })
-  
-  // Points = unique verified trades (both parties verified)
-  const verifiedTrades = await prisma.trade.findMany({
-    where: {
-      OR: [
-        { playerAId: player.id },
-        { playerBId: player.id }
-      ],
-      playerA: { verified: true },
-      playerB: { verified: true }
-    },
-    select: {
-      playerAId: true,
-      playerBId: true
-    }
-  })
-  
-  // Count unique trading partners from verified trades
-  const uniquePartners = new Set(
-    verifiedTrades.map(t => 
-      t.playerAId === player.id ? t.playerBId : t.playerAId
-    )
-  )
-  const points = uniquePartners.size
-  
-  // Get rank (count players with more points)
-  // This is a simplified version - for production, consider caching
-  const playersWithMorePoints = await getPlayersWithMorePoints(points)
-  const rank = playersWithMorePoints + 1
-  
-  return c.json({
-    handle: player.xHandle,
-    profilePic: player.xProfilePic,
-    verified: player.verified,
-    card: player.card,
-    stats: {
-      trades: tradeCount,
-      points,
-      rank
-    }
-  })
 })
 
 // Get player's current card
 playerRoutes.get('/:handle/card', async (c: Context) => {
   const handle = c.req.param('handle')
   
-  const player = await prisma.player.findUnique({
-    where: { xHandle: handle },
-    include: { card: true }
-  })
-  
-  if (!player?.card) {
-    return c.json({ error: 'Player or card not found' }, 404)
+  try {
+    const card = await getPlayerCard(handle)
+    
+    if (!card) {
+      return c.json({
+        error: 'Player or card not found',
+        code: ErrorCodes.PLAYER_NOT_FOUND
+      }, 404)
+    }
+    
+    return c.json(card)
+  } catch (error) {
+    console.error('Get card error:', error)
+    return c.json({
+      error: 'Failed to get card',
+      code: ErrorCodes.INTERNAL_ERROR
+    }, 500)
   }
-  
-  return c.json(player.card)
 })
 
-// Get leaderboard
-playerRoutes.get('/', async (c: Context) => {
-  const limit = Math.min(
-    parseInt(c.req.query('limit') || String(LEADERBOARD_DEFAULT_LIMIT)),
-    LEADERBOARD_MAX_LIMIT
-  )
-  const offset = parseInt(c.req.query('offset') || '0')
+// Update player location (optional feature)
+playerRoutes.post('/location', requirePlayer, async (c: Context) => {
+  const player = c.get('player')!
   
-  // Get verified players with their trade counts
-  const verifiedPlayers = await prisma.player.findMany({
-    where: { verified: true },
-    include: {
-      tradesAsPlayerA: {
-        include: { playerB: { select: { verified: true } } }
-      },
-      tradesAsPlayerB: {
-        include: { playerA: { select: { verified: true } } }
-      }
-    }
-  })
-  
-  // Calculate points for each player
-  const leaderboardData = verifiedPlayers.map(player => {
-    const allTrades = [...player.tradesAsPlayerA, ...player.tradesAsPlayerB]
-    const verifiedTrades = allTrades.filter(t => {
-      const otherPlayerVerified = 'playerB' in t 
-        ? t.playerB.verified 
-        : t.playerA.verified
-      return otherPlayerVerified
-    })
+  try {
+    const body = await c.req.json<{ lat: number; lng: number }>()
     
-    // Count unique verified trading partners
-    const uniquePartners = new Set(
-      verifiedTrades.map(t => 
-        'playerB' in t ? (t as any).playerBId : (t as any).playerAId
-      )
-    )
-    
-    return {
-      xHandle: player.xHandle,
-      verified: player.verified,
-      trades: allTrades.length,
-      points: uniquePartners.size
+    if (typeof body.lat !== 'number' || typeof body.lng !== 'number') {
+      return c.json({
+        error: 'Invalid coordinates',
+        code: ErrorCodes.VALIDATION_ERROR
+      }, 400)
     }
-  })
-  
-  // Sort by points, then trades
-  leaderboardData.sort((a, b) => {
-    if (b.points !== a.points) return b.points - a.points
-    return b.trades - a.trades
-  })
-  
-  // Add ranks and paginate
-  const entries = leaderboardData
-    .slice(offset, offset + limit)
-    .map((entry, index) => ({
-      rank: offset + index + 1,
-      ...entry
-    }))
-  
-  return c.json({
-    entries,
-    total: verifiedPlayers.length,
-    offset,
-    limit
-  })
+    
+    // Validate coordinate ranges
+    if (body.lat < -90 || body.lat > 90 || body.lng < -180 || body.lng > 180) {
+      return c.json({
+        error: 'Coordinates out of range',
+        code: ErrorCodes.VALIDATION_ERROR
+      }, 400)
+    }
+    
+    await updatePlayerLocation(player.id, body.lat, body.lng)
+    
+    return c.json({ success: true })
+  } catch (error) {
+    console.error('Update location error:', error)
+    return c.json({
+      error: 'Failed to update location',
+      code: ErrorCodes.INTERNAL_ERROR
+    }, 500)
+  }
 })
 
-// Helper function to count players with more points
-async function getPlayersWithMorePoints(points: number): Promise<number> {
-  // This is a simplified implementation
-  // For production, consider maintaining a materialized leaderboard
-  const verifiedPlayers = await prisma.player.findMany({
-    where: { verified: true },
-    include: {
-      tradesAsPlayerA: {
-        where: { playerB: { verified: true } }
-      },
-      tradesAsPlayerB: {
-        where: { playerA: { verified: true } }
-      }
+// Get nearby players (optional feature)
+playerRoutes.get('/nearby', requirePlayer, async (c: Context) => {
+  try {
+    const lat = parseFloat(c.req.query('lat') || '')
+    const lng = parseFloat(c.req.query('lng') || '')
+    const radius = parseInt(c.req.query('radius') || '25')
+    
+    if (isNaN(lat) || isNaN(lng)) {
+      return c.json({
+        error: 'Latitude and longitude required',
+        code: ErrorCodes.VALIDATION_ERROR
+      }, 400)
     }
-  })
-  
-  let count = 0
-  for (const player of verifiedPlayers) {
-    const allVerifiedTrades = [
-      ...player.tradesAsPlayerA,
-      ...player.tradesAsPlayerB
-    ]
-    const uniquePartners = new Set(
-      allVerifiedTrades.map(t => 
-        (t as any).playerAId === player.id 
-          ? (t as any).playerBId 
-          : (t as any).playerAId
-      )
-    )
-    if (uniquePartners.size > points) count++
+    
+    // Limit radius to reasonable values (5-100 meters)
+    const validRadius = Math.max(5, Math.min(100, radius))
+    
+    const nearby = await getNearbyPlayers(lat, lng, validRadius)
+    
+    return c.json({ nearby })
+  } catch (error) {
+    console.error('Nearby players error:', error)
+    return c.json({
+      error: 'Failed to get nearby players',
+      code: ErrorCodes.INTERNAL_ERROR
+    }, 500)
   }
-  
-  return count
-}
+})

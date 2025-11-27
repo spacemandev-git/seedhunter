@@ -180,5 +180,7 @@ export type WSServerMessage =
   | { type: 'chat_deleted'; msgId: string }
   | { type: 'trade_complete'; trade: Trade }
   | { type: 'player_verified'; handle: string }
+  | { type: 'admin_location_update'; location: AdminLocation }
+  | { type: 'admin_locations'; locations: AdminLocation[] }
   | { type: 'pong' }
   | { type: 'error'; message: string }

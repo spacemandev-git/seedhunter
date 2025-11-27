@@ -1,136 +1,202 @@
 import { Hono } from 'hono'
 import type { Context } from 'hono'
-import { prisma } from '../db'
+import { ErrorCodes } from '@seedhunter/shared'
+import {
+  updateAdminLocation,
+  setAdminVisibility,
+  getAdminLocations,
+  clearAdminLocation
+} from '../services/location'
+import { verifyPlayer } from '../services/player'
+import { deleteMessage } from '../services/chat'
+import { requireAdmin } from '../middleware/auth'
+import { adminRateLimit, defaultRateLimit } from '../middleware/rateLimit'
+import { broadcastPlayerVerified, broadcastChatDelete, broadcastAdminLocationUpdate } from '../ws/handler'
+import { getAdminLocation } from '../services/location'
 
 export const adminRoutes = new Hono()
 
-// Get all admin locations (public endpoint)
-adminRoutes.get('/locations', async (c: Context) => {
-  const admins = await prisma.admin.findMany({
-    where: {
-      locationLat: { not: null },
-      locationLng: { not: null }
-    },
-    select: {
-      username: true,
-      locationLat: true,
-      locationLng: true,
-      locationVisible: true,
-      locationUpdatedAt: true
-    }
-  })
-  
-  return c.json({
-    locations: admins.map(admin => ({
-      username: admin.username,
-      location: admin.locationVisible 
-        ? { lat: admin.locationLat, lng: admin.locationLng }
-        : '<encrypted>',
-      updatedAt: admin.locationUpdatedAt
-    }))
-  })
+// Get all admin locations (public endpoint - uses default rate limit)
+adminRoutes.get('/locations', defaultRateLimit, async (c: Context) => {
+  try {
+    const locations = await getAdminLocations()
+    return c.json({ locations })
+  } catch (error) {
+    console.error('Get admin locations error:', error)
+    return c.json({
+      error: 'Failed to get admin locations',
+      code: ErrorCodes.INTERNAL_ERROR
+    }, 500)
+  }
 })
 
+// All other admin routes require admin auth
+adminRoutes.use('*', adminRateLimit)
+
 // Update admin location (admin auth required)
-adminRoutes.post('/location', async (c: Context) => {
-  // TODO: Verify admin JWT and get admin ID
-  // const adminId = c.get('adminId')
+adminRoutes.post('/location', requireAdmin, async (c: Context) => {
+  const admin = c.get('admin')!
   
-  const body = await c.req.json<{ lat: number; lng: number }>()
-  
-  if (typeof body.lat !== 'number' || typeof body.lng !== 'number') {
-    return c.json({ error: 'Invalid coordinates' }, 400)
+  try {
+    const body = await c.req.json<{ lat: number; lng: number }>()
+    
+    if (typeof body.lat !== 'number' || typeof body.lng !== 'number') {
+      return c.json({
+        error: 'Invalid coordinates',
+        code: ErrorCodes.VALIDATION_ERROR
+      }, 400)
+    }
+    
+    // Validate coordinate ranges
+    if (body.lat < -90 || body.lat > 90 || body.lng < -180 || body.lng > 180) {
+      return c.json({
+        error: 'Coordinates out of range',
+        code: ErrorCodes.VALIDATION_ERROR
+      }, 400)
+    }
+    
+    await updateAdminLocation(admin.id, body.lat, body.lng)
+    
+    // Get the updated location and broadcast it
+    const updatedLocation = await getAdminLocation(admin.id)
+    if (updatedLocation) {
+      broadcastAdminLocationUpdate(updatedLocation)
+    }
+    
+    return c.json({ success: true })
+  } catch (error) {
+    console.error('Update admin location error:', error)
+    return c.json({
+      error: 'Failed to update location',
+      code: ErrorCodes.INTERNAL_ERROR
+    }, 500)
   }
-  
-  // TODO: Use actual admin ID from JWT
-  // await prisma.admin.update({
-  //   where: { id: adminId },
-  //   data: {
-  //     locationLat: body.lat,
-  //     locationLng: body.lng,
-  //     locationUpdatedAt: new Date()
-  //   }
-  // })
-  
-  return c.json({ 
-    success: true,
-    message: 'Location update - implementation pending' 
-  })
 })
 
 // Toggle admin visibility (admin auth required)
-adminRoutes.patch('/visibility', async (c: Context) => {
-  // TODO: Verify admin JWT and get admin ID
-  // const adminId = c.get('adminId')
+adminRoutes.patch('/visibility', requireAdmin, async (c: Context) => {
+  const admin = c.get('admin')!
   
-  const body = await c.req.json<{ visible: boolean }>()
-  
-  if (typeof body.visible !== 'boolean') {
-    return c.json({ error: 'Invalid visibility value' }, 400)
+  try {
+    const body = await c.req.json<{ visible: boolean }>()
+    
+    if (typeof body.visible !== 'boolean') {
+      return c.json({
+        error: 'Invalid visibility value',
+        code: ErrorCodes.VALIDATION_ERROR
+      }, 400)
+    }
+    
+    await setAdminVisibility(admin.id, body.visible)
+    
+    // Broadcast the updated location (visibility affects what's shown)
+    const updatedLocation = await getAdminLocation(admin.id)
+    if (updatedLocation) {
+      broadcastAdminLocationUpdate(updatedLocation)
+    }
+    
+    return c.json({
+      success: true,
+      visible: body.visible
+    })
+  } catch (error) {
+    console.error('Update visibility error:', error)
+    return c.json({
+      error: 'Failed to update visibility',
+      code: ErrorCodes.INTERNAL_ERROR
+    }, 500)
   }
+})
+
+// Clear admin location (stop broadcasting)
+adminRoutes.delete('/location', requireAdmin, async (c: Context) => {
+  const admin = c.get('admin')!
   
-  // TODO: Use actual admin ID from JWT
-  // await prisma.admin.update({
-  //   where: { id: adminId },
-  //   data: { locationVisible: body.visible }
-  // })
-  
-  return c.json({ 
-    success: true,
-    visible: body.visible,
-    message: 'Visibility toggle - implementation pending'
-  })
+  try {
+    await clearAdminLocation(admin.id)
+    return c.json({ success: true })
+  } catch (error) {
+    console.error('Clear location error:', error)
+    return c.json({
+      error: 'Failed to clear location',
+      code: ErrorCodes.INTERNAL_ERROR
+    }, 500)
+  }
 })
 
 // Verify a player (admin auth required)
-adminRoutes.post('/verify/:handle', async (c: Context) => {
-  // TODO: Verify admin JWT
-  // const adminId = c.get('adminId')
-  
+adminRoutes.post('/verify/:handle', requireAdmin, async (c: Context) => {
+  const admin = c.get('admin')!
   const handle = c.req.param('handle')
   
-  // Check if player exists
-  const player = await prisma.player.findUnique({
-    where: { xHandle: handle }
-  })
-  
-  if (!player) {
-    return c.json({ error: 'Player not found' }, 404)
-  }
-  
-  if (player.verified) {
-    return c.json({ error: 'Player already verified' }, 400)
-  }
-  
-  // Verify the player
-  const updatedPlayer = await prisma.player.update({
-    where: { id: player.id },
-    data: {
-      verified: true,
-      verifiedAt: new Date(),
-      // verifiedBy: adminId // TODO: Add when auth is implemented
+  try {
+    const result = await verifyPlayer(handle, admin.id)
+    
+    if (!result) {
+      return c.json({
+        error: 'Player not found',
+        code: ErrorCodes.PLAYER_NOT_FOUND
+      }, 404)
     }
-  })
-  
-  // Count trades that just became verified (both parties now verified)
-  const tradesVerified = await prisma.trade.count({
-    where: {
-      OR: [
-        { playerAId: player.id },
-        { playerBId: player.id }
-      ],
-      playerA: { verified: true },
-      playerB: { verified: true }
+    
+    // Check if already verified (tradesVerified will be 0 for already verified)
+    if (result.player.verified && result.tradesVerified === 0) {
+      // Player was already verified before this call
+      const wasAlreadyVerified = result.player.verifiedAt !== null && 
+        (Date.now() - result.player.verifiedAt! > 1000) // More than 1 second old
+      
+      if (wasAlreadyVerified) {
+        return c.json({
+          error: 'Player already verified',
+          code: ErrorCodes.PLAYER_ALREADY_VERIFIED
+        }, 400)
+      }
     }
-  })
+    
+    // Broadcast verification via WebSocket
+    broadcastPlayerVerified(handle)
+    
+    return c.json({
+      success: true,
+      player: {
+        handle: result.player.xHandle,
+        verified: result.player.verified,
+        verifiedAt: result.player.verifiedAt
+      },
+      tradesVerified: result.tradesVerified
+    })
+  } catch (error) {
+    console.error('Verify player error:', error)
+    return c.json({
+      error: 'Failed to verify player',
+      code: ErrorCodes.INTERNAL_ERROR
+    }, 500)
+  }
+})
+
+// Delete a chat message (admin auth required)
+adminRoutes.delete('/chat/:msgId', requireAdmin, async (c: Context) => {
+  const msgId = c.req.param('msgId')
   
-  return c.json({
-    success: true,
-    player: {
-      handle: updatedPlayer.xHandle,
-      verified: true,
-      verifiedAt: updatedPlayer.verifiedAt
-    },
-    tradesVerified
-  })
+  try {
+    const deleted = await deleteMessage(msgId)
+    
+    if (!deleted) {
+      return c.json({
+        error: 'Message not found',
+        code: ErrorCodes.VALIDATION_ERROR
+      }, 404)
+    }
+    
+    // Broadcast deletion via WebSocket
+    broadcastChatDelete(msgId)
+    
+    return c.json({ success: true })
+  } catch (error) {
+    console.error('Delete message error:', error)
+    return c.json({
+      error: 'Failed to delete message',
+      code: ErrorCodes.INTERNAL_ERROR
+    }, 500)
+  }
 })

@@ -1,68 +1,106 @@
 import { Hono } from 'hono'
 import type { Context } from 'hono'
-import { TRADE_EXPIRY_SECONDS } from '@seedhunter/shared'
+import { ErrorCodes } from '@seedhunter/shared'
+import {
+  createTradePayload,
+  executeTrade,
+  getTradeHistory
+} from '../services/trade'
+import { requirePlayer } from '../middleware/auth'
+import { tradeRateLimit } from '../middleware/rateLimit'
+import { broadcast } from '../ws/handler'
 
 export const tradeRoutes = new Hono()
 
+// Apply rate limiting to all trade routes
+tradeRoutes.use('*', tradeRateLimit)
+
 // Initialize a trade (generate QR payload)
-tradeRoutes.post('/init', async (c: Context) => {
-  // TODO: Get player from JWT
-  // const player = c.get('player')
+tradeRoutes.post('/init', requirePlayer, async (c: Context) => {
+  const player = c.get('player')!
   
-  // TODO: Generate trade payload
-  const nonce = crypto.randomUUID()
-  const expiresAt = Date.now() + (TRADE_EXPIRY_SECONDS * 1000)
-  
-  // TODO: Create encrypted/signed payload
-  const payload = {
-    initiator: 'TODO_PLAYER_HANDLE',
-    cardId: 'TODO_CARD_ID',
-    nonce,
-    expiresAt,
-    signature: 'TODO_HMAC_SIGNATURE'
+  try {
+    const result = await createTradePayload(player.xHandle)
+    
+    if ('error' in result) {
+      return c.json({
+        error: result.error,
+        code: result.code
+      }, 400)
+    }
+    
+    return c.json({
+      payload: result.payload,
+      expiresAt: result.expiresAt
+    })
+  } catch (error) {
+    console.error('Trade init error:', error)
+    return c.json({
+      error: 'Failed to initialize trade',
+      code: ErrorCodes.INTERNAL_ERROR
+    }, 500)
   }
-  
-  // TODO: Store nonce to prevent replay
-  
-  return c.json({
-    payload: JSON.stringify(payload), // Should be encrypted
-    expiresAt,
-    message: 'Trade init - implementation pending'
-  })
 })
 
 // Confirm a trade
-tradeRoutes.post('/confirm', async (c: Context) => {
-  const body = await c.req.json<{ payload: string }>()
+tradeRoutes.post('/confirm', requirePlayer, async (c: Context) => {
+  const player = c.get('player')!
   
-  if (!body.payload) {
-    return c.json({ error: 'Missing trade payload' }, 400)
+  try {
+    const body = await c.req.json<{ payload: string }>()
+    
+    if (!body.payload) {
+      return c.json({
+        error: 'Missing trade payload',
+        code: ErrorCodes.VALIDATION_ERROR
+      }, 400)
+    }
+    
+    const result = await executeTrade(body.payload, player.xHandle)
+    
+    if (!result.success) {
+      return c.json({
+        error: result.error || 'Trade failed',
+        code: ErrorCodes.VALIDATION_ERROR
+      }, 400)
+    }
+    
+    // Broadcast trade completion via WebSocket
+    if (result.trade) {
+      broadcast('trades', {
+        type: 'trade_complete',
+        trade: result.trade
+      })
+    }
+    
+    return c.json({
+      success: true,
+      trade: result.trade,
+      newCard: result.newCard
+    })
+  } catch (error) {
+    console.error('Trade confirm error:', error)
+    return c.json({
+      error: 'Failed to confirm trade',
+      code: ErrorCodes.INTERNAL_ERROR
+    }, 500)
   }
-  
-  // TODO: Decrypt and verify payload
-  // TODO: Check nonce hasn't been used
-  // TODO: Check trade hasn't expired
-  // TODO: Verify confirmer is different from initiator
-  // TODO: Swap cards between players
-  // TODO: Log trade
-  // TODO: Mark nonce as used
-  
-  return c.json({
-    success: true,
-    message: 'Trade confirm - implementation pending',
-    payload: body.payload
-  })
 })
 
 // Get trade history for authenticated player
-tradeRoutes.get('/history', (c: Context) => {
-  // TODO: Get player from JWT
-  // const player = c.get('player')
+tradeRoutes.get('/history', requirePlayer, async (c: Context) => {
+  const player = c.get('player')!
   
-  // TODO: Query trade history
-  
-  return c.json({
-    trades: [],
-    message: 'Trade history - implementation pending'
-  })
+  try {
+    const limit = Math.min(parseInt(c.req.query('limit') || '50'), 100)
+    const trades = await getTradeHistory(player.xHandle, limit)
+    
+    return c.json({ trades })
+  } catch (error) {
+    console.error('Trade history error:', error)
+    return c.json({
+      error: 'Failed to get trade history',
+      code: ErrorCodes.INTERNAL_ERROR
+    }, 500)
+  }
 })
