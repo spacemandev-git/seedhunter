@@ -23,8 +23,15 @@ seedhunter/
 |---------|-----------|---------|------------------|
 | player-webapp | Svelte 5 + SvelteKit | Browser | `qrcode`, `leaflet` |
 | admin-app | Svelte 5 + Capacitor | Android | `@capacitor/geolocation`, `@capawesome/barcode-scanning` |
-| backend | Hono | Bun | `better-sqlite3`, `jose` |
+| backend | Hono | Bun | `prisma`, `jose` |
 | card-assembler | CLI scripts | Bun | `sharp`, `openai` |
+
+## Database
+
+- **Development**: SQLite (via Prisma) - fast local development
+- **Production**: PostgreSQL (via Prisma) - scalable production database
+
+Prisma provides type-safe database access and handles migrations for both environments.
 
 ## Shared Types
 

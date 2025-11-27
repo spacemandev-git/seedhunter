@@ -379,80 +379,85 @@ function isSpam(handle: string, content: string): boolean
 
 ---
 
-## M11: Database Schema
+## M11: Database Schema (Prisma)
 
-**File:** `src/db/schema.ts`
+**File:** `prisma/schema.prisma`
 
-**Purpose:** SQLite schema and migrations.
+**Purpose:** Prisma schema for SQLite (dev) and PostgreSQL (prod).
 
-**Tables:**
-```sql
--- Players
-CREATE TABLE players (
-  id TEXT PRIMARY KEY,
-  x_handle TEXT UNIQUE NOT NULL,
-  x_profile_pic TEXT,
-  card_id TEXT REFERENCES cards(id),
-  verified BOOLEAN DEFAULT FALSE,
-  verified_at INTEGER,
-  created_at INTEGER NOT NULL,
-  last_location_lat REAL,
-  last_location_lng REAL,
-  last_location_at INTEGER
-);
+**Models:**
+```prisma
+model Player {
+  id            String   @id @default(uuid())
+  xHandle       String   @unique
+  xProfilePic   String?
+  cardId        String?
+  card          Card?    @relation(fields: [cardId], references: [id])
+  verified      Boolean  @default(false)
+  verifiedAt    DateTime?
+  createdAt     DateTime @default(now())
+  
+  tradesAsPlayerA Trade[] @relation("PlayerA")
+  tradesAsPlayerB Trade[] @relation("PlayerB")
+  chatMessages    ChatMessage[]
+}
 
--- Admins
-CREATE TABLE admins (
-  id TEXT PRIMARY KEY,
-  username TEXT UNIQUE NOT NULL,
-  password_hash TEXT NOT NULL,
-  location_lat REAL,
-  location_lng REAL,
-  location_visible BOOLEAN DEFAULT TRUE,
-  location_updated_at INTEGER,
-  created_at INTEGER NOT NULL
-);
+model Admin {
+  id              String   @id @default(uuid())
+  username        String   @unique
+  passwordHash    String
+  locationLat     Float?
+  locationLng     Float?
+  locationVisible Boolean  @default(true)
+  createdAt       DateTime @default(now())
+}
 
--- Cards
-CREATE TABLE cards (
-  id TEXT PRIMARY KEY,
-  founder_name TEXT NOT NULL,
-  company TEXT NOT NULL,
-  x_handle TEXT,
-  image_path TEXT NOT NULL,
-  created_at INTEGER NOT NULL
-);
+model Card {
+  id          String   @id @default(uuid())
+  founderName String
+  company     String
+  category    String
+  imagePath   String
+  createdAt   DateTime @default(now())
+  
+  currentOwner  Player?
+  tradesAsCardA Trade[] @relation("CardA")
+  tradesAsCardB Trade[] @relation("CardB")
+}
 
--- Trades
-CREATE TABLE trades (
-  id TEXT PRIMARY KEY,
-  player_a TEXT REFERENCES players(x_handle),
-  player_b TEXT REFERENCES players(x_handle),
-  card_a TEXT REFERENCES cards(id),
-  card_b TEXT REFERENCES cards(id),
-  timestamp INTEGER NOT NULL
-);
-CREATE INDEX idx_trades_player_a ON trades(player_a);
-CREATE INDEX idx_trades_player_b ON trades(player_b);
+model Trade {
+  id        String   @id @default(uuid())
+  playerA   Player   @relation("PlayerA", ...)
+  playerB   Player   @relation("PlayerB", ...)
+  cardA     Card     @relation("CardA", ...)
+  cardB     Card     @relation("CardB", ...)
+  tradedAt  DateTime @default(now())
+}
 
--- Chat messages
-CREATE TABLE chat_messages (
-  id TEXT PRIMARY KEY,
-  sender_handle TEXT NOT NULL,
-  content TEXT NOT NULL,
-  is_admin BOOLEAN DEFAULT FALSE,
-  created_at INTEGER NOT NULL
-);
-CREATE INDEX idx_chat_created ON chat_messages(created_at);
+model ChatMessage {
+  id        String   @id @default(uuid())
+  sender    Player   @relation(...)
+  content   String
+  isAdmin   Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
 
--- Trade nonces (prevent replay)
-CREATE TABLE trade_nonces (
-  nonce TEXT PRIMARY KEY,
-  expires_at INTEGER NOT NULL
-);
+model TradeNonce {
+  nonce     String   @id
+  expiresAt DateTime
+}
 ```
 
-**Dependencies:** `better-sqlite3`
+**Database Commands:**
+```bash
+bun run db:generate  # Generate Prisma client
+bun run db:push      # Push schema to dev DB (no migration)
+bun run db:migrate   # Create migration (dev)
+bun run db:studio    # Open Prisma Studio GUI
+bun run db:seed      # Seed database with cards
+```
+
+**Dependencies:** `@prisma/client`, `prisma`
 
 ---
 
@@ -543,8 +548,13 @@ M11 (DB Schema) → M6 (Auth Service) → M1 (Auth Routes)
 PORT=3000
 HOST=0.0.0.0
 
-# Database
-DATABASE_PATH=./data/seedhunter.db
+# Database - Development (SQLite)
+DATABASE_PROVIDER=sqlite
+DATABASE_URL="file:./data/seedhunter.db"
+
+# Database - Production (PostgreSQL)
+# DATABASE_PROVIDER=postgresql
+# DATABASE_URL="postgresql://user:password@localhost:5432/seedhunter?schema=public"
 
 # Auth
 JWT_SECRET=your-secret-key

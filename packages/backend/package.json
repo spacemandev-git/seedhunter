@@ -8,18 +8,27 @@
     "build": "bun build src/index.ts --outdir dist --target bun",
     "start": "bun run dist/index.js",
     "typecheck": "tsc --noEmit",
-    "db:migrate": "bun run src/db/migrate.ts",
-    "db:seed": "bun run src/db/seed.ts"
+    "db:generate": "bun --bun prisma generate",
+    "db:push": "bun --bun prisma db push",
+    "db:migrate": "bun --bun prisma migrate dev",
+    "db:migrate:prod": "bun --bun prisma migrate deploy",
+    "db:studio": "bun --bun prisma studio",
+    "db:seed": "bun --bun prisma db seed"
+  },
+  "prisma": {
+    "seed": "bun run src/db/seed.ts"
   },
   "dependencies": {
     "@seedhunter/shared": "workspace:*",
+    "@prisma/client": "^7.0.0",
+    "@prisma/adapter-libsql": "^7.0.0",
+    "@libsql/client": "^0.14.0",
     "hono": "^4.0.0",
-    "better-sqlite3": "^9.4.0",
     "jose": "^5.2.0"
   },
   "devDependencies": {
-    "@types/better-sqlite3": "^7.6.8",
     "bun-types": "^1.0.0",
-    "typescript": "^5.3.3"
+    "prisma": "^7.0.0",
+    "typescript": "^5.4.0"
   }
 }

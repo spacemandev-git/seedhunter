@@ -1,39 +1,38 @@
 import { Hono } from 'hono'
 import type { Context } from 'hono'
-import { db, generateId } from '../db'
+import { prisma } from '../db'
 import { CHAT_MAX_MESSAGES, CHAT_MESSAGE_MAX_LENGTH, CHAT_PRUNE_THRESHOLD } from '@seedhunter/shared'
 
 export const chatRoutes = new Hono()
 
 // Get recent messages
-chatRoutes.get('/messages', (c: Context) => {
+chatRoutes.get('/messages', async (c: Context) => {
   const limit = Math.min(parseInt(c.req.query('limit') || '100'), CHAT_MAX_MESSAGES)
   const before = c.req.query('before')
   
-  let query = `
-    SELECT id, sender_handle, content, is_admin, created_at
-    FROM chat_messages
-  `
-  const params: any[] = []
-  
-  if (before) {
-    query += ` WHERE id < ?`
-    params.push(before)
-  }
-  
-  query += ` ORDER BY created_at DESC LIMIT ?`
-  params.push(limit)
-  
-  const messages = db.prepare(query).all(...params)
+  const messages = await prisma.chatMessage.findMany({
+    where: before ? {
+      createdAt: {
+        lt: new Date(before)
+      }
+    } : undefined,
+    orderBy: { createdAt: 'desc' },
+    take: limit,
+    include: {
+      sender: {
+        select: { xHandle: true }
+      }
+    }
+  })
   
   return c.json({
-    messages: (messages as any[]).map(m => ({
+    messages: messages.reverse().map(m => ({
       id: m.id,
-      senderHandle: m.sender_handle,
+      senderHandle: m.sender.xHandle,
       content: m.content,
-      isAdmin: Boolean(m.is_admin),
-      createdAt: m.created_at
-    })).reverse() // Return in chronological order
+      isAdmin: m.isAdmin,
+      createdAt: m.createdAt
+    }))
   })
 })
 
@@ -55,42 +54,48 @@ chatRoutes.post('/messages', async (c: Context) => {
   // TODO: Apply profanity filter
   const filteredContent = body.content // filterProfanity(body.content)
   
-  const id = generateId()
-  const now = Date.now()
-  
   // TODO: Get actual sender info from JWT
-  const senderHandle = 'TODO_USER'
-  const isAdmin = false
+  // For now, return pending message
+  return c.json({ 
+    message: 'Chat message creation - implementation pending (requires auth)'
+  }, 501)
   
-  db.prepare(`
-    INSERT INTO chat_messages (id, sender_handle, content, is_admin, created_at)
-    VALUES (?, ?, ?, ?, ?)
-  `).run(id, senderHandle, filteredContent, isAdmin ? 1 : 0, now)
+  // Implementation when auth is ready:
+  // const message = await prisma.chatMessage.create({
+  //   data: {
+  //     senderId: user.id,
+  //     content: filteredContent,
+  //     isAdmin: user.isAdmin || false
+  //   },
+  //   include: {
+  //     sender: { select: { xHandle: true } }
+  //   }
+  // })
   
-  // Prune old messages if needed
-  const count = db.prepare('SELECT COUNT(*) as count FROM chat_messages').get() as { count: number }
-  if (count.count > CHAT_PRUNE_THRESHOLD) {
-    db.prepare(`
-      DELETE FROM chat_messages 
-      WHERE id IN (
-        SELECT id FROM chat_messages 
-        ORDER BY created_at ASC 
-        LIMIT ?
-      )
-    `).run(count.count - CHAT_MAX_MESSAGES)
-  }
+  // // Prune old messages if needed
+  // const count = await prisma.chatMessage.count()
+  // if (count > CHAT_PRUNE_THRESHOLD) {
+  //   const oldMessages = await prisma.chatMessage.findMany({
+  //     orderBy: { createdAt: 'asc' },
+  //     take: count - CHAT_MAX_MESSAGES,
+  //     select: { id: true }
+  //   })
+  //   await prisma.chatMessage.deleteMany({
+  //     where: { id: { in: oldMessages.map(m => m.id) } }
+  //   })
+  // }
   
-  // TODO: Broadcast via WebSocket
+  // // TODO: Broadcast via WebSocket
   
-  return c.json({
-    message: {
-      id,
-      senderHandle,
-      content: filteredContent,
-      isAdmin,
-      createdAt: now
-    }
-  }, 201)
+  // return c.json({
+  //   message: {
+  //     id: message.id,
+  //     senderHandle: message.sender.xHandle,
+  //     content: message.content,
+  //     isAdmin: message.isAdmin,
+  //     createdAt: message.createdAt
+  //   }
+  // }, 201)
 })
 
 // Delete a message (admin only)
@@ -99,13 +104,15 @@ chatRoutes.delete('/:msgId', async (c: Context) => {
   
   const msgId = c.req.param('msgId')
   
-  const result = db.prepare('DELETE FROM chat_messages WHERE id = ?').run(msgId)
-  
-  if (result.changes === 0) {
+  try {
+    await prisma.chatMessage.delete({
+      where: { id: msgId }
+    })
+    
+    // TODO: Broadcast deletion via WebSocket
+    
+    return c.json({ success: true })
+  } catch (error) {
     return c.json({ error: 'Message not found' }, 404)
   }
-  
-  // TODO: Broadcast deletion via WebSocket
-  
-  return c.json({ success: true })
 })

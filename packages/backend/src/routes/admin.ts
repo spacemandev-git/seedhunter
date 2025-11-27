@@ -1,37 +1,40 @@
 import { Hono } from 'hono'
 import type { Context } from 'hono'
-import { db } from '../db'
+import { prisma } from '../db'
 
 export const adminRoutes = new Hono()
 
 // Get all admin locations (public endpoint)
-adminRoutes.get('/locations', (c: Context) => {
-  const admins = db.prepare(`
-    SELECT 
-      username,
-      location_lat,
-      location_lng,
-      location_visible,
-      location_updated_at
-    FROM admins
-    WHERE location_lat IS NOT NULL AND location_lng IS NOT NULL
-  `).all()
+adminRoutes.get('/locations', async (c: Context) => {
+  const admins = await prisma.admin.findMany({
+    where: {
+      locationLat: { not: null },
+      locationLng: { not: null }
+    },
+    select: {
+      username: true,
+      locationLat: true,
+      locationLng: true,
+      locationVisible: true,
+      locationUpdatedAt: true
+    }
+  })
   
   return c.json({
-    locations: (admins as any[]).map(admin => ({
+    locations: admins.map(admin => ({
       username: admin.username,
-      location: admin.location_visible 
-        ? { lat: admin.location_lat, lng: admin.location_lng }
+      location: admin.locationVisible 
+        ? { lat: admin.locationLat, lng: admin.locationLng }
         : '<encrypted>',
-      updatedAt: admin.location_updated_at
+      updatedAt: admin.locationUpdatedAt
     }))
   })
 })
 
 // Update admin location (admin auth required)
 adminRoutes.post('/location', async (c: Context) => {
-  // TODO: Verify admin JWT
-  // const admin = c.get('admin')
+  // TODO: Verify admin JWT and get admin ID
+  // const adminId = c.get('adminId')
   
   const body = await c.req.json<{ lat: number; lng: number }>()
   
@@ -39,12 +42,15 @@ adminRoutes.post('/location', async (c: Context) => {
     return c.json({ error: 'Invalid coordinates' }, 400)
   }
   
-  // TODO: Update admin location in database
-  // db.prepare(`
-  //   UPDATE admins 
-  //   SET location_lat = ?, location_lng = ?, location_updated_at = ?
-  //   WHERE id = ?
-  // `).run(body.lat, body.lng, Date.now(), admin.id)
+  // TODO: Use actual admin ID from JWT
+  // await prisma.admin.update({
+  //   where: { id: adminId },
+  //   data: {
+  //     locationLat: body.lat,
+  //     locationLng: body.lng,
+  //     locationUpdatedAt: new Date()
+  //   }
+  // })
   
   return c.json({ 
     success: true,
@@ -54,7 +60,8 @@ adminRoutes.post('/location', async (c: Context) => {
 
 // Toggle admin visibility (admin auth required)
 adminRoutes.patch('/visibility', async (c: Context) => {
-  // TODO: Verify admin JWT
+  // TODO: Verify admin JWT and get admin ID
+  // const adminId = c.get('adminId')
   
   const body = await c.req.json<{ visible: boolean }>()
   
@@ -62,7 +69,11 @@ adminRoutes.patch('/visibility', async (c: Context) => {
     return c.json({ error: 'Invalid visibility value' }, 400)
   }
   
-  // TODO: Update visibility in database
+  // TODO: Use actual admin ID from JWT
+  // await prisma.admin.update({
+  //   where: { id: adminId },
+  //   data: { locationVisible: body.visible }
+  // })
   
   return c.json({ 
     success: true,
@@ -74,13 +85,14 @@ adminRoutes.patch('/visibility', async (c: Context) => {
 // Verify a player (admin auth required)
 adminRoutes.post('/verify/:handle', async (c: Context) => {
   // TODO: Verify admin JWT
+  // const adminId = c.get('adminId')
   
   const handle = c.req.param('handle')
   
   // Check if player exists
-  const player = db.prepare(`
-    SELECT id, x_handle, verified FROM players WHERE x_handle = ?
-  `).get(handle) as { id: string; x_handle: string; verified: number } | undefined
+  const player = await prisma.player.findUnique({
+    where: { xHandle: handle }
+  })
   
   if (!player) {
     return c.json({ error: 'Player not found' }, 404)
@@ -91,27 +103,34 @@ adminRoutes.post('/verify/:handle', async (c: Context) => {
   }
   
   // Verify the player
-  db.prepare(`
-    UPDATE players SET verified = 1, verified_at = ? WHERE id = ?
-  `).run(Date.now(), player.id)
+  const updatedPlayer = await prisma.player.update({
+    where: { id: player.id },
+    data: {
+      verified: true,
+      verifiedAt: new Date(),
+      // verifiedBy: adminId // TODO: Add when auth is implemented
+    }
+  })
   
-  // Count trades that just became verified
-  const tradesVerified = db.prepare(`
-    SELECT COUNT(*) as count FROM trades t
-    JOIN players p1 ON t.player_a = p1.x_handle
-    JOIN players p2 ON t.player_b = p2.x_handle
-    WHERE (t.player_a = ? OR t.player_b = ?)
-      AND p1.verified = 1 
-      AND p2.verified = 1
-  `).get(handle, handle) as { count: number }
+  // Count trades that just became verified (both parties now verified)
+  const tradesVerified = await prisma.trade.count({
+    where: {
+      OR: [
+        { playerAId: player.id },
+        { playerBId: player.id }
+      ],
+      playerA: { verified: true },
+      playerB: { verified: true }
+    }
+  })
   
   return c.json({
     success: true,
     player: {
-      handle: player.x_handle,
+      handle: updatedPlayer.xHandle,
       verified: true,
-      verifiedAt: Date.now()
+      verifiedAt: updatedPlayer.verifiedAt
     },
-    tradesVerified: tradesVerified.count
+    tradesVerified
   })
 })

@@ -11,8 +11,8 @@ import { chatRoutes } from './routes/chat'
 import { wsHandler } from './ws/handler'
 import { initDB } from './db'
 
-// Initialize database
-initDB()
+// Initialize database (async)
+await initDB()
 
 const app = new Hono()
 

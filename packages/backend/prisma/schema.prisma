@@ -1,0 +1,149 @@
+// Prisma Schema for Seedhunter
+// Uses SQLite for local development
+// For production PostgreSQL, change provider to "postgresql" and update prisma.config.ts
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+// ============================================
+// Player - Users who play the game via X login
+// ============================================
+model Player {
+  id            String   @id @default(uuid())
+  xHandle       String   @unique @map("x_handle")
+  xId           String?  @unique @map("x_id")
+  xProfilePic   String?  @map("x_profile_pic")
+  
+  // Current card ownership (one player per card)
+  cardId        String?  @unique @map("card_id")
+  card          Card?    @relation(fields: [cardId], references: [id])
+  
+  // Verification status
+  verified      Boolean  @default(false)
+  verifiedAt    DateTime? @map("verified_at")
+  verifiedBy    String?  @map("verified_by") // Admin who verified
+  
+  // Optional location (for nearby players feature)
+  lastLocationLat Float?  @map("last_location_lat")
+  lastLocationLng Float?  @map("last_location_lng")
+  lastLocationAt  DateTime? @map("last_location_at")
+  
+  // Timestamps
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+  
+  // Relations
+  tradesAsPlayerA Trade[] @relation("PlayerA")
+  tradesAsPlayerB Trade[] @relation("PlayerB")
+  chatMessages    ChatMessage[]
+  
+  @@map("players")
+}
+
+// ============================================
+// Admin - Staff who verify players and manage
+// ============================================
+model Admin {
+  id            String   @id @default(uuid())
+  username      String   @unique
+  passwordHash  String   @map("password_hash")
+  
+  // Location broadcasting
+  locationLat       Float?   @map("location_lat")
+  locationLng       Float?   @map("location_lng")
+  locationVisible   Boolean  @default(true) @map("location_visible")
+  locationUpdatedAt DateTime? @map("location_updated_at")
+  
+  // Timestamps
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+  
+  @@map("admins")
+}
+
+// ============================================
+// Card - Founder trading cards
+// ============================================
+model Card {
+  id          String   @id @default(uuid())
+  founderName String   @map("founder_name")
+  company     String
+  role        String?
+  xHandle     String?  @map("x_handle") // Founder's X handle
+  category    String   // tech, finance, retail, etc.
+  imagePath   String   @map("image_path")
+  
+  // Timestamps
+  createdAt   DateTime @default(now()) @map("created_at")
+  
+  // Relations
+  currentOwner  Player?
+  tradesAsCardA Trade[] @relation("CardA")
+  tradesAsCardB Trade[] @relation("CardB")
+  
+  @@map("cards")
+}
+
+// ============================================
+// Trade - Card swap transactions
+// ============================================
+model Trade {
+  id        String   @id @default(uuid())
+  
+  // Players involved
+  playerAId String   @map("player_a_id")
+  playerA   Player   @relation("PlayerA", fields: [playerAId], references: [id])
+  
+  playerBId String   @map("player_b_id")
+  playerB   Player   @relation("PlayerB", fields: [playerBId], references: [id])
+  
+  // Cards swapped (snapshot at trade time)
+  cardAId   String   @map("card_a_id")
+  cardA     Card     @relation("CardA", fields: [cardAId], references: [id])
+  
+  cardBId   String   @map("card_b_id")
+  cardB     Card     @relation("CardB", fields: [cardBId], references: [id])
+  
+  // Timestamp
+  tradedAt  DateTime @default(now()) @map("traded_at")
+  
+  @@index([playerAId])
+  @@index([playerBId])
+  @@index([tradedAt])
+  @@map("trades")
+}
+
+// ============================================
+// TradeNonce - Prevent replay attacks
+// ============================================
+model TradeNonce {
+  nonce     String   @id
+  expiresAt DateTime @map("expires_at")
+  
+  @@index([expiresAt])
+  @@map("trade_nonces")
+}
+
+// ============================================
+// ChatMessage - Broadcast chat messages
+// ============================================
+model ChatMessage {
+  id          String   @id @default(uuid())
+  
+  senderId    String   @map("sender_id")
+  sender      Player   @relation(fields: [senderId], references: [id])
+  
+  content     String
+  isAdmin     Boolean  @default(false) @map("is_admin")
+  
+  createdAt   DateTime @default(now()) @map("created_at")
+  
+  @@index([createdAt])
+  @@map("chat_messages")
+}
