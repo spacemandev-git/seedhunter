@@ -33,25 +33,23 @@ authRoutes.get('/x', (c: Context) => {
   }
 })
 
-// X OAuth Callback
+// X OAuth Callback - Redirects to frontend with token
 authRoutes.get('/x/callback', async (c: Context) => {
   const code = c.req.query('code')
   const state = c.req.query('state')
   const error = c.req.query('error')
   const errorDescription = c.req.query('error_description')
   
+  // Frontend URL for redirects
+  const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173'
+  
   if (error) {
-    return c.json({
-      error: errorDescription || `OAuth error: ${error}`,
-      code: ErrorCodes.INVALID_CREDENTIALS
-    }, 400)
+    const errorMsg = encodeURIComponent(errorDescription || `OAuth error: ${error}`)
+    return c.redirect(`${frontendUrl}/auth/callback?error=${error}&error_description=${errorMsg}`)
   }
   
   if (!code || !state) {
-    return c.json({
-      error: 'Missing authorization code or state',
-      code: ErrorCodes.VALIDATION_ERROR
-    }, 400)
+    return c.redirect(`${frontendUrl}/auth/callback?error=invalid_request&error_description=${encodeURIComponent('Missing authorization code')}`)
   }
   
   // Validate state from cookie (CSRF protection)
@@ -68,26 +66,27 @@ authRoutes.get('/x/callback', async (c: Context) => {
     const result = await handleXCallback(code, state)
     
     if (!result) {
-      return c.json({
-        error: 'OAuth authentication failed',
-        code: ErrorCodes.INVALID_CREDENTIALS
-      }, 401)
+      return c.redirect(`${frontendUrl}/auth/callback?error=auth_failed&error_description=${encodeURIComponent('OAuth authentication failed')}`)
     }
     
     // Clear the state cookie
     c.header('Set-Cookie', 'oauth_state=; Path=/; HttpOnly; Max-Age=0')
     
-    return c.json({
+    // Redirect to frontend with token and player data
+    const params = new URLSearchParams({
       token: result.token,
-      player: result.player,
-      isNew: result.isNew
+      player: JSON.stringify({
+        xHandle: result.player.xHandle,
+        xProfilePic: result.player.xProfilePic,
+        verified: result.player.verified
+      }),
+      isNew: result.isNew ? 'true' : 'false'
     })
+    
+    return c.redirect(`${frontendUrl}/auth/callback?${params.toString()}`)
   } catch (error) {
     console.error('X OAuth callback error:', error)
-    return c.json({
-      error: 'Authentication failed',
-      code: ErrorCodes.INTERNAL_ERROR
-    }, 500)
+    return c.redirect(`${frontendUrl}/auth/callback?error=server_error&error_description=${encodeURIComponent('Authentication failed')}`)
   }
 })
 

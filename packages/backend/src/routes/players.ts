@@ -17,8 +17,8 @@ export const playerRoutes = new Hono()
 // Apply default rate limiting
 playerRoutes.use('*', defaultRateLimit)
 
-// Get leaderboard (this must come before /:handle to avoid conflict)
-playerRoutes.get('/', async (c: Context) => {
+// Get leaderboard
+playerRoutes.get('/leaderboard', async (c: Context) => {
   const limit = Math.min(
     parseInt(c.req.query('limit') || String(LEADERBOARD_DEFAULT_LIMIT)),
     LEADERBOARD_MAX_LIMIT
@@ -29,7 +29,7 @@ playerRoutes.get('/', async (c: Context) => {
     const result = await getLeaderboard(limit, offset)
     
     return c.json({
-      entries: result.entries,
+      items: result.entries,
       total: result.total,
       offset,
       limit

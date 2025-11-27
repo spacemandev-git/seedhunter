@@ -1,112 +1,66 @@
-import type { Context } from 'hono'
+import type { ServerWebSocket } from 'bun'
 import type { WSClientMessage, WSServerMessage, ChatMessage, Trade, AdminLocation } from '@seedhunter/shared'
 import { verifyToken } from '../services/auth'
 import { addMessage, validateMessage } from '../services/chat'
 import { filterProfanity } from '../utils/profanity'
 
-interface Connection {
-  ws: WebSocket
-  connId: string
+// Data attached to each WebSocket connection
+export interface WSData {
+  id: string
+  token: string | null
   playerHandle: string | null
   isAdmin: boolean
   channels: Set<string>
 }
 
 // Store active connections
-const connections = new Map<string, Connection>()
+const connections = new Map<string, ServerWebSocket<WSData>>()
 
 // Connection count for monitoring
 export function getConnectionCount(): number {
   return connections.size
 }
 
-export function wsHandler(c: Context) {
-  // Upgrade to WebSocket
-  const upgradeHeader = c.req.header('Upgrade')
-  
-  if (upgradeHeader !== 'websocket') {
-    return c.text('Expected WebSocket upgrade', 426)
-  }
-  
-  // Get token from query string for WebSocket auth
-  const token = c.req.query('token')
-  
-  // Bun's native WebSocket upgrade
-  const server = (c.env as any)?.server
-  
-  if (!server) {
-    return c.text('WebSocket not available', 500)
-  }
-  
-  const success = server.upgrade(c.req.raw, {
-    data: {
-      id: crypto.randomUUID(),
-      token: token || null,
-      playerHandle: null,
-      isAdmin: false,
-    }
-  })
-  
-  if (success) {
-    return new Response(null, { status: 101 })
-  }
-  
-  return c.text('WebSocket upgrade failed', 500)
-}
-
 // WebSocket message handlers (for Bun.serve websocket option)
 export const websocket = {
-  async open(ws: WebSocket & { data: { id: string; token?: string } }) {
-    const connId = ws.data.id
+  async open(ws: ServerWebSocket<WSData>) {
+    // Initialize connection data
+    ws.data.playerHandle = null
+    ws.data.isAdmin = false
+    ws.data.channels = new Set(['chat', 'verifications', 'locations']) // Subscribe to these by default
     
-    // Create connection with default state
-    const conn: Connection = {
-      ws,
-      connId,
-      playerHandle: null,
-      isAdmin: false,
-      channels: new Set(['chat', 'verifications', 'locations']) // Subscribe to these by default
-    }
-    
-    connections.set(connId, conn)
+    // Store the connection
+    connections.set(ws.data.id, ws)
     
     // Authenticate if token provided
     if (ws.data.token) {
-      await authenticateConnection(conn, ws.data.token)
+      await authenticateConnection(ws)
     }
     
-    console.log(`WebSocket connected: ${connId} (${conn.playerHandle || 'anonymous'})`)
+    console.log(`WebSocket connected: ${ws.data.id} (${ws.data.playerHandle || 'anonymous'})`)
     
     // Send welcome message
-    send(ws, {
-      type: 'pong' // Use pong as a simple acknowledgment
-    })
+    send(ws, { type: 'pong' })
   },
   
-  async message(ws: WebSocket & { data: { id: string } }, message: string | Buffer) {
-    const connId = ws.data.id
-    const conn = connections.get(connId)
-    
-    if (!conn) return
-    
+  async message(ws: ServerWebSocket<WSData>, message: string | Buffer) {
     try {
       const data = JSON.parse(message.toString()) as WSClientMessage | { type: 'auth'; token: string }
       
       switch (data.type) {
         case 'auth' as any:
           // Handle late authentication
-          await authenticateConnection(conn, (data as any).token)
-          send(ws, {
-            type: 'pong' // Acknowledge auth
-          })
+          ws.data.token = (data as any).token
+          await authenticateConnection(ws)
+          send(ws, { type: 'pong' }) // Acknowledge auth
           break
           
         case 'chat':
-          await handleChatMessage(conn, data.content)
+          await handleChatMessage(ws, data.content)
           break
           
         case 'subscribe':
-          data.channels.forEach(ch => conn.channels.add(ch))
+          data.channels.forEach(ch => ws.data.channels.add(ch))
           break
           
         case 'ping':
@@ -119,13 +73,12 @@ export const websocket = {
     }
   },
   
-  close(ws: WebSocket & { data: { id: string } }) {
-    const connId = ws.data.id
-    connections.delete(connId)
-    console.log(`WebSocket disconnected: ${connId}`)
+  close(ws: ServerWebSocket<WSData>) {
+    connections.delete(ws.data.id)
+    console.log(`WebSocket disconnected: ${ws.data.id}`)
   },
   
-  error(ws: WebSocket & { data: { id: string } }, error: Error) {
+  error(ws: ServerWebSocket<WSData>, error: Error) {
     console.error(`WebSocket error for ${ws.data.id}:`, error)
   }
 }
@@ -133,25 +86,27 @@ export const websocket = {
 /**
  * Authenticate a connection using a JWT token
  */
-async function authenticateConnection(conn: Connection, token: string): Promise<boolean> {
+async function authenticateConnection(ws: ServerWebSocket<WSData>): Promise<boolean> {
   try {
-    const payload = await verifyToken(token)
+    if (!ws.data.token) return false
+    
+    const payload = await verifyToken(ws.data.token)
     
     if (!payload) {
       return false
     }
     
     if (payload.type === 'player') {
-      conn.playerHandle = payload.sub
-      conn.isAdmin = false
+      ws.data.playerHandle = payload.sub
+      ws.data.isAdmin = false
     } else if (payload.type === 'admin') {
-      conn.playerHandle = payload.sub
-      conn.isAdmin = true
+      ws.data.playerHandle = payload.sub
+      ws.data.isAdmin = true
     }
     
     // Subscribe admins to additional channels
-    if (conn.isAdmin) {
-      conn.channels.add('admin')
+    if (ws.data.isAdmin) {
+      ws.data.channels.add('admin')
     }
     
     return true
@@ -160,7 +115,7 @@ async function authenticateConnection(conn: Connection, token: string): Promise<
   }
 }
 
-function send(ws: WebSocket, message: WSServerMessage) {
+function send(ws: ServerWebSocket<WSData>, message: WSServerMessage) {
   try {
     ws.send(JSON.stringify(message))
   } catch {
@@ -168,24 +123,24 @@ function send(ws: WebSocket, message: WSServerMessage) {
   }
 }
 
-async function handleChatMessage(conn: Connection, content: string) {
-  if (!conn.playerHandle) {
-    send(conn.ws, { type: 'error', message: 'Not authenticated' })
+async function handleChatMessage(ws: ServerWebSocket<WSData>, content: string) {
+  if (!ws.data.playerHandle) {
+    send(ws, { type: 'error', message: 'Not authenticated' })
     return
   }
   
   // Validate message
-  const validation = validateMessage(conn.playerHandle, content)
+  const validation = validateMessage(ws.data.playerHandle, content)
   if (!validation.valid) {
-    send(conn.ws, { type: 'error', message: validation.error || 'Invalid message' })
+    send(ws, { type: 'error', message: validation.error || 'Invalid message' })
     return
   }
   
   // Save message to database and get result
-  const result = await addMessage(conn.playerHandle, content, conn.isAdmin)
+  const result = await addMessage(ws.data.playerHandle, content, ws.data.isAdmin)
   
   if ('error' in result) {
-    send(conn.ws, { type: 'error', message: result.error })
+    send(ws, { type: 'error', message: result.error })
     return
   }
   
@@ -199,10 +154,10 @@ async function handleChatMessage(conn: Connection, content: string) {
 export function broadcast(channel: string, message: WSServerMessage) {
   const payload = JSON.stringify(message)
   
-  for (const conn of connections.values()) {
-    if (conn.channels.has(channel)) {
+  for (const ws of connections.values()) {
+    if (ws.data.channels.has(channel)) {
       try {
-        conn.ws.send(payload)
+        ws.send(payload)
       } catch {
         // Connection might be closed, will be cleaned up on close event
       }
@@ -237,10 +192,10 @@ export function broadcastPlayerVerified(handle: string) {
 export function sendToPlayer(handle: string, message: WSServerMessage) {
   const payload = JSON.stringify(message)
   
-  for (const conn of connections.values()) {
-    if (conn.playerHandle === handle) {
+  for (const ws of connections.values()) {
+    if (ws.data.playerHandle === handle) {
       try {
-        conn.ws.send(payload)
+        ws.send(payload)
       } catch {
         // Connection might be closed
       }

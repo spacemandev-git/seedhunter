@@ -98,7 +98,7 @@ export const Routes = {
   // Players
   PLAYER: (handle: string) => `/players/${handle}` as const,
   PLAYER_CARD: (handle: string) => `/players/${handle}/card` as const,
-  LEADERBOARD: '/leaderboard',
+  LEADERBOARD: '/players/leaderboard',
   
   // Trades
   TRADE_INIT: '/trades/init',

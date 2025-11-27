@@ -55,7 +55,10 @@ async function api<T>(
 // ============================================
 
 export function loginWithX(): void {
-  window.location.href = `${API_BASE}${Routes.AUTH_X}`
+  // For OAuth redirects, we need the actual backend URL, not the proxy path
+  // because window.location.href doesn't go through Vite's proxy
+  const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000'
+  window.location.href = `${backendUrl}${Routes.AUTH_X}`
 }
 
 export async function handleCallback(code: string): Promise<{ player: Player; token: string; isNew: boolean }> {
@@ -110,6 +113,117 @@ export async function getTradeHistory(): Promise<Trade[]> {
 export async function getAdminLocations(): Promise<AdminLocation[]> {
   const result = await api<{ locations: AdminLocation[] }>(Routes.ADMIN_LOCATIONS)
   return result.locations
+}
+
+// ============================================
+// Chat
+// ============================================
+
+import type { ChatMessage } from '@seedhunter/shared'
+
+export async function getChatMessages(limit = 100, before?: string): Promise<ChatMessage[]> {
+  let url = `${Routes.CHAT_MESSAGES}?limit=${limit}`
+  if (before) {
+    url += `&before=${before}`
+  }
+  const result = await api<{ messages: ChatMessage[] }>(url)
+  return result.messages
+}
+
+export async function sendChatMessage(content: string): Promise<ChatMessage> {
+  const result = await api<{ message: ChatMessage }>(Routes.CHAT_MESSAGES, {
+    method: 'POST',
+    body: JSON.stringify({ content }),
+  })
+  return result.message
+}
+
+// ============================================
+// WebSocket
+// ============================================
+
+const WS_BASE = import.meta.env.VITE_WS_URL || 
+  (typeof window !== 'undefined' 
+    ? window.location.origin.replace(/^http/, 'ws') + '/ws'
+    : 'ws://localhost:3000/ws')
+
+export type WSMessageHandler = (message: any) => void
+
+let wsConnection: WebSocket | null = null
+let wsReconnectAttempts = 0
+let wsMessageHandlers: Set<WSMessageHandler> = new Set()
+
+export function connectWebSocket(onMessage?: WSMessageHandler): WebSocket | null {
+  if (typeof window === 'undefined') return null
+  
+  if (wsConnection?.readyState === WebSocket.OPEN) {
+    if (onMessage) wsMessageHandlers.add(onMessage)
+    return wsConnection
+  }
+  
+  const token = getAuthToken()
+  const wsUrl = token ? `${WS_BASE}?token=${encodeURIComponent(token)}` : WS_BASE
+  
+  try {
+    wsConnection = new WebSocket(wsUrl)
+    
+    wsConnection.onopen = () => {
+      console.log('WebSocket connected')
+      wsReconnectAttempts = 0
+    }
+    
+    wsConnection.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data)
+        wsMessageHandlers.forEach(handler => handler(data))
+      } catch (err) {
+        console.error('Failed to parse WebSocket message:', err)
+      }
+    }
+    
+    wsConnection.onclose = () => {
+      console.log('WebSocket disconnected')
+      wsConnection = null
+      
+      // Reconnect with exponential backoff
+      if (wsReconnectAttempts < 5) {
+        const delay = Math.min(1000 * Math.pow(2, wsReconnectAttempts), 30000)
+        wsReconnectAttempts++
+        setTimeout(() => connectWebSocket(), delay)
+      }
+    }
+    
+    wsConnection.onerror = (error) => {
+      console.error('WebSocket error:', error)
+    }
+    
+    if (onMessage) wsMessageHandlers.add(onMessage)
+    
+    return wsConnection
+  } catch (err) {
+    console.error('Failed to connect WebSocket:', err)
+    return null
+  }
+}
+
+export function disconnectWebSocket() {
+  if (wsConnection) {
+    wsConnection.close()
+    wsConnection = null
+  }
+  wsMessageHandlers.clear()
+}
+
+export function removeWSHandler(handler: WSMessageHandler) {
+  wsMessageHandlers.delete(handler)
+}
+
+export function sendWSMessage(message: any): boolean {
+  if (wsConnection?.readyState === WebSocket.OPEN) {
+    wsConnection.send(JSON.stringify(message))
+    return true
+  }
+  return false
 }
 
 // ============================================
