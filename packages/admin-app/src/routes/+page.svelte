@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte'
   import { goto } from '$app/navigation'
-  import { auth } from '$lib/stores'
+  import { auth } from '$lib/stores/index.svelte'
   import { login } from '$lib/api/client'
   
   let username = $state('')
@@ -33,10 +33,19 @@
     error = ''
     
     try {
+      console.log('[Login] Starting login attempt...')
+      console.log('[Login] API URL from env:', import.meta.env.VITE_API_URL)
       const session = await login(username, password)
+      console.log('[Login] Success:', session)
       auth.setAdmin(session.admin as any, session.token)
       goto('/dashboard')
     } catch (err) {
+      console.error('[Login] Error caught:', err)
+      console.error('[Login] Error type:', err?.constructor?.name)
+      console.error('[Login] Error message:', err instanceof Error ? err.message : String(err))
+      if (err instanceof TypeError) {
+        console.error('[Login] TypeError - likely network/CORS issue')
+      }
       error = err instanceof Error ? err.message : 'Login failed'
     } finally {
       loading = false

@@ -1,12 +1,41 @@
-import { Preferences } from '@capacitor/preferences'
 import type { Admin, Player, ChatMessage, AdminSession } from '@seedhunter/shared'
 
 const API_BASE = import.meta.env.VITE_API_URL || 'https://seedhunter.seedplex.io'
+
+// Dynamic import for Capacitor Preferences (native-only)
+async function getPreferences() {
+  try {
+    const pkgName = '@capacitor' + '/preferences'
+    const mod = await import(/* @vite-ignore */ pkgName)
+    return mod.Preferences
+  } catch {
+    // Fallback to localStorage for web/dev
+    return {
+      async set({ key, value }: { key: string; value: string }) {
+        if (typeof localStorage !== 'undefined') {
+          localStorage.setItem(key, value)
+        }
+      },
+      async get({ key }: { key: string }) {
+        if (typeof localStorage !== 'undefined') {
+          return { value: localStorage.getItem(key) }
+        }
+        return { value: null }
+      },
+      async remove({ key }: { key: string }) {
+        if (typeof localStorage !== 'undefined') {
+          localStorage.removeItem(key)
+        }
+      }
+    }
+  }
+}
 
 // Token management using Capacitor Preferences (secure storage)
 let authToken: string | null = null
 
 export async function setAuthToken(token: string | null) {
+  const Preferences = await getPreferences()
   authToken = token
   if (token) {
     await Preferences.set({ key: 'admin_token', value: token })
@@ -17,6 +46,7 @@ export async function setAuthToken(token: string | null) {
 
 export async function getAuthToken(): Promise<string | null> {
   if (!authToken) {
+    const Preferences = await getPreferences()
     const { value } = await Preferences.get({ key: 'admin_token' })
     authToken = value
   }
@@ -32,6 +62,8 @@ async function api<T>(
   
   const headers: HeadersInit = {
     'Content-Type': 'application/json',
+    // ngrok requires this header to skip the browser warning page
+    'ngrok-skip-browser-warning': 'true',
     ...options.headers,
   }
   
@@ -39,17 +71,42 @@ async function api<T>(
     (headers as Record<string, string>)['Authorization'] = `Bearer ${token}`
   }
   
-  const response = await fetch(`${API_BASE}${endpoint}`, {
-    ...options,
-    headers,
-  })
+  const url = `${API_BASE}${endpoint}`
+  console.log(`[API] ${options.method || 'GET'} ${url}`)
+  console.log(`[API] API_BASE:`, API_BASE)
+  console.log(`[API] Headers:`, JSON.stringify(headers))
+  console.log(`[API] Body:`, options.body)
   
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({ error: 'Request failed' }))
-    throw new Error(error.error || `HTTP ${response.status}`)
+  try {
+    console.log(`[API] About to fetch...`)
+    const response = await fetch(url, {
+      ...options,
+      headers,
+    })
+    
+    console.log(`[API] Response received:`, response.status, response.statusText)
+    console.log(`[API] Response headers:`, [...response.headers.entries()])
+    
+    if (!response.ok) {
+      const errorText = await response.text()
+      console.error(`[API] Error response body:`, errorText)
+      let error = { error: 'Request failed' }
+      try {
+        error = JSON.parse(errorText)
+      } catch {}
+      throw new Error(error.error || `HTTP ${response.status}`)
+    }
+    
+    const data = await response.json()
+    console.log(`[API] Response data:`, data)
+    return data
+  } catch (err) {
+    console.error(`[API] Fetch error:`, err)
+    console.error(`[API] Error name:`, (err as Error)?.name)
+    console.error(`[API] Error message:`, (err as Error)?.message)
+    console.error(`[API] Error stack:`, (err as Error)?.stack)
+    throw err
   }
-  
-  return response.json()
 }
 
 // ============================================

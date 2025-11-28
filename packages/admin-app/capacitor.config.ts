@@ -9,20 +9,23 @@ const config: CapacitorConfig = {
   },
   plugins: {
     Geolocation: {
-      // Geolocation plugin config
+      // Use high accuracy for admin location tracking
     },
     BackgroundGeolocation: {
-      // Background geolocation config
+      // These are set in code, not config
     },
-    BarcodeScanning: {
-      // Barcode scanning config
+    CapacitorMLKitBarcodeScanning: {
+      // Camera permission is handled via manifest
     },
     Preferences: {
-      // Secure storage
+      // No special config needed
     }
   },
   android: {
-    allowMixedContent: true
+    allowMixedContent: true,
+    // For background location, battery optimization exception recommended
+    backgroundColor: '#0d1117', // Match app background
+    webContentsDebuggingEnabled: true // Enable Chrome DevTools debugging
   }
 }
 

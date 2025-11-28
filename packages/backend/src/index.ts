@@ -19,7 +19,35 @@ const app = new Hono()
 // Middleware
 app.use('*', logger())
 app.use('*', cors({
-  origin: ['http://localhost:5173', 'https://seedhunter.seedplex.io'],
+  origin: (origin) => {
+    // Allow any origin in development or when accessed via ngrok
+    const allowedOrigins = [
+      'http://localhost:5173',
+      'http://localhost:5174',
+      'http://localhost:4173',
+      'https://seedhunter.seedplex.io',
+      'capacitor://localhost',
+      'http://localhost',
+      'https://localhost', // Android Capacitor WebView
+    ]
+    // Allow ngrok URLs
+    if (origin?.includes('.ngrok.app') || origin?.includes('.ngrok-free.app')) {
+      return origin
+    }
+    // Allow Android WebView (origin is null for capacitor/file://)
+    if (!origin) {
+      return '*'
+    }
+    // Check against allowed list
+    if (allowedOrigins.includes(origin)) {
+      return origin
+    }
+    // For development, allow any localhost (http or https, any port)
+    if (origin?.includes('localhost') || origin?.includes('127.0.0.1')) {
+      return origin
+    }
+    return allowedOrigins[0]
+  },
   credentials: true,
 }))
 

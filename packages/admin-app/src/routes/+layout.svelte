@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte'
-  import { auth } from '$lib/stores'
+  import { auth } from '$lib/stores/index.svelte'
   import '../app.css'
   
   let { children } = $props()
