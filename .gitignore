@@ -46,7 +46,9 @@ packages/card-assembler/output/
 packages/admin-app/android/.gradle/
 packages/admin-app/android/app/build/
 packages/admin-app/android/build/
+packages/admin-app/android/app/release/
 packages/admin-app/android/local.properties
+AndroidSigningKey.jks
 
 # Capacitor
 packages/admin-app/.capacitor/

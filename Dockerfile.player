@@ -5,6 +5,11 @@ FROM oven/bun:1 AS builder
 
 WORKDIR /app
 
+# Build-time args for Vite (VITE_* vars are inlined at build time)
+ARG VITE_API_URL=https://seedhunterapi.seedplex.io
+ARG VITE_BACKEND_URL=https://seedhunterapi.seedplex.io
+ARG VITE_WS_URL=wss://seedhunterapi.seedplex.io/ws
+
 # Copy only needed workspace packages (without lockfile - it references other packages)
 COPY tsconfig.json ./
 COPY packages/shared ./packages/shared
@@ -16,8 +21,11 @@ RUN echo '{"name":"seedhunter","private":true,"workspaces":["packages/shared","p
 # Install dependencies (fresh install without lockfile)
 RUN bun install
 
-# Build the app
+# Build the app with env vars available
 WORKDIR /app/packages/player-webapp
+ENV VITE_API_URL=$VITE_API_URL
+ENV VITE_BACKEND_URL=$VITE_BACKEND_URL
+ENV VITE_WS_URL=$VITE_WS_URL
 RUN bun run build
 
 # Production stage
