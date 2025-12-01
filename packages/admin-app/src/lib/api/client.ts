@@ -1,6 +1,9 @@
 import type { Admin, Player, ChatMessage, AdminSession } from '@seedhunter/shared'
 
-const API_BASE = import.meta.env.VITE_API_URL || 'https://seedhunter.seedplex.io'
+// Production: https://seedhunterapi.seedplex.io
+// Dev with adb reverse: http://localhost:3000
+// Dev without adb reverse: http://10.0.2.2:3000
+const API_BASE = import.meta.env.VITE_API_URL || 'https://seedhunterapi.seedplex.io'
 
 // Dynamic import for Capacitor Preferences (native-only)
 async function getPreferences() {

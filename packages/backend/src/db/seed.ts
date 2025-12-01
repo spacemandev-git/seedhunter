@@ -7,12 +7,15 @@ async function seed() {
   const adminUsername = process.env.ADMIN_USERNAME || 'admin'
   const adminPassword = process.env.ADMIN_PASSWORD || 'admin123'
   
-  // Hash password (using Bun's built-in)
-  const passwordHash = await Bun.password.hash(adminPassword)
+  // Hash password (using Bun's built-in with bcrypt to match auth service)
+  const passwordHash = await Bun.password.hash(adminPassword, {
+    algorithm: 'bcrypt',
+    cost: 10
+  })
   
   const admin = await prisma.admin.upsert({
     where: { username: adminUsername },
-    update: {},
+    update: { passwordHash },  // Update password if admin exists
     create: {
       username: adminUsername,
       passwordHash,

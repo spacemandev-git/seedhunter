@@ -57,7 +57,7 @@ async function api<T>(
 export function loginWithX(): void {
   // For OAuth redirects, we need the actual backend URL, not the proxy path
   // because window.location.href doesn't go through Vite's proxy
-  const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000'
+  const backendUrl = import.meta.env.VITE_BACKEND_URL || 'https://seedhunterapi.seedplex.io'
   window.location.href = `${backendUrl}${Routes.AUTH_X}`
 }
 
@@ -145,7 +145,7 @@ export async function sendChatMessage(content: string): Promise<ChatMessage> {
 const WS_BASE = import.meta.env.VITE_WS_URL || 
   (typeof window !== 'undefined' 
     ? window.location.origin.replace(/^http/, 'ws') + '/ws'
-    : 'ws://localhost:3000/ws')
+    : 'wss://seedhunterapi.seedplex.io/ws')
 
 export type WSMessageHandler = (message: any) => void
 

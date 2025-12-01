@@ -38,9 +38,10 @@
     return CATEGORY_LABELS[category] || 'Other'
   }
   
-  const API_BASE = import.meta.env.VITE_API_URL || ''
+  const API_BASE = import.meta.env.VITE_API_URL || 'https://seedhunterapi.seedplex.io'
 </script>
 
+<!-- svelte-ignore a11y_no_noninteractive_tabindex -->
 <div 
   class="card-wrapper size-{size}" 
   class:flippable
@@ -59,8 +60,9 @@
             src="{API_BASE}/static/cards/{card.id}.png" 
             alt="{card.founderName}"
             onerror={(e) => {
-              e.currentTarget.style.display = 'none'
-              e.currentTarget.nextElementSibling?.classList.remove('hidden')
+              const target = e.currentTarget as HTMLImageElement
+              target.style.display = 'none'
+              target.nextElementSibling?.classList.remove('hidden')
             }}
           />
           <div class="placeholder hidden">

@@ -5,7 +5,7 @@ const config: CapacitorConfig = {
   appName: 'Seedhunter Admin',
   webDir: 'build',
   server: {
-    androidScheme: 'https'
+    androidScheme: 'https'  // Use https for production
   },
   plugins: {
     Geolocation: {

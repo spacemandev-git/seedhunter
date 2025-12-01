@@ -15,7 +15,7 @@
   
   type TradeState = 'choose' | 'generating' | 'showing' | 'scanning' | 'confirming' | 'success' | 'error'
   
-  let state = $state<TradeState>('choose')
+  let tradeState = $state<TradeState>('choose')
   let qrDataUrl = $state<string | null>(null)
   let countdown = $state(60)
   let errorMessage = $state('')
@@ -26,7 +26,7 @@
   // Reset state when modal opens/closes
   $effect(() => {
     if (open) {
-      state = 'choose'
+      tradeState = 'choose'
       qrDataUrl = null
       countdown = 60
       errorMessage = ''
@@ -49,7 +49,7 @@
   }
   
   async function generateQR() {
-    state = 'generating'
+    tradeState = 'generating'
     errorMessage = ''
     
     try {
@@ -73,21 +73,21 @@
         countdown--
         if (countdown <= 0) {
           if (countdownInterval) clearInterval(countdownInterval)
-          state = 'choose'
+          tradeState = 'choose'
           errorMessage = 'QR code expired. Please generate a new one.'
         }
       }, 1000)
       
-      state = 'showing'
+      tradeState = 'showing'
     } catch (err) {
       console.error('Failed to generate trade QR:', err)
       errorMessage = err instanceof Error ? err.message : 'Failed to generate QR code'
-      state = 'error'
+      tradeState = 'error'
     }
   }
   
   async function startScanning() {
-    state = 'scanning'
+    tradeState = 'scanning'
     errorMessage = ''
     
     try {
@@ -105,7 +105,7 @@
     } catch (err) {
       console.error('Failed to start scanner:', err)
       errorMessage = err instanceof Error ? err.message : 'Failed to access camera'
-      state = 'error'
+      tradeState = 'error'
     }
   }
   
@@ -122,14 +122,14 @@
   
   async function onScanSuccess(decodedText: string) {
     await stopScanner()
-    state = 'confirming'
+    tradeState = 'confirming'
     
     try {
       const result = await confirmTrade(decodedText)
       
       if (result.success && result.trade && result.newCard) {
         tradeResult = { trade: result.trade, newCard: result.newCard }
-        state = 'success'
+        tradeState = 'success'
         
         // Notify parent after a delay
         setTimeout(() => {
@@ -137,12 +137,12 @@
         }, 2000)
       } else {
         errorMessage = result.error || 'Trade failed'
-        state = 'error'
+        tradeState = 'error'
       }
     } catch (err) {
       console.error('Trade confirmation failed:', err)
       errorMessage = err instanceof Error ? err.message : 'Trade failed'
-      state = 'error'
+      tradeState = 'error'
     }
   }
   
@@ -163,24 +163,26 @@
 </script>
 
 {#if open}
+  <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
   <div 
     class="modal-overlay" 
     onclick={handleBackdropClick}
     onkeydown={(e) => e.key === 'Escape' && handleClose()}
     role="dialog"
     aria-modal="true"
+    tabindex="0"
   >
     <div class="modal animate-slide-up">
       <!-- Header -->
       <div class="modal-header">
         <h2>
-          {#if state === 'choose'}Trade Card
-          {:else if state === 'generating'}Generating...
-          {:else if state === 'showing'}Show This QR
-          {:else if state === 'scanning'}Scan QR Code
-          {:else if state === 'confirming'}Processing...
-          {:else if state === 'success'}Trade Complete!
-          {:else if state === 'error'}Trade Failed
+          {#if tradeState === 'choose'}Trade Card
+          {:else if tradeState === 'generating'}Generating...
+          {:else if tradeState === 'showing'}Show This QR
+          {:else if tradeState === 'scanning'}Scan QR Code
+          {:else if tradeState === 'confirming'}Processing...
+          {:else if tradeState === 'success'}Trade Complete!
+          {:else if tradeState === 'error'}Trade Failed
           {/if}
         </h2>
         <button class="btn-close" onclick={handleClose} aria-label="Close">
@@ -192,7 +194,7 @@
       
       <!-- Content -->
       <div class="modal-content">
-        {#if state === 'choose'}
+        {#if tradeState === 'choose'}
           <p class="description">
             Trade your card with another player. Either show your QR code for them to scan, or scan their code.
           </p>
@@ -215,13 +217,13 @@
             </button>
           </div>
           
-        {:else if state === 'generating'}
+        {:else if tradeState === 'generating'}
           <div class="loading-state">
             <div class="spinner-large"></div>
             <p>Generating trade QR code...</p>
           </div>
           
-        {:else if state === 'showing'}
+        {:else if tradeState === 'showing'}
           <div class="qr-display">
             {#if qrDataUrl}
               <img src={qrDataUrl} alt="Trade QR Code" class="qr-image" />
@@ -237,27 +239,27 @@
             </p>
           </div>
           
-          <button class="btn-secondary" onclick={() => state = 'choose'}>
+          <button class="btn-secondary" onclick={() => tradeState = 'choose'}>
             ← Back
           </button>
           
-        {:else if state === 'scanning'}
+        {:else if tradeState === 'scanning'}
           <div class="scanner-container">
             <div id="qr-reader" class="qr-reader"></div>
             <p class="scan-instructions">Point your camera at the other player's QR code</p>
           </div>
           
-          <button class="btn-secondary" onclick={() => { stopScanner(); state = 'choose' }}>
+          <button class="btn-secondary" onclick={() => { stopScanner(); tradeState = 'choose' }}>
             ← Back
           </button>
           
-        {:else if state === 'confirming'}
+        {:else if tradeState === 'confirming'}
           <div class="loading-state">
             <div class="spinner-large"></div>
             <p>Processing trade...</p>
           </div>
           
-        {:else if state === 'success'}
+        {:else if tradeState === 'success'}
           <div class="success-state">
             <div class="success-icon">✓</div>
             <h3>Cards Swapped!</h3>
@@ -270,11 +272,11 @@
             {/if}
           </div>
           
-        {:else if state === 'error'}
+        {:else if tradeState === 'error'}
           <div class="error-state">
             <div class="error-icon">✕</div>
             <p>{errorMessage}</p>
-            <button class="btn-primary mt-lg" onclick={() => state = 'choose'}>
+            <button class="btn-primary mt-lg" onclick={() => tradeState = 'choose'}>
               Try Again
             </button>
           </div>

@@ -7,13 +7,15 @@
     "dev": "vite dev",
     "build": "vite build",
     "preview": "vite preview",
+    "start": "serve build -l ${PORT:-3000} -s",
     "typecheck": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json"
   },
   "dependencies": {
     "@seedhunter/shared": "workspace:*",
     "html5-qrcode": "^2.3.8",
     "leaflet": "^1.9.4",
-    "qrcode": "^1.5.3"
+    "qrcode": "^1.5.3",
+    "serve": "^14.2.5"
   },
   "devDependencies": {
     "@sveltejs/adapter-static": "^3.0.0",

@@ -91,6 +91,9 @@ const server = Bun.serve({
         data: {
           id: crypto.randomUUID(),
           token: token || null,
+          playerHandle: null,
+          isAdmin: false,
+          channels: new Set(['chat', 'verifications', 'locations']),
         }
       })
       if (upgraded) {
