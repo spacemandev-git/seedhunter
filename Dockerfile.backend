@@ -5,15 +5,15 @@ FROM oven/bun:1 AS builder
 
 WORKDIR /app
 
-# Copy only needed workspace packages
-COPY package.json bun.lock tsconfig.json ./
+# Copy only needed workspace packages (without lockfile - it references other packages)
+COPY tsconfig.json ./
 COPY packages/shared ./packages/shared
 COPY packages/backend ./packages/backend
 
 # Create minimal package.json for workspace resolution
 RUN echo '{"name":"seedhunter","private":true,"workspaces":["packages/shared","packages/backend"]}' > package.json
 
-# Install dependencies
+# Install dependencies (fresh install without lockfile)
 RUN bun install
 
 # Generate Prisma client and build
