@@ -5,12 +5,16 @@ FROM oven/bun:1 AS builder
 
 WORKDIR /app
 
-# Copy all workspace files (bun workspaces require all packages to be present)
+# Copy only needed workspace packages
 COPY package.json bun.lock tsconfig.json ./
-COPY packages ./packages
+COPY packages/shared ./packages/shared
+COPY packages/player-webapp ./packages/player-webapp
 
-# Install all dependencies
-RUN bun install --frozen-lockfile || bun install
+# Create minimal package.json for workspace resolution
+RUN echo '{"name":"seedhunter","private":true,"workspaces":["packages/shared","packages/player-webapp"]}' > package.json
+
+# Install dependencies
+RUN bun install
 
 # Build the app
 WORKDIR /app/packages/player-webapp
