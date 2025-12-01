@@ -26,15 +26,19 @@ FROM oven/bun:1-slim
 
 WORKDIR /app
 
-# Copy necessary files
+# Copy application files
 COPY --from=builder /app/packages/backend/dist ./dist
 COPY --from=builder /app/packages/backend/package.json ./
-COPY --from=builder /app/packages/backend/prisma ./prisma
-COPY --from=builder /app/packages/backend/prisma.config.ts ./
+COPY --from=builder /app/packages/backend/prisma/schema.prisma ./prisma/schema.prisma
 COPY --from=builder /app/packages/backend/src/generated ./src/generated
-COPY --from=builder /app/packages/backend/src/db/seed.ts ./src/db/seed.ts
 COPY --from=builder /app/packages/backend/static ./static
 COPY --from=builder /app/node_modules ./node_modules
+
+# Copy seed script and its dependencies
+COPY --from=builder /app/packages/backend/src/db ./src/db
+
+# Install prisma CLI for migrations
+RUN bun add prisma
 
 ENV NODE_ENV=production
 ENV HOST=0.0.0.0
@@ -43,4 +47,5 @@ ENV PORT=3000
 EXPOSE 3000
 
 # Run migrations, seed, and start server
-CMD ["sh", "-c", "bunx prisma migrate deploy && bun run src/db/seed.ts && bun run dist/index.js"]
+# Note: prisma migrate deploy uses DATABASE_URL env var directly
+CMD ["sh", "-c", "bunx prisma migrate deploy --schema=./prisma/schema.prisma && bun run src/db/seed.ts && bun run dist/index.js"]
