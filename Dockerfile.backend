@@ -26,17 +26,26 @@ FROM oven/bun:1-slim
 
 WORKDIR /app
 
-# Install OpenSSL (required by Prisma) and create package.json
+# Install OpenSSL (required by Prisma)
 RUN apt-get update -y && apt-get install -y openssl ca-certificates && rm -rf /var/lib/apt/lists/*
-RUN echo '{"name":"seedhunter-backend","type":"module","private":true}' > package.json
 
-# Install prisma CLI
-RUN bun add prisma@7.0.0
+# Create package.json with all runtime dependencies
+RUN echo '{ \
+  "name": "seedhunter-backend", \
+  "type": "module", \
+  "private": true, \
+  "dependencies": { \
+    "prisma": "7.0.0", \
+    "@prisma/client": "7.0.0", \
+    "@prisma/adapter-pg": "7.0.1", \
+    "pg": "8.16.3", \
+    "hono": "4.7.10", \
+    "jose": "6.0.11" \
+  } \
+}' > package.json
 
-# Copy node_modules from builder (runtime dependencies)
-COPY --from=builder /app/node_modules ./temp_modules
-RUN cp -r ./temp_modules/* ./node_modules/ 2>/dev/null || true
-RUN rm -rf ./temp_modules
+# Install all dependencies
+RUN bun install
 
 # Copy application files
 COPY --from=builder /app/packages/backend/dist ./dist
