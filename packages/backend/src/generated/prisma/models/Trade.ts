@@ -536,6 +536,7 @@ export type TradeCreateOrConnectWithoutPlayerAInput = {
 
 export type TradeCreateManyPlayerAInputEnvelope = {
   data: Prisma.TradeCreateManyPlayerAInput | Prisma.TradeCreateManyPlayerAInput[]
+  skipDuplicates?: boolean
 }
 
 export type TradeCreateWithoutPlayerBInput = {
@@ -561,6 +562,7 @@ export type TradeCreateOrConnectWithoutPlayerBInput = {
 
 export type TradeCreateManyPlayerBInputEnvelope = {
   data: Prisma.TradeCreateManyPlayerBInput | Prisma.TradeCreateManyPlayerBInput[]
+  skipDuplicates?: boolean
 }
 
 export type TradeUpsertWithWhereUniqueWithoutPlayerAInput = {
@@ -630,6 +632,7 @@ export type TradeCreateOrConnectWithoutCardAInput = {
 
 export type TradeCreateManyCardAInputEnvelope = {
   data: Prisma.TradeCreateManyCardAInput | Prisma.TradeCreateManyCardAInput[]
+  skipDuplicates?: boolean
 }
 
 export type TradeCreateWithoutCardBInput = {
@@ -655,6 +658,7 @@ export type TradeCreateOrConnectWithoutCardBInput = {
 
 export type TradeCreateManyCardBInputEnvelope = {
   data: Prisma.TradeCreateManyCardBInput | Prisma.TradeCreateManyCardBInput[]
+  skipDuplicates?: boolean
 }
 
 export type TradeUpsertWithWhereUniqueWithoutCardAInput = {
@@ -1564,6 +1568,7 @@ export type TradeCreateManyArgs<ExtArgs extends runtime.Types.Extensions.Interna
    * The data used to create many Trades.
    */
   data: Prisma.TradeCreateManyInput | Prisma.TradeCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -1582,6 +1587,7 @@ export type TradeCreateManyAndReturnArgs<ExtArgs extends runtime.Types.Extension
    * The data used to create many Trades.
    */
   data: Prisma.TradeCreateManyInput | Prisma.TradeCreateManyInput[]
+  skipDuplicates?: boolean
   /**
    * Choose, which related nodes to fetch as well
    */

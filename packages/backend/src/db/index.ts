@@ -1,13 +1,17 @@
 import { PrismaClient } from '../generated/prisma/client'
-import { PrismaLibSql } from '@prisma/adapter-libsql'
+import { PrismaPg } from '@prisma/adapter-pg'
+import pg from 'pg'
 
-// Database URL from environment (libsql uses file: prefix for local SQLite)
-const databaseUrl = process.env.DATABASE_URL || 'file:./dev.db'
+// Database URL from environment
+const connectionString = process.env.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/seedhunter'
 
-// Create Prisma adapter (libsql works with Bun)
-const adapter = new PrismaLibSql({ url: databaseUrl })
+// Create PostgreSQL connection pool
+const pool = new pg.Pool({ connectionString })
 
-// Create Prisma client with driver adapter
+// Create Prisma adapter for PostgreSQL
+const adapter = new PrismaPg(pool)
+
+// Create Prisma client with PostgreSQL adapter
 export const prisma = new PrismaClient({
   adapter,
   log: process.env.NODE_ENV === 'development' 

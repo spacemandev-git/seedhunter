@@ -899,6 +899,7 @@ export type TradeNonceCreateManyArgs<ExtArgs extends runtime.Types.Extensions.In
    * The data used to create many TradeNonces.
    */
   data: Prisma.TradeNonceCreateManyInput | Prisma.TradeNonceCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -917,6 +918,7 @@ export type TradeNonceCreateManyAndReturnArgs<ExtArgs extends runtime.Types.Exte
    * The data used to create many TradeNonces.
    */
   data: Prisma.TradeNonceCreateManyInput | Prisma.TradeNonceCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**

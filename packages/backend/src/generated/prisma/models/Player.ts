@@ -1844,6 +1844,7 @@ export type PlayerCreateManyArgs<ExtArgs extends runtime.Types.Extensions.Intern
    * The data used to create many Players.
    */
   data: Prisma.PlayerCreateManyInput | Prisma.PlayerCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -1862,6 +1863,7 @@ export type PlayerCreateManyAndReturnArgs<ExtArgs extends runtime.Types.Extensio
    * The data used to create many Players.
    */
   data: Prisma.PlayerCreateManyInput | Prisma.PlayerCreateManyInput[]
+  skipDuplicates?: boolean
   /**
    * Choose, which related nodes to fetch as well
    */

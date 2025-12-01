@@ -6,9 +6,9 @@ export default defineConfig({
   // Path to Prisma schema
   schema: './prisma/schema.prisma',
 
-  // Database connection URL
+  // Database connection URL (PostgreSQL)
   datasource: {
-    url: process.env.DATABASE_URL || 'file:./dev.db',
+    url: process.env.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/seedhunter',
   },
 
   // Migrations configuration

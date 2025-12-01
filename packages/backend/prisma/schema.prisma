@@ -1,14 +1,15 @@
 // Prisma Schema for Seedhunter
-// Uses SQLite for local development
-// For production PostgreSQL, change provider to "postgresql" and update prisma.config.ts
+// Uses PostgreSQL for production with Bun runtime
 
 generator client {
-  provider = "prisma-client"
-  output   = "../src/generated/prisma"
+  provider   = "prisma-client"
+  output     = "../src/generated/prisma"
+  engineType = "client"
+  runtime    = "bun"
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
 }
 
 // ============================================

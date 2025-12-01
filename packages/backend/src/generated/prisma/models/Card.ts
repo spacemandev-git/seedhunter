@@ -1427,6 +1427,7 @@ export type CardCreateManyArgs<ExtArgs extends runtime.Types.Extensions.Internal
    * The data used to create many Cards.
    */
   data: Prisma.CardCreateManyInput | Prisma.CardCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -1445,6 +1446,7 @@ export type CardCreateManyAndReturnArgs<ExtArgs extends runtime.Types.Extensions
    * The data used to create many Cards.
    */
   data: Prisma.CardCreateManyInput | Prisma.CardCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**

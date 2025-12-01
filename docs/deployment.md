@@ -7,9 +7,29 @@
 
 ---
 
-## Railway Deployment
+## Railway Deployment (Monorepo)
 
-### Backend Service (`packages/backend`)
+This is a Bun monorepo. Railway services should be configured to build from the **repo root** using the Dockerfiles.
+
+### Setup Steps
+
+1. **Create a new Railway project**
+2. **Add PostgreSQL service** - Railway will auto-generate `DATABASE_URL`
+3. **Add Backend service:**
+   - Connect to your GitHub repo
+   - Set **Root Directory**: `/` (repo root)
+   - Set **Dockerfile Path**: `Dockerfile.backend`
+   - Add custom domain: `seedhunterapi.seedplex.io`
+4. **Add Player Webapp service:**
+   - Connect to your GitHub repo  
+   - Set **Root Directory**: `/` (repo root)
+   - Set **Dockerfile Path**: `Dockerfile.player`
+   - Add custom domain: `seedhunter.seedplex.io`
+5. **Link PostgreSQL to Backend** in Railway's service variables
+
+---
+
+### Backend Service
 
 **Domain:** `seedhunterapi.seedplex.io`
 
@@ -39,9 +59,16 @@ FRONTEND_URL=https://seedhunter.seedplex.io
 ENABLE_CHAT=true
 ENABLE_PLAYER_LOCATION=true
 
-# Admin (change these!)
+# Admin accounts (choose one option)
+# Option 1: Single admin
 ADMIN_USERNAME=admin
 ADMIN_PASSWORD=<secure-password>
+
+# Option 2: Multiple admins (comma-separated)
+ADMIN_ACCOUNTS=admin:securepass1,moderator:securepass2
+
+# Option 3: Multiple admins (JSON)
+ADMIN_ACCOUNTS=[{"username":"admin","password":"pass1"},{"username":"mod","password":"pass2"}]
 ```
 
 **Important:** Update your X (Twitter) Developer App settings:
@@ -61,23 +88,66 @@ VITE_BACKEND_URL=https://seedhunterapi.seedplex.io
 
 ---
 
-### Database Setup
+### Database Setup (PostgreSQL)
 
-For production, switch from SQLite to PostgreSQL:
+The backend is configured to use PostgreSQL.
 
-1. **Update Prisma schema** (`packages/backend/prisma/schema.prisma`):
-   ```prisma
-   datasource db {
-     provider = "postgresql"
-     url      = env("DATABASE_URL")
-   }
-   ```
+**For Railway:**
+1. Add a PostgreSQL service in your Railway project
+2. Link it to your backend service
+3. Railway will automatically set `DATABASE_URL`
 
-2. **Run migrations on first deploy:**
-   ```bash
-   bun run db:migrate:prod
-   bun run db:seed
-   ```
+**For local development:**
+```bash
+# Start PostgreSQL with Docker
+docker run --name seedhunter-db \
+  -e POSTGRES_PASSWORD=postgres \
+  -e POSTGRES_DB=seedhunter \
+  -p 5432:5432 -d postgres
+
+# Run migrations and seed
+cd packages/backend
+bun run db:migrate
+bun run db:seed
+```
+
+---
+
+## Admin Account Management
+
+### Via Environment Variables (at seed time)
+Set `ADMIN_ACCOUNTS` in your environment before running `db:seed`.
+
+### Via API (runtime)
+Once deployed, admins can manage other admin accounts:
+
+```bash
+# List all admins
+curl -H "Authorization: Bearer <token>" \
+  https://seedhunterapi.seedplex.io/admin/accounts
+
+# Create new admin
+curl -X POST -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{"username":"newadmin","password":"securepass123"}' \
+  https://seedhunterapi.seedplex.io/admin/accounts
+
+# Update admin password
+curl -X PATCH -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{"password":"newpassword123"}' \
+  https://seedhunterapi.seedplex.io/admin/accounts/<admin-id>
+
+# Delete admin
+curl -X DELETE -H "Authorization: Bearer <token>" \
+  https://seedhunterapi.seedplex.io/admin/accounts/<admin-id>
+```
+
+**Constraints:**
+- Username: 3-32 characters, alphanumeric with underscores/hyphens
+- Password: minimum 8 characters
+- Cannot delete your own account
+- Cannot delete the last admin account
 
 ---
 
