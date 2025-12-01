@@ -27,6 +27,16 @@
     }
   }
 
+  // Custom admin avatars
+  const adminAvatars: Record<string, string> = {
+    'spacemandev': '/spacemandev.png',
+    'treggs6': '/treggs.png',
+  };
+
+  function getAdminAvatar(username: string): string | null {
+    return adminAvatars[username.toLowerCase()] || null;
+  }
+
   function updateMarkers(locations: AdminLocation[]) {
     if (!map || !L) return;
 
@@ -41,11 +51,16 @@
         typeof admin.location === "object"
       ) {
         const { lat, lng } = admin.location;
+        const avatarUrl = getAdminAvatar(admin.username);
 
-        // Create custom icon
+        // Create custom icon with image or fallback to emoji
+        const markerHtml = avatarUrl
+          ? `<div class="marker-pin has-image"><img src="${avatarUrl}" alt="${admin.username}" /></div><div class="marker-label">${admin.username}</div>`
+          : `<div class="marker-pin"><span>👤</span></div><div class="marker-label">${admin.username}</div>`;
+
         const adminIcon = L.divIcon({
           className: "admin-marker",
-          html: `<div class="marker-pin"><span>👤</span></div><div class="marker-label">${admin.username}</div>`,
+          html: markerHtml,
           iconSize: [40, 50],
           iconAnchor: [20, 50],
         });
@@ -183,8 +198,15 @@
       {:else}
         <div class="admin-list">
           {#each adminLocations.locations as admin}
+            {@const avatarUrl = getAdminAvatar(admin.username)}
             <div class="admin-item">
-              <div class="admin-avatar">👤</div>
+              <div class="admin-avatar">
+                {#if avatarUrl}
+                  <img src={avatarUrl} alt={admin.username} />
+                {:else}
+                  👤
+                {/if}
+              </div>
               <div class="admin-info">
                 <span class="admin-name">{admin.username}</span>
                 {#if admin.location === "<encrypted>"}
@@ -322,6 +344,18 @@
     font-size: 1.25rem;
     box-shadow: 0 4px 12px rgba(46, 186, 181, 0.4);
     border: 3px solid white;
+    overflow: hidden;
+  }
+
+  :global(.marker-pin.has-image) {
+    padding: 0;
+    background: white;
+  }
+
+  :global(.marker-pin.has-image img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
   }
 
   :global(.marker-label) {
@@ -394,6 +428,13 @@
     justify-content: center;
     font-size: 1.25rem;
     flex-shrink: 0;
+    overflow: hidden;
+  }
+
+  .admin-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
   }
 
   .admin-info {
