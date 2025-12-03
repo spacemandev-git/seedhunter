@@ -2,8 +2,9 @@
   import { onMount, onDestroy, tick } from 'svelte'
   import QRCode from 'qrcode'
   import { Html5Qrcode } from 'html5-qrcode'
-  import { initTrade, confirmTrade } from '$lib/api/client'
-  import type { Trade, GridProject, GeoLocation } from '@seedhunter/shared'
+  import { initTrade, confirmTrade, connectWebSocket, removeWSHandler, getPlayerProject } from '$lib/api/client'
+  import { auth } from '$lib/stores'
+  import type { Trade, GridProject, GeoLocation, WSServerMessage } from '@seedhunter/shared'
   import { TRADE_PROXIMITY_METERS } from '@seedhunter/shared'
   
   interface Props {
@@ -24,6 +25,7 @@
   let currentLocation = $state<GeoLocation | null>(null)
   let scanner: Html5Qrcode | null = null
   let countdownInterval: ReturnType<typeof setInterval> | null = null
+  let wsHandler: ((msg: WSServerMessage) => void) | null = null
   
   /**
    * Request user's location using the browser's Geolocation API
@@ -89,6 +91,10 @@
       clearInterval(countdownInterval)
       countdownInterval = null
     }
+    if (wsHandler) {
+      removeWSHandler(wsHandler)
+      wsHandler = null
+    }
     stopScanner()
   }
   
@@ -126,6 +132,47 @@
           errorMessage = 'QR code expired. Please generate a new one.'
         }
       }, 1000)
+      
+      // Set up WebSocket listener for trade completion
+      // This allows the QR-showing player to see confirmation when the other player scans
+      wsHandler = async (msg: WSServerMessage) => {
+        if (msg.type === 'trade_complete' && tradeState === 'showing') {
+          const trade = msg.trade
+          const myHandle = auth.player?.xHandle
+          
+          // Check if this trade involves us
+          if (myHandle && (trade.playerA === myHandle || trade.playerB === myHandle)) {
+            // Stop the countdown
+            if (countdownInterval) {
+              clearInterval(countdownInterval)
+              countdownInterval = null
+            }
+            
+            // Fetch our new project to show in success state
+            try {
+              const newProject = await getPlayerProject(myHandle)
+              tradeResult = { trade, newProject }
+              tradeState = 'success'
+              
+              // Notify parent after a delay
+              setTimeout(() => {
+                onTradeComplete(tradeResult!)
+              }, 2000)
+            } catch (err) {
+              console.error('Failed to fetch new project:', err)
+              // Still show success but without project details
+              tradeResult = { trade, newProject: { name: 'Your new card', sector: '' } as GridProject }
+              tradeState = 'success'
+              
+              setTimeout(() => {
+                onTradeComplete(tradeResult!)
+              }, 2000)
+            }
+          }
+        }
+      }
+      
+      connectWebSocket(wsHandler)
       
       tradeState = 'showing'
     } catch (err) {

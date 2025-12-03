@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte'
   import { leaderboard, auth } from '$lib/stores'
+  import GameRulesCard from '$lib/components/GameRulesCard.svelte'
   
   let isRefreshing = $state(false)
   
@@ -46,6 +47,9 @@
         </svg>
       </button>
     </div>
+    
+    <!-- Game Rules & Prize Pool -->
+    <GameRulesCard />
     
     {#if leaderboard.error}
       <div class="error-card animate-fade-in">
@@ -113,7 +117,7 @@
                 {/if}
               </div>
               <div class="trade-count">
-                {entry.trades} trade{entry.trades !== 1 ? 's' : ''}
+                {Math.floor(entry.trades / 2)} trade{Math.floor(entry.trades / 2) !== 1 ? 's' : ''}
               </div>
             </div>
             

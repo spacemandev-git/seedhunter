@@ -106,7 +106,7 @@
           
           <div class="stats-grid">
             <div class="stat-item">
-              <span class="stat-value">{auth.player?.stats.trades ?? 0}</span>
+              <span class="stat-value">{Math.floor((auth.player?.stats.trades ?? 0) / 2)}</span>
               <span class="stat-label">Trades</span>
             </div>
             <div class="stat-item">
