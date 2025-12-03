@@ -53,7 +53,6 @@ COPY --from=builder /app/packages/backend/prisma/schema.prisma ./prisma/schema.p
 COPY --from=builder /app/packages/backend/prisma/migrations ./prisma/migrations
 COPY --from=builder /app/packages/backend/prisma.config.ts ./prisma.config.ts
 COPY --from=builder /app/packages/backend/src/generated ./src/generated
-COPY --from=builder /app/packages/backend/static ./static
 
 # Copy seed script and its dependencies
 COPY --from=builder /app/packages/backend/src/db ./src/db

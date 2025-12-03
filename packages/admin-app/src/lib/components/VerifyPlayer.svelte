@@ -20,7 +20,7 @@
       // Use string concatenation to prevent static analysis
       const pkgName = '@capacitor-mlkit' + '/barcode-scanning'
       const mod = await import(/* @vite-ignore */ pkgName)
-      return mod.BarcodeScanner
+      return mod.BarcodeScanning
     } catch {
       return null
     }
