@@ -1,9 +1,9 @@
 <script lang="ts">
-  import type { Card } from '@seedhunter/shared'
+  import type { GridProject } from '@seedhunter/shared'
   import { CATEGORY_COLORS, CATEGORY_LABELS } from '@seedhunter/shared'
   
   interface Props {
-    card: Card | null
+    project: GridProject | null
     ownerHandle?: string
     isOwn?: boolean
     tradeCount?: number
@@ -13,7 +13,7 @@
   }
   
   let { 
-    card, 
+    project, 
     ownerHandle = '', 
     isOwn = false, 
     tradeCount = 0, 
@@ -30,12 +30,17 @@
     }
   }
   
-  function getCategoryColor(category: string): string {
-    return CATEGORY_COLORS[category] || CATEGORY_COLORS.other
-  }
-  
-  function getCategoryLabel(category: string): string {
-    return CATEGORY_LABELS[category] || 'Other'
+  function getSectorColor(sector: string | null): string {
+    if (!sector) return CATEGORY_COLORS.other
+    // Map sector names to category colors
+    const sectorLower = sector.toLowerCase()
+    if (sectorLower.includes('gaming')) return '#9B59B6'
+    if (sectorLower.includes('defi') || sectorLower.includes('finance')) return '#2ECC71'
+    if (sectorLower.includes('infrastructure')) return '#4A90D9'
+    if (sectorLower.includes('nft') || sectorLower.includes('art')) return '#E74C3C'
+    if (sectorLower.includes('social')) return '#3498DB'
+    if (sectorLower.includes('dao') || sectorLower.includes('governance')) return '#F39C12'
+    return CATEGORY_COLORS.crypto
   }
   
   const API_BASE = import.meta.env.VITE_API_URL || 'https://seedhunterapi.seedplex.io'
@@ -53,29 +58,37 @@
   <div class="card-inner" class:flipped={isFlipped}>
     <!-- Front of card -->
     <div class="card-face card-front">
-      {#if card}
+      {#if project}
         <!-- Card image -->
         <div class="card-image">
-          <img 
-            src="{API_BASE}/static/cards/{card.id}.png" 
-            alt="{card.founderName}"
-            onerror={(e) => {
-              const target = e.currentTarget as HTMLImageElement
-              target.style.display = 'none'
-              target.nextElementSibling?.classList.remove('hidden')
-            }}
-          />
-          <div class="placeholder hidden">
-            <span class="placeholder-icon">🎴</span>
-          </div>
+          {#if project.logo}
+            <img 
+              src={project.logo} 
+              alt={project.name}
+              onerror={(e) => {
+                const target = e.currentTarget as HTMLImageElement
+                target.style.display = 'none'
+                target.nextElementSibling?.classList.remove('hidden')
+              }}
+            />
+            <div class="placeholder hidden">
+              <span class="placeholder-icon">🎴</span>
+            </div>
+          {:else}
+            <div class="placeholder">
+              <span class="placeholder-icon">🎴</span>
+            </div>
+          {/if}
         </div>
         
         <!-- Card info -->
         <div class="card-info">
-          <h3 class="founder-name">{card.founderName}</h3>
-          <p class="company">{card.company}</p>
-          {#if card.xHandle}
-            <p class="x-handle">@{card.xHandle}</p>
+          <h3 class="founder-name">{project.name}</h3>
+          {#if project.tagLine}
+            <p class="company">{project.tagLine}</p>
+          {/if}
+          {#if project.xHandle}
+            <p class="x-handle">@{project.xHandle}</p>
           {/if}
         </div>
         
@@ -83,11 +96,11 @@
         <div class="card-footer">
           <span 
             class="category-badge" 
-            style="background-color: {getCategoryColor(card.category)}"
+            style="background-color: {getSectorColor(project.sector)}"
           >
-            {getCategoryLabel(card.category)}
+            {project.sector || project.type || 'Project'}
           </span>
-          <span class="card-id">#{card.id.slice(0, 6)}</span>
+          <span class="card-id">#{project.gridIndex}</span>
         </div>
         
         <!-- Owner badge if not own card -->
@@ -133,12 +146,22 @@
           </div>
         {/if}
         
-        {#if card}
+        {#if project}
           <div class="card-details">
-            <p><strong>Founder:</strong> {card.founderName}</p>
-            <p><strong>Company:</strong> {card.company}</p>
-            {#if card.role}
-              <p><strong>Role:</strong> {card.role}</p>
+            <p><strong>Project:</strong> {project.name}</p>
+            {#if project.sector}
+              <p><strong>Sector:</strong> {project.sector}</p>
+            {/if}
+            {#if project.type}
+              <p><strong>Type:</strong> {project.type}</p>
+            {/if}
+            {#if project.description}
+              <p class="project-description">{project.description}</p>
+            {/if}
+            {#if project.websiteUrl}
+              <a href={project.websiteUrl} target="_blank" rel="noopener noreferrer" class="project-link">
+                Visit Website →
+              </a>
             {/if}
           </div>
         {/if}
@@ -215,9 +238,11 @@
   }
   
   .card-image img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+    max-width: 80%;
+    max-height: 80%;
+    width: auto;
+    height: auto;
+    object-fit: contain;
   }
   
   .placeholder {
@@ -404,6 +429,33 @@
   
   .card-details p {
     margin: 2px 0;
+  }
+  
+  .project-description {
+    margin-top: var(--space-sm) !important;
+    font-size: 0.75rem;
+    opacity: 0.85;
+    line-height: 1.4;
+    max-height: 60px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  .project-link {
+    display: inline-block;
+    margin-top: var(--space-sm);
+    color: white;
+    background: rgba(255, 255, 255, 0.2);
+    padding: 4px 12px;
+    border-radius: var(--radius-full);
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background var(--transition-fast);
+  }
+  
+  .project-link:hover {
+    background: rgba(255, 255, 255, 0.3);
   }
   
   .card-back .flip-hint {

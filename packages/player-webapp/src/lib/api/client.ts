@@ -1,4 +1,4 @@
-import { Routes, type Player, type LeaderboardEntry, type Card, type Trade, type AdminLocation, type ApiResponse, type PaginatedResponse } from '@seedhunter/shared'
+import { Routes, type Player, type LeaderboardEntry, type Card, type Trade, type AdminLocation, type ApiResponse, type PaginatedResponse, type GridProject } from '@seedhunter/shared'
 
 const API_BASE = import.meta.env.VITE_API_URL || '/api'
 
@@ -80,6 +80,10 @@ export async function getPlayer(handle: string): Promise<Player & { stats: { tra
 
 export async function getPlayerCard(handle: string): Promise<Card> {
   return api(Routes.PLAYER_CARD(handle))
+}
+
+export async function getPlayerProject(handle: string): Promise<GridProject> {
+  return api(Routes.PLAYER_PROJECT(handle))
 }
 
 export async function getLeaderboard(limit = 50, offset = 0): Promise<PaginatedResponse<LeaderboardEntry>> {

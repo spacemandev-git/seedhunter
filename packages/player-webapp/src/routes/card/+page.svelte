@@ -1,13 +1,13 @@
 <script lang="ts">
   import { auth, tradeStore } from '$lib/stores'
-  import { getPlayerCard } from '$lib/api/client'
+  import { getPlayerProject } from '$lib/api/client'
   import { goto } from '$app/navigation'
   import { onMount } from 'svelte'
-  import type { Card, Trade } from '@seedhunter/shared'
+  import type { GridProject, Trade, Card } from '@seedhunter/shared'
   import FounderCard from '$lib/components/FounderCard.svelte'
   import TradeModal from '$lib/components/TradeModal.svelte'
   
-  let card = $state<Card | null>(null)
+  let project = $state<GridProject | null>(null)
   let loading = $state(true)
   let showTradeModal = $state(false)
   
@@ -26,29 +26,30 @@
           if (!auth.isLoggedIn) {
             goto('/auth/login')
           } else {
-            loadCard()
+            loadProject()
           }
         }
       }, 100)
     } else {
-      loadCard()
+      loadProject()
     }
   })
   
-  async function loadCard() {
+  async function loadProject() {
     if (!auth.player?.xHandle) return
     
     try {
-      card = await getPlayerCard(auth.player.xHandle)
+      project = await getPlayerProject(auth.player.xHandle)
     } catch (err) {
-      console.error('Failed to load card:', err)
+      console.error('Failed to load project:', err)
     } finally {
       loading = false
     }
   }
   
   function handleTradeComplete(result: { trade: Trade; newCard: Card }) {
-    card = result.newCard
+    // Reload the project after trade completes
+    loadProject()
     tradeStore.addTrade(result.trade)
     showTradeModal = false
     
@@ -86,7 +87,7 @@
         <!-- Card display -->
         <div class="card-container">
           <FounderCard 
-            {card}
+            {project}
             ownerHandle={auth.player?.xHandle}
             isOwn={true}
             tradeCount={auth.player?.stats.trades ?? 0}

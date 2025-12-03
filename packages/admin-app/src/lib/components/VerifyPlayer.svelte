@@ -2,6 +2,8 @@
   import { verifications } from '$lib/stores/index.svelte'
   import { verifyPlayer, getPlayerByHandle } from '$lib/api/client'
   import type { PlayerWithStats } from '@seedhunter/shared'
+  import { BarcodeScanner } from '@capacitor-mlkit/barcode-scanning'
+  import { browser } from '$app/environment'
 
   type VerifyMode = 'idle' | 'scanning' | 'manual' | 'preview' | 'verifying' | 'success' | 'error'
 
@@ -15,12 +17,10 @@
   // Scanner state
   let scannerActive = $state(false)
 
-  async function getBarcodeScanner() {
+  function getBarcodeScanner() {
+    if (!browser) return null
     try {
-      // Use string concatenation to prevent static analysis
-      const pkgName = '@capacitor-mlkit' + '/barcode-scanning'
-      const mod = await import(/* @vite-ignore */ pkgName)
-      return mod.BarcodeScanning
+      return BarcodeScanner
     } catch {
       return null
     }
@@ -32,17 +32,17 @@
     scannerActive = true
 
     try {
-      const BarcodeScanner = await getBarcodeScanner()
-      if (!BarcodeScanner) {
+      const scanner = getBarcodeScanner()
+      if (!scanner) {
         errorMessage = 'Barcode scanner not available'
         mode = 'error'
         return
       }
 
       // Check/request permissions
-      const { camera } = await BarcodeScanner.checkPermissions()
+      const { camera } = await scanner.checkPermissions()
       if (camera !== 'granted') {
-        const result = await BarcodeScanner.requestPermissions()
+        const result = await scanner.requestPermissions()
         if (result.camera !== 'granted') {
           errorMessage = 'Camera permission denied'
           mode = 'error'
@@ -53,7 +53,7 @@
       // Start scanning
       document.body.classList.add('scanner-active')
 
-      const { barcodes } = await BarcodeScanner.scan()
+      const { barcodes } = await scanner.scan()
 
       document.body.classList.remove('scanner-active')
       scannerActive = false
@@ -77,9 +77,9 @@
 
   async function stopScan() {
     try {
-      const BarcodeScanner = await getBarcodeScanner()
-      if (BarcodeScanner) {
-        await BarcodeScanner.stopScan()
+      const scanner = getBarcodeScanner()
+      if (scanner) {
+        await scanner.stopScan()
       }
     } catch (err) {
       console.error('Stop scan error:', err)
