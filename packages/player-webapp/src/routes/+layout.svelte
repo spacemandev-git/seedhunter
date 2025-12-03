@@ -25,6 +25,7 @@
     { href: "/card", icon: "card", label: "Card", authRequired: true },
     { href: "/chat", icon: "chat", label: "Chat", authRequired: false },
     { href: "/map", icon: "map", label: "Map", authRequired: false },
+    { href: "https://t.me/+VvlOcxlAbH1lNzcx", icon: "telegram", label: "Telegram", authRequired: true, external: true },
     { href: "/profile", icon: "user", label: "Profile", authRequired: true },
   ];
 
@@ -103,7 +104,9 @@
         <a
           href={tab.href}
           class="tab-item"
-          class:active={isActive(tab.href, $page.url.pathname)}
+          class:active={!tab.external && isActive(tab.href, $page.url.pathname)}
+          target={tab.external ? "_blank" : undefined}
+          rel={tab.external ? "noopener noreferrer" : undefined}
         >
           <span class="tab-icon">
             {#if tab.icon === "trophy"}
@@ -152,6 +155,15 @@
                 <path
                   d="M12 21.7C17.3 17 20 13 20 10a8 8 0 1 0-16 0c0 3 2.7 6.9 8 11.7z"
                 />
+              </svg>
+            {:else if tab.icon === "telegram"}
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path d="M21 5L2 12.5l7 1M21 5l-3 15-8-6.5M21 5L9 13.5m0 0V19l3.25-3.25" />
               </svg>
             {:else if tab.icon === "user"}
               <svg
