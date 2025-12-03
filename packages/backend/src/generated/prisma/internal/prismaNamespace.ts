@@ -386,7 +386,6 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 export const ModelName = {
   Player: 'Player',
   Admin: 'Admin',
-  Card: 'Card',
   Trade: 'Trade',
   TradeNonce: 'TradeNonce',
   ChatMessage: 'ChatMessage'
@@ -405,7 +404,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "player" | "admin" | "card" | "trade" | "tradeNonce" | "chatMessage"
+    modelProps: "player" | "admin" | "trade" | "tradeNonce" | "chatMessage"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -554,80 +553,6 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.AdminCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.AdminCountAggregateOutputType> | number
-        }
-      }
-    }
-    Card: {
-      payload: Prisma.$CardPayload<ExtArgs>
-      fields: Prisma.CardFieldRefs
-      operations: {
-        findUnique: {
-          args: Prisma.CardFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$CardPayload> | null
-        }
-        findUniqueOrThrow: {
-          args: Prisma.CardFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$CardPayload>
-        }
-        findFirst: {
-          args: Prisma.CardFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$CardPayload> | null
-        }
-        findFirstOrThrow: {
-          args: Prisma.CardFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$CardPayload>
-        }
-        findMany: {
-          args: Prisma.CardFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$CardPayload>[]
-        }
-        create: {
-          args: Prisma.CardCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$CardPayload>
-        }
-        createMany: {
-          args: Prisma.CardCreateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        createManyAndReturn: {
-          args: Prisma.CardCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$CardPayload>[]
-        }
-        delete: {
-          args: Prisma.CardDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$CardPayload>
-        }
-        update: {
-          args: Prisma.CardUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$CardPayload>
-        }
-        deleteMany: {
-          args: Prisma.CardDeleteManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateMany: {
-          args: Prisma.CardUpdateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateManyAndReturn: {
-          args: Prisma.CardUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$CardPayload>[]
-        }
-        upsert: {
-          args: Prisma.CardUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$CardPayload>
-        }
-        aggregate: {
-          args: Prisma.CardAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateCard>
-        }
-        groupBy: {
-          args: Prisma.CardGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.CardGroupByOutputType>[]
-        }
-        count: {
-          args: Prisma.CardCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.CardCountAggregateOutputType> | number
         }
       }
     }
@@ -897,7 +822,7 @@ export const PlayerScalarFieldEnum = {
   xHandle: 'xHandle',
   xId: 'xId',
   xProfilePic: 'xProfilePic',
-  cardId: 'cardId',
+  gridIndex: 'gridIndex',
   verified: 'verified',
   verifiedAt: 'verifiedAt',
   verifiedBy: 'verifiedBy',
@@ -926,26 +851,12 @@ export const AdminScalarFieldEnum = {
 export type AdminScalarFieldEnum = (typeof AdminScalarFieldEnum)[keyof typeof AdminScalarFieldEnum]
 
 
-export const CardScalarFieldEnum = {
-  id: 'id',
-  founderName: 'founderName',
-  company: 'company',
-  role: 'role',
-  xHandle: 'xHandle',
-  category: 'category',
-  imagePath: 'imagePath',
-  createdAt: 'createdAt'
-} as const
-
-export type CardScalarFieldEnum = (typeof CardScalarFieldEnum)[keyof typeof CardScalarFieldEnum]
-
-
 export const TradeScalarFieldEnum = {
   id: 'id',
   playerAId: 'playerAId',
   playerBId: 'playerBId',
-  cardAId: 'cardAId',
-  cardBId: 'cardBId',
+  gridIndexA: 'gridIndexA',
+  gridIndexB: 'gridIndexB',
   tradedAt: 'tradedAt'
 } as const
 
@@ -1016,6 +927,20 @@ export type ListStringFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaMod
 
 
 /**
+ * Reference to a field of type 'Int'
+ */
+export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
+    
+
+
+/**
+ * Reference to a field of type 'Int[]'
+ */
+export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
+    
+
+
+/**
  * Reference to a field of type 'Boolean'
  */
 export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
@@ -1047,20 +972,6 @@ export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, '
  * Reference to a field of type 'Float[]'
  */
 export type ListFloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float[]'>
-    
-
-
-/**
- * Reference to a field of type 'Int'
- */
-export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
-    
-
-
-/**
- * Reference to a field of type 'Int[]'
- */
-export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
     
 
 /**
@@ -1144,7 +1055,6 @@ export type PrismaClientOptions = ({
 export type GlobalOmitConfig = {
   player?: Prisma.PlayerOmit
   admin?: Prisma.AdminOmit
-  card?: Prisma.CardOmit
   trade?: Prisma.TradeOmit
   tradeNonce?: Prisma.TradeNonceOmit
   chatMessage?: Prisma.ChatMessageOmit

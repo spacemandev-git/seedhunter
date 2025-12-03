@@ -6,7 +6,7 @@ export interface Player {
   id: string
   xHandle: string
   xProfilePic: string | null
-  cardId: string
+  gridIndex: number | null // Index into The Grid's profileInfos
   verified: boolean
   verifiedAt: number | null
   createdAt: number
@@ -40,30 +40,24 @@ export interface NearbyPlayer {
 }
 
 // ============================================
-// Card Types
+// Grid Project Types (from The Grid API)
 // ============================================
 
-export interface Card {
-  id: string
-  founderName: string
-  company: string
-  role: string
+export interface GridProject {
+  gridIndex: number  // Index in The Grid's profileInfos list
+  name: string
+  logo: string | null
+  tagLine: string | null
+  description: string | null
+  sector: string | null  // e.g., "Gaming", "DeFi", "Infrastructure"
+  type: string | null    // e.g., "Project", "Company"
+  websiteUrl: string | null
   xHandle: string | null
-  category: CardCategory
-  imagePath: string
-  createdAt: number
 }
 
-export type CardCategory =
-  | 'tech'
-  | 'finance'
-  | 'retail'
-  | 'media'
-  | 'transport'
-  | 'food'
-  | 'health'
-  | 'crypto'
-  | 'other'
+// Legacy Card type alias for backwards compatibility
+export type Card = GridProject
+export type CardCategory = string
 
 // ============================================
 // Trade Types
@@ -73,14 +67,14 @@ export interface Trade {
   id: string
   playerA: string // xHandle
   playerB: string // xHandle
-  cardA: string // cardId
-  cardB: string // cardId
+  gridIndexA: number // project index traded by player A
+  gridIndexB: number // project index traded by player B
   timestamp: number
 }
 
 export interface TradePayload {
   initiator: string
-  cardId: string
+  gridIndex: number // project index being offered
   nonce: string
   expiresAt: number
   signature: string
@@ -89,7 +83,7 @@ export interface TradePayload {
 export interface TradeResult {
   success: boolean
   trade?: Trade
-  newCard?: Card
+  newProject?: GridProject
   error?: string
 }
 

@@ -10,7 +10,6 @@
  */
 export type * from './models/Player'
 export type * from './models/Admin'
-export type * from './models/Card'
 export type * from './models/Trade'
 export type * from './models/TradeNonce'
 export type * from './models/ChatMessage'

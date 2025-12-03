@@ -10,6 +10,7 @@ import { adminRoutes } from './routes/admin'
 import { chatRoutes } from './routes/chat'
 import { websocket } from './ws/handler'
 import { initDB } from './db'
+import { getTotalProjects, getProjectByIndex } from './services/grid'
 
 // Initialize database (async)
 await initDB()
@@ -56,6 +57,38 @@ app.use('/static/*', serveStatic({ root: './' }))
 
 // Health check
 app.get('/health', (c) => c.json({ status: 'ok', timestamp: Date.now() }))
+
+// Grid API endpoints
+app.get('/grid/stats', async (c) => {
+  try {
+    const totalProjects = await getTotalProjects()
+    return c.json({ totalProjects })
+  } catch (error) {
+    console.error('Grid stats error:', error)
+    return c.json({ error: 'Failed to get grid stats' }, 500)
+  }
+})
+
+app.get('/grid/project/:index', async (c) => {
+  const index = parseInt(c.req.param('index'))
+  
+  if (isNaN(index) || index < 0) {
+    return c.json({ error: 'Invalid project index' }, 400)
+  }
+  
+  try {
+    const project = await getProjectByIndex(index)
+    
+    if (!project) {
+      return c.json({ error: 'Project not found' }, 404)
+    }
+    
+    return c.json(project)
+  } catch (error) {
+    console.error('Grid project error:', error)
+    return c.json({ error: 'Failed to get project' }, 500)
+  }
+})
 
 // API routes
 app.route('/auth', authRoutes)

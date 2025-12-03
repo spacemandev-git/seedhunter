@@ -1,5 +1,6 @@
 import { prisma } from '../db'
-import type { Player, PlayerStats, LeaderboardEntry, Card } from '@seedhunter/shared'
+import type { Player, PlayerStats, LeaderboardEntry, GridProject } from '@seedhunter/shared'
+import { getProjectByIndex } from './grid'
 
 // ============================================
 // Player CRUD Operations
@@ -19,7 +20,7 @@ export async function getPlayerByHandle(handle: string): Promise<Player | null> 
     id: player.id,
     xHandle: player.xHandle,
     xProfilePic: player.xProfilePic,
-    cardId: player.cardId!,
+    gridIndex: player.gridIndex,
     verified: player.verified,
     verifiedAt: player.verifiedAt?.getTime() ?? null,
     createdAt: player.createdAt.getTime(),
@@ -30,35 +31,25 @@ export async function getPlayerByHandle(handle: string): Promise<Player | null> 
 }
 
 /**
- * Get a player's card
+ * Get a player's project from The Grid
  */
-export async function getPlayerCard(handle: string): Promise<Card | null> {
+export async function getPlayerProject(handle: string): Promise<GridProject | null> {
   const player = await prisma.player.findUnique({
-    where: { xHandle: handle },
-    include: { card: true }
+    where: { xHandle: handle }
   })
   
-  if (!player?.card) return null
+  if (!player || player.gridIndex === null) return null
   
-  return {
-    id: player.card.id,
-    founderName: player.card.founderName,
-    company: player.card.company,
-    role: player.card.role || '',
-    xHandle: player.card.xHandle,
-    category: player.card.category as any,
-    imagePath: player.card.imagePath,
-    createdAt: player.card.createdAt.getTime()
-  }
+  return getProjectByIndex(player.gridIndex)
 }
 
 /**
- * Assign a card to a player
+ * Assign a project (by grid index) to a player
  */
-export async function assignCard(playerId: string, cardId: string): Promise<void> {
+export async function assignProject(playerId: string, gridIndex: number): Promise<void> {
   await prisma.player.update({
     where: { id: playerId },
-    data: { cardId }
+    data: { gridIndex }
   })
 }
 
@@ -263,7 +254,7 @@ export async function verifyPlayer(
         id: player.id,
         xHandle: player.xHandle,
         xProfilePic: player.xProfilePic,
-        cardId: player.cardId!,
+        gridIndex: player.gridIndex,
         verified: true,
         verifiedAt: player.verifiedAt?.getTime() ?? null,
         createdAt: player.createdAt.getTime(),
@@ -303,7 +294,7 @@ export async function verifyPlayer(
       id: updatedPlayer.id,
       xHandle: updatedPlayer.xHandle,
       xProfilePic: updatedPlayer.xProfilePic,
-      cardId: updatedPlayer.cardId!,
+      gridIndex: updatedPlayer.gridIndex,
       verified: true,
       verifiedAt: updatedPlayer.verifiedAt?.getTime() ?? null,
       createdAt: updatedPlayer.createdAt.getTime(),

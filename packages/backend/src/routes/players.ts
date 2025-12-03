@@ -3,7 +3,7 @@ import type { Context } from 'hono'
 import { LEADERBOARD_DEFAULT_LIMIT, LEADERBOARD_MAX_LIMIT, ErrorCodes } from '@seedhunter/shared'
 import {
   getPlayerByHandle,
-  getPlayerCard,
+  getPlayerProject,
   getPlayerStats,
   getLeaderboard,
   updatePlayerLocation,
@@ -57,7 +57,7 @@ playerRoutes.get('/:handle', async (c: Context) => {
       }, 404)
     }
     
-    const card = await getPlayerCard(handle)
+    const project = await getPlayerProject(handle)
     const stats = await getPlayerStats(handle)
     
     return c.json({
@@ -65,7 +65,7 @@ playerRoutes.get('/:handle', async (c: Context) => {
       xProfilePic: player.xProfilePic,
       verified: player.verified,
       verifiedAt: player.verifiedAt,
-      card,
+      project,
       stats
     })
   } catch (error) {
@@ -77,25 +77,25 @@ playerRoutes.get('/:handle', async (c: Context) => {
   }
 })
 
-// Get player's current card
-playerRoutes.get('/:handle/card', async (c: Context) => {
+// Get player's current project from The Grid
+playerRoutes.get('/:handle/project', async (c: Context) => {
   const handle = c.req.param('handle')
   
   try {
-    const card = await getPlayerCard(handle)
+    const project = await getPlayerProject(handle)
     
-    if (!card) {
+    if (!project) {
       return c.json({
-        error: 'Player or card not found',
+        error: 'Player or project not found',
         code: ErrorCodes.PLAYER_NOT_FOUND
       }, 404)
     }
     
-    return c.json(card)
+    return c.json(project)
   } catch (error) {
-    console.error('Get card error:', error)
+    console.error('Get project error:', error)
     return c.json({
-      error: 'Failed to get card',
+      error: 'Failed to get project',
       code: ErrorCodes.INTERNAL_ERROR
     }, 500)
   }

@@ -21,9 +21,8 @@ model Player {
   xId           String?  @unique @map("x_id")
   xProfilePic   String?  @map("x_profile_pic")
   
-  // Current card ownership (one player per card)
-  cardId        String?  @unique @map("card_id")
-  card          Card?    @relation(fields: [cardId], references: [id])
+  // Current project from The Grid (index in the profileInfos list)
+  gridIndex     Int?     @map("grid_index")
   
   // Verification status
   verified      Boolean  @default(false)
@@ -68,31 +67,10 @@ model Admin {
   @@map("admins")
 }
 
-// ============================================
-// Card - Founder trading cards
-// ============================================
-model Card {
-  id          String   @id @default(uuid())
-  founderName String   @map("founder_name")
-  company     String
-  role        String?
-  xHandle     String?  @map("x_handle") // Founder's X handle
-  category    String   // tech, finance, retail, etc.
-  imagePath   String   @map("image_path")
-  
-  // Timestamps
-  createdAt   DateTime @default(now()) @map("created_at")
-  
-  // Relations
-  currentOwner  Player?
-  tradesAsCardA Trade[] @relation("CardA")
-  tradesAsCardB Trade[] @relation("CardB")
-  
-  @@map("cards")
-}
+// Note: Card model removed - now using gridIndex from The Grid API
 
 // ============================================
-// Trade - Card swap transactions
+// Trade - Project swap transactions
 // ============================================
 model Trade {
   id        String   @id @default(uuid())
@@ -104,12 +82,9 @@ model Trade {
   playerBId String   @map("player_b_id")
   playerB   Player   @relation("PlayerB", fields: [playerBId], references: [id])
   
-  // Cards swapped (snapshot at trade time)
-  cardAId   String   @map("card_a_id")
-  cardA     Card     @relation("CardA", fields: [cardAId], references: [id])
-  
-  cardBId   String   @map("card_b_id")
-  cardB     Card     @relation("CardB", fields: [cardBId], references: [id])
+  // Grid indices swapped (snapshot at trade time)
+  gridIndexA Int     @map("grid_index_a")
+  gridIndexB Int     @map("grid_index_b")
   
   // Timestamp
   tradedAt  DateTime @default(now()) @map("traded_at")

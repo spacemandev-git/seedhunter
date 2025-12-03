@@ -1,6 +1,7 @@
 import { SignJWT, jwtVerify, type JWTPayload } from 'jose'
 import { prisma } from '../db'
 import type { TokenPayload, Admin, XProfile } from '@seedhunter/shared'
+import { getRandomProjectIndex } from './grid'
 
 // JWT secret as Uint8Array for jose
 const JWT_SECRET = new TextEncoder().encode(
@@ -324,27 +325,18 @@ export async function handleXCallback(
   const isNew = !player
   
   if (isNew) {
-    // Create new player
+    // Get a random project index from The Grid
+    const gridIndex = await getRandomProjectIndex()
+    
+    // Create new player with random project
     player = await prisma.player.create({
       data: {
         xHandle: profile.username,
         xId: profile.id,
-        xProfilePic: profile.profile_image_url
+        xProfilePic: profile.profile_image_url,
+        gridIndex
       }
     })
-    
-    // Assign a random unowned card if available
-    const unownedCard = await prisma.card.findFirst({
-      where: { currentOwner: null }
-    })
-    
-    if (unownedCard) {
-      await prisma.player.update({
-        where: { id: player.id },
-        data: { cardId: unownedCard.id }
-      })
-      player = await prisma.player.findUnique({ where: { id: player.id } })!
-    }
   } else {
     // Update profile pic if changed
     if (player!.xProfilePic !== profile.profile_image_url) {
@@ -367,7 +359,7 @@ export async function handleXCallback(
       id: player!.id,
       xHandle: player!.xHandle,
       xProfilePic: player!.xProfilePic,
-      cardId: player!.cardId,
+      gridIndex: player!.gridIndex,
       verified: player!.verified,
       verifiedAt: player!.verifiedAt?.getTime() ?? null,
       createdAt: player!.createdAt.getTime()

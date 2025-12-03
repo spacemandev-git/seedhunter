@@ -51,8 +51,10 @@ export async function exportCommand(opts: ExportOptions): Promise<void> {
         founderName: card.founderName,
         company: card.company,
         role: card.role,
-        xHandle: card.xHandle,
+        year: card.year,
         category: card.category,
+        founderBio: card.founderBio,
+        companyDescription: card.companyDescription,
         imagePath: `/static/cards/${id}.png`,
       })),
       generatedAt: new Date().toISOString(),
@@ -90,13 +92,15 @@ function generateSeedSQL(cards: any[]): string {
       `'${escapeSql(card.founderName)}'`,
       `'${escapeSql(card.company)}'`,
       card.role ? `'${escapeSql(card.role)}'` : 'NULL',
-      card.xHandle ? `'${escapeSql(card.xHandle)}'` : 'NULL',
+      card.year ? card.year.toString() : 'NULL',
       `'${card.category}'`,
+      card.founderBio ? `'${escapeSql(card.founderBio)}'` : 'NULL',
+      card.companyDescription ? `'${escapeSql(card.companyDescription)}'` : 'NULL',
       `'${card.imagePath}'`,
       Date.now().toString(),
     ].join(', ')
     
-    lines.push(`INSERT INTO cards (id, founder_name, company, role, x_handle, category, image_path, created_at) VALUES (${values});`)
+    lines.push(`INSERT INTO cards (id, founder_name, company, role, year_founded, category, founder_bio, company_description, image_path, created_at) VALUES (${values});`)
   }
   
   return lines.join('\n')

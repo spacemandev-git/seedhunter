@@ -94,9 +94,13 @@ function getStyleFunction(style: string): StyleFunction {
       return applyPosterize
     case 'halftone':
       return applyHalftone
+    case 'lowpoly':
+      return applyLowpoly
+    case 'none':
+      return applyNone
     default:
-      console.log(`  Unknown style "${style}", using duotone`)
-      return applyDuotone
+      console.log(`  Unknown style "${style}", using none (passthrough)`)
+      return applyNone
   }
 }
 
@@ -133,6 +137,39 @@ async function applyHalftone(input: Buffer): Promise<Buffer> {
     .normalise()
     .modulate({ brightness: 1.2 })
     .sharpen()
+    .png()
+    .toBuffer()
+}
+
+async function applyLowpoly(input: Buffer): Promise<Buffer> {
+  // Create a lowpoly-style effect
+  const size = 400
+  const pixelSize = 8 // Size of "polygons"
+  const smallSize = Math.floor(size / pixelSize)
+  
+  // Shrink -> enhance colors -> enlarge with nearest neighbor
+  const processed = await sharp(input)
+    .resize(size, size, { fit: 'cover' })
+    .resize(smallSize, smallSize, { fit: 'cover' })
+    .modulate({ saturation: 1.4, brightness: 1.05 })
+    .normalise()
+    .toBuffer()
+  
+  // Scale back up with nearest neighbor for blocky effect
+  return sharp(processed)
+    .resize(size, size, { 
+      fit: 'cover',
+      kernel: 'nearest'
+    })
+    .sharpen({ sigma: 1 })
+    .png()
+    .toBuffer()
+}
+
+async function applyNone(input: Buffer): Promise<Buffer> {
+  // Just resize and convert to PNG, no style applied
+  return sharp(input)
+    .resize(400, 400, { fit: 'cover' })
     .png()
     .toBuffer()
 }

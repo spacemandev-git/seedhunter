@@ -1,6 +1,7 @@
 import { prisma } from '../db'
-import type { Trade, TradePayload, TradeResult, Card } from '@seedhunter/shared'
+import type { Trade, TradePayload, TradeResult, GridProject } from '@seedhunter/shared'
 import { TRADE_EXPIRY_SECONDS, ErrorCodes } from '@seedhunter/shared'
+import { getProjectByIndex } from './grid'
 
 // Secret key for signing trade payloads
 const TRADE_SECRET = new TextEncoder().encode(
@@ -70,18 +71,17 @@ function decodePayload(encoded: string): TradePayload | null {
 export async function createTradePayload(
   playerHandle: string
 ): Promise<{ payload: string; expiresAt: number } | { error: string; code: string }> {
-  // Get player and their current card
+  // Get player and their current project
   const player = await prisma.player.findUnique({
-    where: { xHandle: playerHandle },
-    include: { card: true }
+    where: { xHandle: playerHandle }
   })
   
   if (!player) {
     return { error: 'Player not found', code: ErrorCodes.PLAYER_NOT_FOUND }
   }
   
-  if (!player.card) {
-    return { error: 'Player has no card to trade', code: ErrorCodes.VALIDATION_ERROR }
+  if (player.gridIndex === null) {
+    return { error: 'Player has no project to trade', code: ErrorCodes.VALIDATION_ERROR }
   }
   
   // Generate unique nonce
@@ -91,7 +91,7 @@ export async function createTradePayload(
   // Create payload data (without signature)
   const payloadData = {
     initiator: playerHandle,
-    cardId: player.cardId!,
+    gridIndex: player.gridIndex,
     nonce,
     expiresAt
   }
@@ -128,7 +128,7 @@ interface TradeValidation {
   error?: string
   code?: string
   payload?: TradePayload
-  initiator?: { id: string; xHandle: string; cardId: string }
+  initiator?: { id: string; xHandle: string; gridIndex: number }
 }
 
 /**
@@ -175,16 +175,16 @@ export async function validateTrade(
   // Get initiator player
   const initiator = await prisma.player.findUnique({
     where: { xHandle: payload.initiator },
-    select: { id: true, xHandle: true, cardId: true }
+    select: { id: true, xHandle: true, gridIndex: true }
   })
   
   if (!initiator) {
     return { valid: false, error: 'Initiator not found', code: ErrorCodes.PLAYER_NOT_FOUND }
   }
   
-  // Verify initiator still has the same card
-  if (initiator.cardId !== payload.cardId) {
-    return { valid: false, error: 'Initiator card has changed', code: ErrorCodes.VALIDATION_ERROR }
+  // Verify initiator still has the same project
+  if (initiator.gridIndex !== payload.gridIndex) {
+    return { valid: false, error: 'Initiator project has changed', code: ErrorCodes.VALIDATION_ERROR }
   }
   
   return {
@@ -193,7 +193,7 @@ export async function validateTrade(
     initiator: {
       id: initiator.id,
       xHandle: initiator.xHandle,
-      cardId: initiator.cardId!
+      gridIndex: initiator.gridIndex!
     }
   }
 }
@@ -224,15 +224,15 @@ export async function executeTrade(
   // Get confirmer player
   const confirmer = await prisma.player.findUnique({
     where: { xHandle: confirmerHandle },
-    select: { id: true, xHandle: true, cardId: true }
+    select: { id: true, xHandle: true, gridIndex: true }
   })
   
   if (!confirmer) {
     return { success: false, error: 'Confirmer not found' }
   }
   
-  if (!confirmer.cardId) {
-    return { success: false, error: 'Confirmer has no card to trade' }
+  if (confirmer.gridIndex === null) {
+    return { success: false, error: 'Confirmer has no project to trade' }
   }
   
   // Execute the trade in a transaction
@@ -243,23 +243,15 @@ export async function executeTrade(
         where: { nonce: payload.nonce }
       })
       
-      // Get both cards
-      const cardA = await tx.card.findUnique({ where: { id: initiator.cardId } })
-      const cardB = await tx.card.findUnique({ where: { id: confirmer.cardId! } })
-      
-      if (!cardA || !cardB) {
-        throw new Error('Cards not found')
-      }
-      
-      // Swap cards
+      // Swap projects (grid indices)
       await tx.player.update({
         where: { id: initiator.id },
-        data: { cardId: confirmer.cardId }
+        data: { gridIndex: confirmer.gridIndex }
       })
       
       await tx.player.update({
         where: { id: confirmer.id },
-        data: { cardId: initiator.cardId }
+        data: { gridIndex: initiator.gridIndex }
       })
       
       // Record the trade
@@ -267,15 +259,15 @@ export async function executeTrade(
         data: {
           playerAId: initiator.id,
           playerBId: confirmer.id,
-          cardAId: initiator.cardId,
-          cardBId: confirmer.cardId!
+          gridIndexA: initiator.gridIndex,
+          gridIndexB: confirmer.gridIndex!
         }
       })
       
       return {
         trade,
-        cardA,
-        cardB
+        initiatorGridIndex: initiator.gridIndex,
+        confirmerGridIndex: confirmer.gridIndex!
       }
     })
     
@@ -284,27 +276,18 @@ export async function executeTrade(
       id: result.trade.id,
       playerA: initiator.xHandle,
       playerB: confirmerHandle,
-      cardA: result.trade.cardAId,
-      cardB: result.trade.cardBId,
+      gridIndexA: result.trade.gridIndexA,
+      gridIndexB: result.trade.gridIndexB,
       timestamp: result.trade.tradedAt.getTime()
     }
     
-    // Confirmer's new card (which was initiator's card)
-    const newCard: Card = {
-      id: result.cardA.id,
-      founderName: result.cardA.founderName,
-      company: result.cardA.company,
-      role: result.cardA.role || '',
-      xHandle: result.cardA.xHandle,
-      category: result.cardA.category as any,
-      imagePath: result.cardA.imagePath,
-      createdAt: result.cardA.createdAt.getTime()
-    }
+    // Fetch the project that confirmer received (initiator's old project)
+    const newProject = await getProjectByIndex(result.initiatorGridIndex)
     
     return {
       success: true,
       trade,
-      newCard
+      newProject: newProject || undefined
     }
   } catch (error) {
     console.error('Trade execution error:', error)
@@ -351,8 +334,8 @@ export async function getTradeHistory(
     id: t.id,
     playerA: t.playerA.xHandle,
     playerB: t.playerB.xHandle,
-    cardA: t.cardAId,
-    cardB: t.cardBId,
+    gridIndexA: t.gridIndexA,
+    gridIndexB: t.gridIndexB,
     timestamp: t.tradedAt.getTime()
   }))
 }

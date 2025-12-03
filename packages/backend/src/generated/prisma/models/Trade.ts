@@ -20,16 +20,28 @@ export type TradeModel = runtime.Types.Result.DefaultSelection<Prisma.$TradePayl
 
 export type AggregateTrade = {
   _count: TradeCountAggregateOutputType | null
+  _avg: TradeAvgAggregateOutputType | null
+  _sum: TradeSumAggregateOutputType | null
   _min: TradeMinAggregateOutputType | null
   _max: TradeMaxAggregateOutputType | null
+}
+
+export type TradeAvgAggregateOutputType = {
+  gridIndexA: number | null
+  gridIndexB: number | null
+}
+
+export type TradeSumAggregateOutputType = {
+  gridIndexA: number | null
+  gridIndexB: number | null
 }
 
 export type TradeMinAggregateOutputType = {
   id: string | null
   playerAId: string | null
   playerBId: string | null
-  cardAId: string | null
-  cardBId: string | null
+  gridIndexA: number | null
+  gridIndexB: number | null
   tradedAt: Date | null
 }
 
@@ -37,8 +49,8 @@ export type TradeMaxAggregateOutputType = {
   id: string | null
   playerAId: string | null
   playerBId: string | null
-  cardAId: string | null
-  cardBId: string | null
+  gridIndexA: number | null
+  gridIndexB: number | null
   tradedAt: Date | null
 }
 
@@ -46,19 +58,29 @@ export type TradeCountAggregateOutputType = {
   id: number
   playerAId: number
   playerBId: number
-  cardAId: number
-  cardBId: number
+  gridIndexA: number
+  gridIndexB: number
   tradedAt: number
   _all: number
 }
 
 
+export type TradeAvgAggregateInputType = {
+  gridIndexA?: true
+  gridIndexB?: true
+}
+
+export type TradeSumAggregateInputType = {
+  gridIndexA?: true
+  gridIndexB?: true
+}
+
 export type TradeMinAggregateInputType = {
   id?: true
   playerAId?: true
   playerBId?: true
-  cardAId?: true
-  cardBId?: true
+  gridIndexA?: true
+  gridIndexB?: true
   tradedAt?: true
 }
 
@@ -66,8 +88,8 @@ export type TradeMaxAggregateInputType = {
   id?: true
   playerAId?: true
   playerBId?: true
-  cardAId?: true
-  cardBId?: true
+  gridIndexA?: true
+  gridIndexB?: true
   tradedAt?: true
 }
 
@@ -75,8 +97,8 @@ export type TradeCountAggregateInputType = {
   id?: true
   playerAId?: true
   playerBId?: true
-  cardAId?: true
-  cardBId?: true
+  gridIndexA?: true
+  gridIndexB?: true
   tradedAt?: true
   _all?: true
 }
@@ -119,6 +141,18 @@ export type TradeAggregateArgs<ExtArgs extends runtime.Types.Extensions.Internal
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
+   * Select which fields to average
+  **/
+  _avg?: TradeAvgAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
+   * Select which fields to sum
+  **/
+  _sum?: TradeSumAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
    * Select which fields to find the minimum value
   **/
   _min?: TradeMinAggregateInputType
@@ -149,6 +183,8 @@ export type TradeGroupByArgs<ExtArgs extends runtime.Types.Extensions.InternalAr
   take?: number
   skip?: number
   _count?: TradeCountAggregateInputType | true
+  _avg?: TradeAvgAggregateInputType
+  _sum?: TradeSumAggregateInputType
   _min?: TradeMinAggregateInputType
   _max?: TradeMaxAggregateInputType
 }
@@ -157,10 +193,12 @@ export type TradeGroupByOutputType = {
   id: string
   playerAId: string
   playerBId: string
-  cardAId: string
-  cardBId: string
+  gridIndexA: number
+  gridIndexB: number
   tradedAt: Date
   _count: TradeCountAggregateOutputType | null
+  _avg: TradeAvgAggregateOutputType | null
+  _sum: TradeSumAggregateOutputType | null
   _min: TradeMinAggregateOutputType | null
   _max: TradeMaxAggregateOutputType | null
 }
@@ -187,26 +225,22 @@ export type TradeWhereInput = {
   id?: Prisma.StringFilter<"Trade"> | string
   playerAId?: Prisma.StringFilter<"Trade"> | string
   playerBId?: Prisma.StringFilter<"Trade"> | string
-  cardAId?: Prisma.StringFilter<"Trade"> | string
-  cardBId?: Prisma.StringFilter<"Trade"> | string
+  gridIndexA?: Prisma.IntFilter<"Trade"> | number
+  gridIndexB?: Prisma.IntFilter<"Trade"> | number
   tradedAt?: Prisma.DateTimeFilter<"Trade"> | Date | string
   playerA?: Prisma.XOR<Prisma.PlayerScalarRelationFilter, Prisma.PlayerWhereInput>
   playerB?: Prisma.XOR<Prisma.PlayerScalarRelationFilter, Prisma.PlayerWhereInput>
-  cardA?: Prisma.XOR<Prisma.CardScalarRelationFilter, Prisma.CardWhereInput>
-  cardB?: Prisma.XOR<Prisma.CardScalarRelationFilter, Prisma.CardWhereInput>
 }
 
 export type TradeOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   playerAId?: Prisma.SortOrder
   playerBId?: Prisma.SortOrder
-  cardAId?: Prisma.SortOrder
-  cardBId?: Prisma.SortOrder
+  gridIndexA?: Prisma.SortOrder
+  gridIndexB?: Prisma.SortOrder
   tradedAt?: Prisma.SortOrder
   playerA?: Prisma.PlayerOrderByWithRelationInput
   playerB?: Prisma.PlayerOrderByWithRelationInput
-  cardA?: Prisma.CardOrderByWithRelationInput
-  cardB?: Prisma.CardOrderByWithRelationInput
 }
 
 export type TradeWhereUniqueInput = Prisma.AtLeast<{
@@ -216,25 +250,25 @@ export type TradeWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.TradeWhereInput | Prisma.TradeWhereInput[]
   playerAId?: Prisma.StringFilter<"Trade"> | string
   playerBId?: Prisma.StringFilter<"Trade"> | string
-  cardAId?: Prisma.StringFilter<"Trade"> | string
-  cardBId?: Prisma.StringFilter<"Trade"> | string
+  gridIndexA?: Prisma.IntFilter<"Trade"> | number
+  gridIndexB?: Prisma.IntFilter<"Trade"> | number
   tradedAt?: Prisma.DateTimeFilter<"Trade"> | Date | string
   playerA?: Prisma.XOR<Prisma.PlayerScalarRelationFilter, Prisma.PlayerWhereInput>
   playerB?: Prisma.XOR<Prisma.PlayerScalarRelationFilter, Prisma.PlayerWhereInput>
-  cardA?: Prisma.XOR<Prisma.CardScalarRelationFilter, Prisma.CardWhereInput>
-  cardB?: Prisma.XOR<Prisma.CardScalarRelationFilter, Prisma.CardWhereInput>
 }, "id">
 
 export type TradeOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   playerAId?: Prisma.SortOrder
   playerBId?: Prisma.SortOrder
-  cardAId?: Prisma.SortOrder
-  cardBId?: Prisma.SortOrder
+  gridIndexA?: Prisma.SortOrder
+  gridIndexB?: Prisma.SortOrder
   tradedAt?: Prisma.SortOrder
   _count?: Prisma.TradeCountOrderByAggregateInput
+  _avg?: Prisma.TradeAvgOrderByAggregateInput
   _max?: Prisma.TradeMaxOrderByAggregateInput
   _min?: Prisma.TradeMinOrderByAggregateInput
+  _sum?: Prisma.TradeSumOrderByAggregateInput
 }
 
 export type TradeScalarWhereWithAggregatesInput = {
@@ -244,44 +278,44 @@ export type TradeScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"Trade"> | string
   playerAId?: Prisma.StringWithAggregatesFilter<"Trade"> | string
   playerBId?: Prisma.StringWithAggregatesFilter<"Trade"> | string
-  cardAId?: Prisma.StringWithAggregatesFilter<"Trade"> | string
-  cardBId?: Prisma.StringWithAggregatesFilter<"Trade"> | string
+  gridIndexA?: Prisma.IntWithAggregatesFilter<"Trade"> | number
+  gridIndexB?: Prisma.IntWithAggregatesFilter<"Trade"> | number
   tradedAt?: Prisma.DateTimeWithAggregatesFilter<"Trade"> | Date | string
 }
 
 export type TradeCreateInput = {
   id?: string
+  gridIndexA: number
+  gridIndexB: number
   tradedAt?: Date | string
   playerA: Prisma.PlayerCreateNestedOneWithoutTradesAsPlayerAInput
   playerB: Prisma.PlayerCreateNestedOneWithoutTradesAsPlayerBInput
-  cardA: Prisma.CardCreateNestedOneWithoutTradesAsCardAInput
-  cardB: Prisma.CardCreateNestedOneWithoutTradesAsCardBInput
 }
 
 export type TradeUncheckedCreateInput = {
   id?: string
   playerAId: string
   playerBId: string
-  cardAId: string
-  cardBId: string
+  gridIndexA: number
+  gridIndexB: number
   tradedAt?: Date | string
 }
 
 export type TradeUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  gridIndexA?: Prisma.IntFieldUpdateOperationsInput | number
+  gridIndexB?: Prisma.IntFieldUpdateOperationsInput | number
   tradedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   playerA?: Prisma.PlayerUpdateOneRequiredWithoutTradesAsPlayerANestedInput
   playerB?: Prisma.PlayerUpdateOneRequiredWithoutTradesAsPlayerBNestedInput
-  cardA?: Prisma.CardUpdateOneRequiredWithoutTradesAsCardANestedInput
-  cardB?: Prisma.CardUpdateOneRequiredWithoutTradesAsCardBNestedInput
 }
 
 export type TradeUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   playerAId?: Prisma.StringFieldUpdateOperationsInput | string
   playerBId?: Prisma.StringFieldUpdateOperationsInput | string
-  cardAId?: Prisma.StringFieldUpdateOperationsInput | string
-  cardBId?: Prisma.StringFieldUpdateOperationsInput | string
+  gridIndexA?: Prisma.IntFieldUpdateOperationsInput | number
+  gridIndexB?: Prisma.IntFieldUpdateOperationsInput | number
   tradedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -289,13 +323,15 @@ export type TradeCreateManyInput = {
   id?: string
   playerAId: string
   playerBId: string
-  cardAId: string
-  cardBId: string
+  gridIndexA: number
+  gridIndexB: number
   tradedAt?: Date | string
 }
 
 export type TradeUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  gridIndexA?: Prisma.IntFieldUpdateOperationsInput | number
+  gridIndexB?: Prisma.IntFieldUpdateOperationsInput | number
   tradedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -303,8 +339,8 @@ export type TradeUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   playerAId?: Prisma.StringFieldUpdateOperationsInput | string
   playerBId?: Prisma.StringFieldUpdateOperationsInput | string
-  cardAId?: Prisma.StringFieldUpdateOperationsInput | string
-  cardBId?: Prisma.StringFieldUpdateOperationsInput | string
+  gridIndexA?: Prisma.IntFieldUpdateOperationsInput | number
+  gridIndexB?: Prisma.IntFieldUpdateOperationsInput | number
   tradedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -322,17 +358,22 @@ export type TradeCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   playerAId?: Prisma.SortOrder
   playerBId?: Prisma.SortOrder
-  cardAId?: Prisma.SortOrder
-  cardBId?: Prisma.SortOrder
+  gridIndexA?: Prisma.SortOrder
+  gridIndexB?: Prisma.SortOrder
   tradedAt?: Prisma.SortOrder
+}
+
+export type TradeAvgOrderByAggregateInput = {
+  gridIndexA?: Prisma.SortOrder
+  gridIndexB?: Prisma.SortOrder
 }
 
 export type TradeMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   playerAId?: Prisma.SortOrder
   playerBId?: Prisma.SortOrder
-  cardAId?: Prisma.SortOrder
-  cardBId?: Prisma.SortOrder
+  gridIndexA?: Prisma.SortOrder
+  gridIndexB?: Prisma.SortOrder
   tradedAt?: Prisma.SortOrder
 }
 
@@ -340,9 +381,14 @@ export type TradeMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   playerAId?: Prisma.SortOrder
   playerBId?: Prisma.SortOrder
-  cardAId?: Prisma.SortOrder
-  cardBId?: Prisma.SortOrder
+  gridIndexA?: Prisma.SortOrder
+  gridIndexB?: Prisma.SortOrder
   tradedAt?: Prisma.SortOrder
+}
+
+export type TradeSumOrderByAggregateInput = {
+  gridIndexA?: Prisma.SortOrder
+  gridIndexB?: Prisma.SortOrder
 }
 
 export type TradeCreateNestedManyWithoutPlayerAInput = {
@@ -429,103 +475,27 @@ export type TradeUncheckedUpdateManyWithoutPlayerBNestedInput = {
   deleteMany?: Prisma.TradeScalarWhereInput | Prisma.TradeScalarWhereInput[]
 }
 
-export type TradeCreateNestedManyWithoutCardAInput = {
-  create?: Prisma.XOR<Prisma.TradeCreateWithoutCardAInput, Prisma.TradeUncheckedCreateWithoutCardAInput> | Prisma.TradeCreateWithoutCardAInput[] | Prisma.TradeUncheckedCreateWithoutCardAInput[]
-  connectOrCreate?: Prisma.TradeCreateOrConnectWithoutCardAInput | Prisma.TradeCreateOrConnectWithoutCardAInput[]
-  createMany?: Prisma.TradeCreateManyCardAInputEnvelope
-  connect?: Prisma.TradeWhereUniqueInput | Prisma.TradeWhereUniqueInput[]
-}
-
-export type TradeCreateNestedManyWithoutCardBInput = {
-  create?: Prisma.XOR<Prisma.TradeCreateWithoutCardBInput, Prisma.TradeUncheckedCreateWithoutCardBInput> | Prisma.TradeCreateWithoutCardBInput[] | Prisma.TradeUncheckedCreateWithoutCardBInput[]
-  connectOrCreate?: Prisma.TradeCreateOrConnectWithoutCardBInput | Prisma.TradeCreateOrConnectWithoutCardBInput[]
-  createMany?: Prisma.TradeCreateManyCardBInputEnvelope
-  connect?: Prisma.TradeWhereUniqueInput | Prisma.TradeWhereUniqueInput[]
-}
-
-export type TradeUncheckedCreateNestedManyWithoutCardAInput = {
-  create?: Prisma.XOR<Prisma.TradeCreateWithoutCardAInput, Prisma.TradeUncheckedCreateWithoutCardAInput> | Prisma.TradeCreateWithoutCardAInput[] | Prisma.TradeUncheckedCreateWithoutCardAInput[]
-  connectOrCreate?: Prisma.TradeCreateOrConnectWithoutCardAInput | Prisma.TradeCreateOrConnectWithoutCardAInput[]
-  createMany?: Prisma.TradeCreateManyCardAInputEnvelope
-  connect?: Prisma.TradeWhereUniqueInput | Prisma.TradeWhereUniqueInput[]
-}
-
-export type TradeUncheckedCreateNestedManyWithoutCardBInput = {
-  create?: Prisma.XOR<Prisma.TradeCreateWithoutCardBInput, Prisma.TradeUncheckedCreateWithoutCardBInput> | Prisma.TradeCreateWithoutCardBInput[] | Prisma.TradeUncheckedCreateWithoutCardBInput[]
-  connectOrCreate?: Prisma.TradeCreateOrConnectWithoutCardBInput | Prisma.TradeCreateOrConnectWithoutCardBInput[]
-  createMany?: Prisma.TradeCreateManyCardBInputEnvelope
-  connect?: Prisma.TradeWhereUniqueInput | Prisma.TradeWhereUniqueInput[]
-}
-
-export type TradeUpdateManyWithoutCardANestedInput = {
-  create?: Prisma.XOR<Prisma.TradeCreateWithoutCardAInput, Prisma.TradeUncheckedCreateWithoutCardAInput> | Prisma.TradeCreateWithoutCardAInput[] | Prisma.TradeUncheckedCreateWithoutCardAInput[]
-  connectOrCreate?: Prisma.TradeCreateOrConnectWithoutCardAInput | Prisma.TradeCreateOrConnectWithoutCardAInput[]
-  upsert?: Prisma.TradeUpsertWithWhereUniqueWithoutCardAInput | Prisma.TradeUpsertWithWhereUniqueWithoutCardAInput[]
-  createMany?: Prisma.TradeCreateManyCardAInputEnvelope
-  set?: Prisma.TradeWhereUniqueInput | Prisma.TradeWhereUniqueInput[]
-  disconnect?: Prisma.TradeWhereUniqueInput | Prisma.TradeWhereUniqueInput[]
-  delete?: Prisma.TradeWhereUniqueInput | Prisma.TradeWhereUniqueInput[]
-  connect?: Prisma.TradeWhereUniqueInput | Prisma.TradeWhereUniqueInput[]
-  update?: Prisma.TradeUpdateWithWhereUniqueWithoutCardAInput | Prisma.TradeUpdateWithWhereUniqueWithoutCardAInput[]
-  updateMany?: Prisma.TradeUpdateManyWithWhereWithoutCardAInput | Prisma.TradeUpdateManyWithWhereWithoutCardAInput[]
-  deleteMany?: Prisma.TradeScalarWhereInput | Prisma.TradeScalarWhereInput[]
-}
-
-export type TradeUpdateManyWithoutCardBNestedInput = {
-  create?: Prisma.XOR<Prisma.TradeCreateWithoutCardBInput, Prisma.TradeUncheckedCreateWithoutCardBInput> | Prisma.TradeCreateWithoutCardBInput[] | Prisma.TradeUncheckedCreateWithoutCardBInput[]
-  connectOrCreate?: Prisma.TradeCreateOrConnectWithoutCardBInput | Prisma.TradeCreateOrConnectWithoutCardBInput[]
-  upsert?: Prisma.TradeUpsertWithWhereUniqueWithoutCardBInput | Prisma.TradeUpsertWithWhereUniqueWithoutCardBInput[]
-  createMany?: Prisma.TradeCreateManyCardBInputEnvelope
-  set?: Prisma.TradeWhereUniqueInput | Prisma.TradeWhereUniqueInput[]
-  disconnect?: Prisma.TradeWhereUniqueInput | Prisma.TradeWhereUniqueInput[]
-  delete?: Prisma.TradeWhereUniqueInput | Prisma.TradeWhereUniqueInput[]
-  connect?: Prisma.TradeWhereUniqueInput | Prisma.TradeWhereUniqueInput[]
-  update?: Prisma.TradeUpdateWithWhereUniqueWithoutCardBInput | Prisma.TradeUpdateWithWhereUniqueWithoutCardBInput[]
-  updateMany?: Prisma.TradeUpdateManyWithWhereWithoutCardBInput | Prisma.TradeUpdateManyWithWhereWithoutCardBInput[]
-  deleteMany?: Prisma.TradeScalarWhereInput | Prisma.TradeScalarWhereInput[]
-}
-
-export type TradeUncheckedUpdateManyWithoutCardANestedInput = {
-  create?: Prisma.XOR<Prisma.TradeCreateWithoutCardAInput, Prisma.TradeUncheckedCreateWithoutCardAInput> | Prisma.TradeCreateWithoutCardAInput[] | Prisma.TradeUncheckedCreateWithoutCardAInput[]
-  connectOrCreate?: Prisma.TradeCreateOrConnectWithoutCardAInput | Prisma.TradeCreateOrConnectWithoutCardAInput[]
-  upsert?: Prisma.TradeUpsertWithWhereUniqueWithoutCardAInput | Prisma.TradeUpsertWithWhereUniqueWithoutCardAInput[]
-  createMany?: Prisma.TradeCreateManyCardAInputEnvelope
-  set?: Prisma.TradeWhereUniqueInput | Prisma.TradeWhereUniqueInput[]
-  disconnect?: Prisma.TradeWhereUniqueInput | Prisma.TradeWhereUniqueInput[]
-  delete?: Prisma.TradeWhereUniqueInput | Prisma.TradeWhereUniqueInput[]
-  connect?: Prisma.TradeWhereUniqueInput | Prisma.TradeWhereUniqueInput[]
-  update?: Prisma.TradeUpdateWithWhereUniqueWithoutCardAInput | Prisma.TradeUpdateWithWhereUniqueWithoutCardAInput[]
-  updateMany?: Prisma.TradeUpdateManyWithWhereWithoutCardAInput | Prisma.TradeUpdateManyWithWhereWithoutCardAInput[]
-  deleteMany?: Prisma.TradeScalarWhereInput | Prisma.TradeScalarWhereInput[]
-}
-
-export type TradeUncheckedUpdateManyWithoutCardBNestedInput = {
-  create?: Prisma.XOR<Prisma.TradeCreateWithoutCardBInput, Prisma.TradeUncheckedCreateWithoutCardBInput> | Prisma.TradeCreateWithoutCardBInput[] | Prisma.TradeUncheckedCreateWithoutCardBInput[]
-  connectOrCreate?: Prisma.TradeCreateOrConnectWithoutCardBInput | Prisma.TradeCreateOrConnectWithoutCardBInput[]
-  upsert?: Prisma.TradeUpsertWithWhereUniqueWithoutCardBInput | Prisma.TradeUpsertWithWhereUniqueWithoutCardBInput[]
-  createMany?: Prisma.TradeCreateManyCardBInputEnvelope
-  set?: Prisma.TradeWhereUniqueInput | Prisma.TradeWhereUniqueInput[]
-  disconnect?: Prisma.TradeWhereUniqueInput | Prisma.TradeWhereUniqueInput[]
-  delete?: Prisma.TradeWhereUniqueInput | Prisma.TradeWhereUniqueInput[]
-  connect?: Prisma.TradeWhereUniqueInput | Prisma.TradeWhereUniqueInput[]
-  update?: Prisma.TradeUpdateWithWhereUniqueWithoutCardBInput | Prisma.TradeUpdateWithWhereUniqueWithoutCardBInput[]
-  updateMany?: Prisma.TradeUpdateManyWithWhereWithoutCardBInput | Prisma.TradeUpdateManyWithWhereWithoutCardBInput[]
-  deleteMany?: Prisma.TradeScalarWhereInput | Prisma.TradeScalarWhereInput[]
+export type IntFieldUpdateOperationsInput = {
+  set?: number
+  increment?: number
+  decrement?: number
+  multiply?: number
+  divide?: number
 }
 
 export type TradeCreateWithoutPlayerAInput = {
   id?: string
+  gridIndexA: number
+  gridIndexB: number
   tradedAt?: Date | string
   playerB: Prisma.PlayerCreateNestedOneWithoutTradesAsPlayerBInput
-  cardA: Prisma.CardCreateNestedOneWithoutTradesAsCardAInput
-  cardB: Prisma.CardCreateNestedOneWithoutTradesAsCardBInput
 }
 
 export type TradeUncheckedCreateWithoutPlayerAInput = {
   id?: string
   playerBId: string
-  cardAId: string
-  cardBId: string
+  gridIndexA: number
+  gridIndexB: number
   tradedAt?: Date | string
 }
 
@@ -541,17 +511,17 @@ export type TradeCreateManyPlayerAInputEnvelope = {
 
 export type TradeCreateWithoutPlayerBInput = {
   id?: string
+  gridIndexA: number
+  gridIndexB: number
   tradedAt?: Date | string
   playerA: Prisma.PlayerCreateNestedOneWithoutTradesAsPlayerAInput
-  cardA: Prisma.CardCreateNestedOneWithoutTradesAsCardAInput
-  cardB: Prisma.CardCreateNestedOneWithoutTradesAsCardBInput
 }
 
 export type TradeUncheckedCreateWithoutPlayerBInput = {
   id?: string
   playerAId: string
-  cardAId: string
-  cardBId: string
+  gridIndexA: number
+  gridIndexB: number
   tradedAt?: Date | string
 }
 
@@ -588,8 +558,8 @@ export type TradeScalarWhereInput = {
   id?: Prisma.StringFilter<"Trade"> | string
   playerAId?: Prisma.StringFilter<"Trade"> | string
   playerBId?: Prisma.StringFilter<"Trade"> | string
-  cardAId?: Prisma.StringFilter<"Trade"> | string
-  cardBId?: Prisma.StringFilter<"Trade"> | string
+  gridIndexA?: Prisma.IntFilter<"Trade"> | number
+  gridIndexB?: Prisma.IntFilter<"Trade"> | number
   tradedAt?: Prisma.DateTimeFilter<"Trade"> | Date | string
 }
 
@@ -609,215 +579,67 @@ export type TradeUpdateManyWithWhereWithoutPlayerBInput = {
   data: Prisma.XOR<Prisma.TradeUpdateManyMutationInput, Prisma.TradeUncheckedUpdateManyWithoutPlayerBInput>
 }
 
-export type TradeCreateWithoutCardAInput = {
-  id?: string
-  tradedAt?: Date | string
-  playerA: Prisma.PlayerCreateNestedOneWithoutTradesAsPlayerAInput
-  playerB: Prisma.PlayerCreateNestedOneWithoutTradesAsPlayerBInput
-  cardB: Prisma.CardCreateNestedOneWithoutTradesAsCardBInput
-}
-
-export type TradeUncheckedCreateWithoutCardAInput = {
-  id?: string
-  playerAId: string
-  playerBId: string
-  cardBId: string
-  tradedAt?: Date | string
-}
-
-export type TradeCreateOrConnectWithoutCardAInput = {
-  where: Prisma.TradeWhereUniqueInput
-  create: Prisma.XOR<Prisma.TradeCreateWithoutCardAInput, Prisma.TradeUncheckedCreateWithoutCardAInput>
-}
-
-export type TradeCreateManyCardAInputEnvelope = {
-  data: Prisma.TradeCreateManyCardAInput | Prisma.TradeCreateManyCardAInput[]
-  skipDuplicates?: boolean
-}
-
-export type TradeCreateWithoutCardBInput = {
-  id?: string
-  tradedAt?: Date | string
-  playerA: Prisma.PlayerCreateNestedOneWithoutTradesAsPlayerAInput
-  playerB: Prisma.PlayerCreateNestedOneWithoutTradesAsPlayerBInput
-  cardA: Prisma.CardCreateNestedOneWithoutTradesAsCardAInput
-}
-
-export type TradeUncheckedCreateWithoutCardBInput = {
-  id?: string
-  playerAId: string
-  playerBId: string
-  cardAId: string
-  tradedAt?: Date | string
-}
-
-export type TradeCreateOrConnectWithoutCardBInput = {
-  where: Prisma.TradeWhereUniqueInput
-  create: Prisma.XOR<Prisma.TradeCreateWithoutCardBInput, Prisma.TradeUncheckedCreateWithoutCardBInput>
-}
-
-export type TradeCreateManyCardBInputEnvelope = {
-  data: Prisma.TradeCreateManyCardBInput | Prisma.TradeCreateManyCardBInput[]
-  skipDuplicates?: boolean
-}
-
-export type TradeUpsertWithWhereUniqueWithoutCardAInput = {
-  where: Prisma.TradeWhereUniqueInput
-  update: Prisma.XOR<Prisma.TradeUpdateWithoutCardAInput, Prisma.TradeUncheckedUpdateWithoutCardAInput>
-  create: Prisma.XOR<Prisma.TradeCreateWithoutCardAInput, Prisma.TradeUncheckedCreateWithoutCardAInput>
-}
-
-export type TradeUpdateWithWhereUniqueWithoutCardAInput = {
-  where: Prisma.TradeWhereUniqueInput
-  data: Prisma.XOR<Prisma.TradeUpdateWithoutCardAInput, Prisma.TradeUncheckedUpdateWithoutCardAInput>
-}
-
-export type TradeUpdateManyWithWhereWithoutCardAInput = {
-  where: Prisma.TradeScalarWhereInput
-  data: Prisma.XOR<Prisma.TradeUpdateManyMutationInput, Prisma.TradeUncheckedUpdateManyWithoutCardAInput>
-}
-
-export type TradeUpsertWithWhereUniqueWithoutCardBInput = {
-  where: Prisma.TradeWhereUniqueInput
-  update: Prisma.XOR<Prisma.TradeUpdateWithoutCardBInput, Prisma.TradeUncheckedUpdateWithoutCardBInput>
-  create: Prisma.XOR<Prisma.TradeCreateWithoutCardBInput, Prisma.TradeUncheckedCreateWithoutCardBInput>
-}
-
-export type TradeUpdateWithWhereUniqueWithoutCardBInput = {
-  where: Prisma.TradeWhereUniqueInput
-  data: Prisma.XOR<Prisma.TradeUpdateWithoutCardBInput, Prisma.TradeUncheckedUpdateWithoutCardBInput>
-}
-
-export type TradeUpdateManyWithWhereWithoutCardBInput = {
-  where: Prisma.TradeScalarWhereInput
-  data: Prisma.XOR<Prisma.TradeUpdateManyMutationInput, Prisma.TradeUncheckedUpdateManyWithoutCardBInput>
-}
-
 export type TradeCreateManyPlayerAInput = {
   id?: string
   playerBId: string
-  cardAId: string
-  cardBId: string
+  gridIndexA: number
+  gridIndexB: number
   tradedAt?: Date | string
 }
 
 export type TradeCreateManyPlayerBInput = {
   id?: string
   playerAId: string
-  cardAId: string
-  cardBId: string
+  gridIndexA: number
+  gridIndexB: number
   tradedAt?: Date | string
 }
 
 export type TradeUpdateWithoutPlayerAInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  gridIndexA?: Prisma.IntFieldUpdateOperationsInput | number
+  gridIndexB?: Prisma.IntFieldUpdateOperationsInput | number
   tradedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   playerB?: Prisma.PlayerUpdateOneRequiredWithoutTradesAsPlayerBNestedInput
-  cardA?: Prisma.CardUpdateOneRequiredWithoutTradesAsCardANestedInput
-  cardB?: Prisma.CardUpdateOneRequiredWithoutTradesAsCardBNestedInput
 }
 
 export type TradeUncheckedUpdateWithoutPlayerAInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   playerBId?: Prisma.StringFieldUpdateOperationsInput | string
-  cardAId?: Prisma.StringFieldUpdateOperationsInput | string
-  cardBId?: Prisma.StringFieldUpdateOperationsInput | string
+  gridIndexA?: Prisma.IntFieldUpdateOperationsInput | number
+  gridIndexB?: Prisma.IntFieldUpdateOperationsInput | number
   tradedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type TradeUncheckedUpdateManyWithoutPlayerAInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   playerBId?: Prisma.StringFieldUpdateOperationsInput | string
-  cardAId?: Prisma.StringFieldUpdateOperationsInput | string
-  cardBId?: Prisma.StringFieldUpdateOperationsInput | string
+  gridIndexA?: Prisma.IntFieldUpdateOperationsInput | number
+  gridIndexB?: Prisma.IntFieldUpdateOperationsInput | number
   tradedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type TradeUpdateWithoutPlayerBInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  gridIndexA?: Prisma.IntFieldUpdateOperationsInput | number
+  gridIndexB?: Prisma.IntFieldUpdateOperationsInput | number
   tradedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   playerA?: Prisma.PlayerUpdateOneRequiredWithoutTradesAsPlayerANestedInput
-  cardA?: Prisma.CardUpdateOneRequiredWithoutTradesAsCardANestedInput
-  cardB?: Prisma.CardUpdateOneRequiredWithoutTradesAsCardBNestedInput
 }
 
 export type TradeUncheckedUpdateWithoutPlayerBInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   playerAId?: Prisma.StringFieldUpdateOperationsInput | string
-  cardAId?: Prisma.StringFieldUpdateOperationsInput | string
-  cardBId?: Prisma.StringFieldUpdateOperationsInput | string
+  gridIndexA?: Prisma.IntFieldUpdateOperationsInput | number
+  gridIndexB?: Prisma.IntFieldUpdateOperationsInput | number
   tradedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type TradeUncheckedUpdateManyWithoutPlayerBInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   playerAId?: Prisma.StringFieldUpdateOperationsInput | string
-  cardAId?: Prisma.StringFieldUpdateOperationsInput | string
-  cardBId?: Prisma.StringFieldUpdateOperationsInput | string
-  tradedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-}
-
-export type TradeCreateManyCardAInput = {
-  id?: string
-  playerAId: string
-  playerBId: string
-  cardBId: string
-  tradedAt?: Date | string
-}
-
-export type TradeCreateManyCardBInput = {
-  id?: string
-  playerAId: string
-  playerBId: string
-  cardAId: string
-  tradedAt?: Date | string
-}
-
-export type TradeUpdateWithoutCardAInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  tradedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  playerA?: Prisma.PlayerUpdateOneRequiredWithoutTradesAsPlayerANestedInput
-  playerB?: Prisma.PlayerUpdateOneRequiredWithoutTradesAsPlayerBNestedInput
-  cardB?: Prisma.CardUpdateOneRequiredWithoutTradesAsCardBNestedInput
-}
-
-export type TradeUncheckedUpdateWithoutCardAInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  playerAId?: Prisma.StringFieldUpdateOperationsInput | string
-  playerBId?: Prisma.StringFieldUpdateOperationsInput | string
-  cardBId?: Prisma.StringFieldUpdateOperationsInput | string
-  tradedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-}
-
-export type TradeUncheckedUpdateManyWithoutCardAInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  playerAId?: Prisma.StringFieldUpdateOperationsInput | string
-  playerBId?: Prisma.StringFieldUpdateOperationsInput | string
-  cardBId?: Prisma.StringFieldUpdateOperationsInput | string
-  tradedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-}
-
-export type TradeUpdateWithoutCardBInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  tradedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  playerA?: Prisma.PlayerUpdateOneRequiredWithoutTradesAsPlayerANestedInput
-  playerB?: Prisma.PlayerUpdateOneRequiredWithoutTradesAsPlayerBNestedInput
-  cardA?: Prisma.CardUpdateOneRequiredWithoutTradesAsCardANestedInput
-}
-
-export type TradeUncheckedUpdateWithoutCardBInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  playerAId?: Prisma.StringFieldUpdateOperationsInput | string
-  playerBId?: Prisma.StringFieldUpdateOperationsInput | string
-  cardAId?: Prisma.StringFieldUpdateOperationsInput | string
-  tradedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-}
-
-export type TradeUncheckedUpdateManyWithoutCardBInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  playerAId?: Prisma.StringFieldUpdateOperationsInput | string
-  playerBId?: Prisma.StringFieldUpdateOperationsInput | string
-  cardAId?: Prisma.StringFieldUpdateOperationsInput | string
+  gridIndexA?: Prisma.IntFieldUpdateOperationsInput | number
+  gridIndexB?: Prisma.IntFieldUpdateOperationsInput | number
   tradedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -827,68 +649,56 @@ export type TradeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   id?: boolean
   playerAId?: boolean
   playerBId?: boolean
-  cardAId?: boolean
-  cardBId?: boolean
+  gridIndexA?: boolean
+  gridIndexB?: boolean
   tradedAt?: boolean
   playerA?: boolean | Prisma.PlayerDefaultArgs<ExtArgs>
   playerB?: boolean | Prisma.PlayerDefaultArgs<ExtArgs>
-  cardA?: boolean | Prisma.CardDefaultArgs<ExtArgs>
-  cardB?: boolean | Prisma.CardDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["trade"]>
 
 export type TradeSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   playerAId?: boolean
   playerBId?: boolean
-  cardAId?: boolean
-  cardBId?: boolean
+  gridIndexA?: boolean
+  gridIndexB?: boolean
   tradedAt?: boolean
   playerA?: boolean | Prisma.PlayerDefaultArgs<ExtArgs>
   playerB?: boolean | Prisma.PlayerDefaultArgs<ExtArgs>
-  cardA?: boolean | Prisma.CardDefaultArgs<ExtArgs>
-  cardB?: boolean | Prisma.CardDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["trade"]>
 
 export type TradeSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   playerAId?: boolean
   playerBId?: boolean
-  cardAId?: boolean
-  cardBId?: boolean
+  gridIndexA?: boolean
+  gridIndexB?: boolean
   tradedAt?: boolean
   playerA?: boolean | Prisma.PlayerDefaultArgs<ExtArgs>
   playerB?: boolean | Prisma.PlayerDefaultArgs<ExtArgs>
-  cardA?: boolean | Prisma.CardDefaultArgs<ExtArgs>
-  cardB?: boolean | Prisma.CardDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["trade"]>
 
 export type TradeSelectScalar = {
   id?: boolean
   playerAId?: boolean
   playerBId?: boolean
-  cardAId?: boolean
-  cardBId?: boolean
+  gridIndexA?: boolean
+  gridIndexB?: boolean
   tradedAt?: boolean
 }
 
-export type TradeOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "playerAId" | "playerBId" | "cardAId" | "cardBId" | "tradedAt", ExtArgs["result"]["trade"]>
+export type TradeOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "playerAId" | "playerBId" | "gridIndexA" | "gridIndexB" | "tradedAt", ExtArgs["result"]["trade"]>
 export type TradeInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   playerA?: boolean | Prisma.PlayerDefaultArgs<ExtArgs>
   playerB?: boolean | Prisma.PlayerDefaultArgs<ExtArgs>
-  cardA?: boolean | Prisma.CardDefaultArgs<ExtArgs>
-  cardB?: boolean | Prisma.CardDefaultArgs<ExtArgs>
 }
 export type TradeIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   playerA?: boolean | Prisma.PlayerDefaultArgs<ExtArgs>
   playerB?: boolean | Prisma.PlayerDefaultArgs<ExtArgs>
-  cardA?: boolean | Prisma.CardDefaultArgs<ExtArgs>
-  cardB?: boolean | Prisma.CardDefaultArgs<ExtArgs>
 }
 export type TradeIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   playerA?: boolean | Prisma.PlayerDefaultArgs<ExtArgs>
   playerB?: boolean | Prisma.PlayerDefaultArgs<ExtArgs>
-  cardA?: boolean | Prisma.CardDefaultArgs<ExtArgs>
-  cardB?: boolean | Prisma.CardDefaultArgs<ExtArgs>
 }
 
 export type $TradePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -896,15 +706,13 @@ export type $TradePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   objects: {
     playerA: Prisma.$PlayerPayload<ExtArgs>
     playerB: Prisma.$PlayerPayload<ExtArgs>
-    cardA: Prisma.$CardPayload<ExtArgs>
-    cardB: Prisma.$CardPayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     playerAId: string
     playerBId: string
-    cardAId: string
-    cardBId: string
+    gridIndexA: number
+    gridIndexB: number
     tradedAt: Date
   }, ExtArgs["result"]["trade"]>
   composites: {}
@@ -1302,8 +1110,6 @@ export interface Prisma__TradeClient<T, Null = never, ExtArgs extends runtime.Ty
   readonly [Symbol.toStringTag]: "PrismaPromise"
   playerA<T extends Prisma.PlayerDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.PlayerDefaultArgs<ExtArgs>>): Prisma.Prisma__PlayerClient<runtime.Types.Result.GetResult<Prisma.$PlayerPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   playerB<T extends Prisma.PlayerDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.PlayerDefaultArgs<ExtArgs>>): Prisma.Prisma__PlayerClient<runtime.Types.Result.GetResult<Prisma.$PlayerPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-  cardA<T extends Prisma.CardDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CardDefaultArgs<ExtArgs>>): Prisma.Prisma__CardClient<runtime.Types.Result.GetResult<Prisma.$CardPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-  cardB<T extends Prisma.CardDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CardDefaultArgs<ExtArgs>>): Prisma.Prisma__CardClient<runtime.Types.Result.GetResult<Prisma.$CardPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1336,8 +1142,8 @@ export interface TradeFieldRefs {
   readonly id: Prisma.FieldRef<"Trade", 'String'>
   readonly playerAId: Prisma.FieldRef<"Trade", 'String'>
   readonly playerBId: Prisma.FieldRef<"Trade", 'String'>
-  readonly cardAId: Prisma.FieldRef<"Trade", 'String'>
-  readonly cardBId: Prisma.FieldRef<"Trade", 'String'>
+  readonly gridIndexA: Prisma.FieldRef<"Trade", 'Int'>
+  readonly gridIndexB: Prisma.FieldRef<"Trade", 'Int'>
   readonly tradedAt: Prisma.FieldRef<"Trade", 'DateTime'>
 }
     

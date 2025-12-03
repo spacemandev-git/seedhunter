@@ -53,7 +53,6 @@ export const AnyNull = runtime.AnyNull
 export const ModelName = {
   Player: 'Player',
   Admin: 'Admin',
-  Card: 'Card',
   Trade: 'Trade',
   TradeNonce: 'TradeNonce',
   ChatMessage: 'ChatMessage'
@@ -80,7 +79,7 @@ export const PlayerScalarFieldEnum = {
   xHandle: 'xHandle',
   xId: 'xId',
   xProfilePic: 'xProfilePic',
-  cardId: 'cardId',
+  gridIndex: 'gridIndex',
   verified: 'verified',
   verifiedAt: 'verifiedAt',
   verifiedBy: 'verifiedBy',
@@ -109,26 +108,12 @@ export const AdminScalarFieldEnum = {
 export type AdminScalarFieldEnum = (typeof AdminScalarFieldEnum)[keyof typeof AdminScalarFieldEnum]
 
 
-export const CardScalarFieldEnum = {
-  id: 'id',
-  founderName: 'founderName',
-  company: 'company',
-  role: 'role',
-  xHandle: 'xHandle',
-  category: 'category',
-  imagePath: 'imagePath',
-  createdAt: 'createdAt'
-} as const
-
-export type CardScalarFieldEnum = (typeof CardScalarFieldEnum)[keyof typeof CardScalarFieldEnum]
-
-
 export const TradeScalarFieldEnum = {
   id: 'id',
   playerAId: 'playerAId',
   playerBId: 'playerBId',
-  cardAId: 'cardAId',
-  cardBId: 'cardBId',
+  gridIndexA: 'gridIndexA',
+  gridIndexB: 'gridIndexB',
   tradedAt: 'tradedAt'
 } as const
 

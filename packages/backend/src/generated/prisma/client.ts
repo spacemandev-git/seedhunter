@@ -50,11 +50,6 @@ export type Player = Prisma.PlayerModel
  */
 export type Admin = Prisma.AdminModel
 /**
- * Model Card
- * 
- */
-export type Card = Prisma.CardModel
-/**
  * Model Trade
  * 
  */

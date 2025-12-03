@@ -64,43 +64,8 @@ async function seed() {
     console.log(`  ✓ Admin created: ${admin.username}`)
   }
   
-  // Load cards from manifest if it exists
-  const cardsManifestPath = './static/cards/manifest.json'
-  const manifestFile = Bun.file(cardsManifestPath)
-  
-  if (await manifestFile.exists()) {
-    const manifest = await manifestFile.json()
-    
-    console.log(`  Loading ${manifest.cards.length} cards from manifest...`)
-    
-    for (const card of manifest.cards) {
-      await prisma.card.upsert({
-        where: { id: card.id },
-        update: {
-          founderName: card.founderName,
-          company: card.company,
-          role: card.role,
-          xHandle: card.xHandle,
-          category: card.category,
-          imagePath: card.imagePath,
-        },
-        create: {
-          id: card.id,
-          founderName: card.founderName,
-          company: card.company,
-          role: card.role,
-          xHandle: card.xHandle,
-          category: card.category,
-          imagePath: card.imagePath,
-        },
-      })
-    }
-    
-    console.log(`  ✓ ${manifest.cards.length} cards loaded`)
-  } else {
-    console.log('  ⚠ No cards manifest found, skipping card import')
-    console.log('    Run "bun run cards:all" in card-assembler to generate cards')
-  }
+  // Note: Cards are no longer stored locally. Projects are fetched from The Grid API.
+  console.log('  ℹ Projects are fetched dynamically from The Grid API')
   
   console.log('✅ Seeding complete')
 }

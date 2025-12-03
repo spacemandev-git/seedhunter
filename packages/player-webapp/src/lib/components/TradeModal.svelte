@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount, onDestroy } from 'svelte'
+  import { onMount, onDestroy, tick } from 'svelte'
   import QRCode from 'qrcode'
   import { Html5Qrcode } from 'html5-qrcode'
   import { initTrade, confirmTrade } from '$lib/api/client'
@@ -89,6 +89,9 @@
   async function startScanning() {
     tradeState = 'scanning'
     errorMessage = ''
+    
+    // Wait for the DOM to update with the #qr-reader element
+    await tick()
     
     try {
       scanner = new Html5Qrcode('qr-reader')

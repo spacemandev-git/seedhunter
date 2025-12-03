@@ -76,7 +76,7 @@ tradeRoutes.post('/confirm', requirePlayer, async (c: Context) => {
     return c.json({
       success: true,
       trade: result.trade,
-      newCard: result.newCard
+      newProject: result.newProject
     })
   } catch (error) {
     console.error('Trade confirm error:', error)
