@@ -20,40 +20,74 @@ export type TradeNonceModel = runtime.Types.Result.DefaultSelection<Prisma.$Trad
 
 export type AggregateTradeNonce = {
   _count: TradeNonceCountAggregateOutputType | null
+  _avg: TradeNonceAvgAggregateOutputType | null
+  _sum: TradeNonceSumAggregateOutputType | null
   _min: TradeNonceMinAggregateOutputType | null
   _max: TradeNonceMaxAggregateOutputType | null
+}
+
+export type TradeNonceAvgAggregateOutputType = {
+  locationLat: number | null
+  locationLng: number | null
+}
+
+export type TradeNonceSumAggregateOutputType = {
+  locationLat: number | null
+  locationLng: number | null
 }
 
 export type TradeNonceMinAggregateOutputType = {
   nonce: string | null
   expiresAt: Date | null
+  locationLat: number | null
+  locationLng: number | null
 }
 
 export type TradeNonceMaxAggregateOutputType = {
   nonce: string | null
   expiresAt: Date | null
+  locationLat: number | null
+  locationLng: number | null
 }
 
 export type TradeNonceCountAggregateOutputType = {
   nonce: number
   expiresAt: number
+  locationLat: number
+  locationLng: number
   _all: number
 }
 
 
+export type TradeNonceAvgAggregateInputType = {
+  locationLat?: true
+  locationLng?: true
+}
+
+export type TradeNonceSumAggregateInputType = {
+  locationLat?: true
+  locationLng?: true
+}
+
 export type TradeNonceMinAggregateInputType = {
   nonce?: true
   expiresAt?: true
+  locationLat?: true
+  locationLng?: true
 }
 
 export type TradeNonceMaxAggregateInputType = {
   nonce?: true
   expiresAt?: true
+  locationLat?: true
+  locationLng?: true
 }
 
 export type TradeNonceCountAggregateInputType = {
   nonce?: true
   expiresAt?: true
+  locationLat?: true
+  locationLng?: true
   _all?: true
 }
 
@@ -95,6 +129,18 @@ export type TradeNonceAggregateArgs<ExtArgs extends runtime.Types.Extensions.Int
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
+   * Select which fields to average
+  **/
+  _avg?: TradeNonceAvgAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
+   * Select which fields to sum
+  **/
+  _sum?: TradeNonceSumAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
    * Select which fields to find the minimum value
   **/
   _min?: TradeNonceMinAggregateInputType
@@ -125,6 +171,8 @@ export type TradeNonceGroupByArgs<ExtArgs extends runtime.Types.Extensions.Inter
   take?: number
   skip?: number
   _count?: TradeNonceCountAggregateInputType | true
+  _avg?: TradeNonceAvgAggregateInputType
+  _sum?: TradeNonceSumAggregateInputType
   _min?: TradeNonceMinAggregateInputType
   _max?: TradeNonceMaxAggregateInputType
 }
@@ -132,7 +180,11 @@ export type TradeNonceGroupByArgs<ExtArgs extends runtime.Types.Extensions.Inter
 export type TradeNonceGroupByOutputType = {
   nonce: string
   expiresAt: Date
+  locationLat: number | null
+  locationLng: number | null
   _count: TradeNonceCountAggregateOutputType | null
+  _avg: TradeNonceAvgAggregateOutputType | null
+  _sum: TradeNonceSumAggregateOutputType | null
   _min: TradeNonceMinAggregateOutputType | null
   _max: TradeNonceMaxAggregateOutputType | null
 }
@@ -158,11 +210,15 @@ export type TradeNonceWhereInput = {
   NOT?: Prisma.TradeNonceWhereInput | Prisma.TradeNonceWhereInput[]
   nonce?: Prisma.StringFilter<"TradeNonce"> | string
   expiresAt?: Prisma.DateTimeFilter<"TradeNonce"> | Date | string
+  locationLat?: Prisma.FloatNullableFilter<"TradeNonce"> | number | null
+  locationLng?: Prisma.FloatNullableFilter<"TradeNonce"> | number | null
 }
 
 export type TradeNonceOrderByWithRelationInput = {
   nonce?: Prisma.SortOrder
   expiresAt?: Prisma.SortOrder
+  locationLat?: Prisma.SortOrderInput | Prisma.SortOrder
+  locationLng?: Prisma.SortOrderInput | Prisma.SortOrder
 }
 
 export type TradeNonceWhereUniqueInput = Prisma.AtLeast<{
@@ -171,14 +227,20 @@ export type TradeNonceWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.TradeNonceWhereInput[]
   NOT?: Prisma.TradeNonceWhereInput | Prisma.TradeNonceWhereInput[]
   expiresAt?: Prisma.DateTimeFilter<"TradeNonce"> | Date | string
+  locationLat?: Prisma.FloatNullableFilter<"TradeNonce"> | number | null
+  locationLng?: Prisma.FloatNullableFilter<"TradeNonce"> | number | null
 }, "nonce">
 
 export type TradeNonceOrderByWithAggregationInput = {
   nonce?: Prisma.SortOrder
   expiresAt?: Prisma.SortOrder
+  locationLat?: Prisma.SortOrderInput | Prisma.SortOrder
+  locationLng?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.TradeNonceCountOrderByAggregateInput
+  _avg?: Prisma.TradeNonceAvgOrderByAggregateInput
   _max?: Prisma.TradeNonceMaxOrderByAggregateInput
   _min?: Prisma.TradeNonceMinOrderByAggregateInput
+  _sum?: Prisma.TradeNonceSumOrderByAggregateInput
 }
 
 export type TradeNonceScalarWhereWithAggregatesInput = {
@@ -187,56 +249,88 @@ export type TradeNonceScalarWhereWithAggregatesInput = {
   NOT?: Prisma.TradeNonceScalarWhereWithAggregatesInput | Prisma.TradeNonceScalarWhereWithAggregatesInput[]
   nonce?: Prisma.StringWithAggregatesFilter<"TradeNonce"> | string
   expiresAt?: Prisma.DateTimeWithAggregatesFilter<"TradeNonce"> | Date | string
+  locationLat?: Prisma.FloatNullableWithAggregatesFilter<"TradeNonce"> | number | null
+  locationLng?: Prisma.FloatNullableWithAggregatesFilter<"TradeNonce"> | number | null
 }
 
 export type TradeNonceCreateInput = {
   nonce: string
   expiresAt: Date | string
+  locationLat?: number | null
+  locationLng?: number | null
 }
 
 export type TradeNonceUncheckedCreateInput = {
   nonce: string
   expiresAt: Date | string
+  locationLat?: number | null
+  locationLng?: number | null
 }
 
 export type TradeNonceUpdateInput = {
   nonce?: Prisma.StringFieldUpdateOperationsInput | string
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  locationLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  locationLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
 }
 
 export type TradeNonceUncheckedUpdateInput = {
   nonce?: Prisma.StringFieldUpdateOperationsInput | string
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  locationLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  locationLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
 }
 
 export type TradeNonceCreateManyInput = {
   nonce: string
   expiresAt: Date | string
+  locationLat?: number | null
+  locationLng?: number | null
 }
 
 export type TradeNonceUpdateManyMutationInput = {
   nonce?: Prisma.StringFieldUpdateOperationsInput | string
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  locationLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  locationLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
 }
 
 export type TradeNonceUncheckedUpdateManyInput = {
   nonce?: Prisma.StringFieldUpdateOperationsInput | string
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  locationLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  locationLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
 }
 
 export type TradeNonceCountOrderByAggregateInput = {
   nonce?: Prisma.SortOrder
   expiresAt?: Prisma.SortOrder
+  locationLat?: Prisma.SortOrder
+  locationLng?: Prisma.SortOrder
+}
+
+export type TradeNonceAvgOrderByAggregateInput = {
+  locationLat?: Prisma.SortOrder
+  locationLng?: Prisma.SortOrder
 }
 
 export type TradeNonceMaxOrderByAggregateInput = {
   nonce?: Prisma.SortOrder
   expiresAt?: Prisma.SortOrder
+  locationLat?: Prisma.SortOrder
+  locationLng?: Prisma.SortOrder
 }
 
 export type TradeNonceMinOrderByAggregateInput = {
   nonce?: Prisma.SortOrder
   expiresAt?: Prisma.SortOrder
+  locationLat?: Prisma.SortOrder
+  locationLng?: Prisma.SortOrder
+}
+
+export type TradeNonceSumOrderByAggregateInput = {
+  locationLat?: Prisma.SortOrder
+  locationLng?: Prisma.SortOrder
 }
 
 
@@ -244,24 +338,32 @@ export type TradeNonceMinOrderByAggregateInput = {
 export type TradeNonceSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   nonce?: boolean
   expiresAt?: boolean
+  locationLat?: boolean
+  locationLng?: boolean
 }, ExtArgs["result"]["tradeNonce"]>
 
 export type TradeNonceSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   nonce?: boolean
   expiresAt?: boolean
+  locationLat?: boolean
+  locationLng?: boolean
 }, ExtArgs["result"]["tradeNonce"]>
 
 export type TradeNonceSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   nonce?: boolean
   expiresAt?: boolean
+  locationLat?: boolean
+  locationLng?: boolean
 }, ExtArgs["result"]["tradeNonce"]>
 
 export type TradeNonceSelectScalar = {
   nonce?: boolean
   expiresAt?: boolean
+  locationLat?: boolean
+  locationLng?: boolean
 }
 
-export type TradeNonceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"nonce" | "expiresAt", ExtArgs["result"]["tradeNonce"]>
+export type TradeNonceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"nonce" | "expiresAt" | "locationLat" | "locationLng", ExtArgs["result"]["tradeNonce"]>
 
 export type $TradeNoncePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "TradeNonce"
@@ -269,6 +371,8 @@ export type $TradeNoncePayload<ExtArgs extends runtime.Types.Extensions.Internal
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     nonce: string
     expiresAt: Date
+    locationLat: number | null
+    locationLng: number | null
   }, ExtArgs["result"]["tradeNonce"]>
   composites: {}
 }
@@ -694,6 +798,8 @@ export interface Prisma__TradeNonceClient<T, Null = never, ExtArgs extends runti
 export interface TradeNonceFieldRefs {
   readonly nonce: Prisma.FieldRef<"TradeNonce", 'String'>
   readonly expiresAt: Prisma.FieldRef<"TradeNonce", 'DateTime'>
+  readonly locationLat: Prisma.FieldRef<"TradeNonce", 'Float'>
+  readonly locationLng: Prisma.FieldRef<"TradeNonce", 'Float'>
 }
     
 

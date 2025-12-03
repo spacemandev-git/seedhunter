@@ -137,6 +137,7 @@ export const requirePlayer = createMiddleware(async (c: Context, next: Next) => 
   
   const token = extractToken(c)
   if (!token) {
+    console.error('requirePlayer: No token provided, path:', c.req.path)
     return c.json({
       error: 'Authentication required',
       code: ErrorCodes.UNAUTHORIZED
@@ -145,6 +146,7 @@ export const requirePlayer = createMiddleware(async (c: Context, next: Next) => 
   
   const payload = await verifyToken(token)
   if (!payload) {
+    console.error('requirePlayer: Token verification failed, path:', c.req.path, 'token length:', token.length)
     return c.json({
       error: 'Invalid or expired token',
       code: ErrorCodes.TOKEN_EXPIRED

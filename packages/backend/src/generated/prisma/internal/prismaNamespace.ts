@@ -865,7 +865,9 @@ export type TradeScalarFieldEnum = (typeof TradeScalarFieldEnum)[keyof typeof Tr
 
 export const TradeNonceScalarFieldEnum = {
   nonce: 'nonce',
-  expiresAt: 'expiresAt'
+  expiresAt: 'expiresAt',
+  locationLat: 'locationLat',
+  locationLng: 'locationLng'
 } as const
 
 export type TradeNonceScalarFieldEnum = (typeof TradeNonceScalarFieldEnum)[keyof typeof TradeNonceScalarFieldEnum]

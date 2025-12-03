@@ -102,6 +102,10 @@ model TradeNonce {
   nonce     String   @id
   expiresAt DateTime @map("expires_at")
   
+  // Initiator's location for proximity check
+  locationLat Float? @map("location_lat")
+  locationLng Float? @map("location_lng")
+  
   @@index([expiresAt])
   @@map("trade_nonces")
 }

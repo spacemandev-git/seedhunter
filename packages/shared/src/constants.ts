@@ -18,6 +18,9 @@ export const LOCATION_UPDATE_INTERVAL_MS = 30_000
 export const LOCATION_STALE_THRESHOLD_MS = 15 * 60 * 1000 // 15 minutes
 export const NEARBY_RADIUS_OPTIONS = [5, 25, 50] as const // meters
 
+// Trade proximity settings
+export const TRADE_PROXIMITY_METERS = 25 // Players must be within 25 meters to trade
+
 // Leaderboard settings
 export const LEADERBOARD_DEFAULT_LIMIT = 50
 export const LEADERBOARD_MAX_LIMIT = 100
@@ -65,6 +68,8 @@ export const ErrorCodes = {
   TRADE_INVALID_SIGNATURE: 'TRADE_INVALID_SIGNATURE',
   TRADE_SELF_TRADE: 'TRADE_SELF_TRADE',
   TRADE_NONCE_USED: 'TRADE_NONCE_USED',
+  TRADE_TOO_FAR: 'TRADE_TOO_FAR',
+  TRADE_LOCATION_REQUIRED: 'TRADE_LOCATION_REQUIRED',
   
   // Player errors
   PLAYER_NOT_FOUND: 'PLAYER_NOT_FOUND',

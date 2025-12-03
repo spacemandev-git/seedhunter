@@ -72,6 +72,11 @@ export interface Trade {
   timestamp: number
 }
 
+export interface GeoLocation {
+  lat: number
+  lng: number
+}
+
 export interface TradePayload {
   initiator: string
   gridIndex: number // project index being offered

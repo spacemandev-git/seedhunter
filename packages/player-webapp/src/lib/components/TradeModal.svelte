@@ -3,7 +3,8 @@
   import QRCode from 'qrcode'
   import { Html5Qrcode } from 'html5-qrcode'
   import { initTrade, confirmTrade } from '$lib/api/client'
-  import type { Trade, Card } from '@seedhunter/shared'
+  import type { Trade, Card, GeoLocation } from '@seedhunter/shared'
+  import { TRADE_PROXIMITY_METERS } from '@seedhunter/shared'
   
   interface Props {
     open: boolean
@@ -13,15 +14,57 @@
   
   let { open, onClose, onTradeComplete }: Props = $props()
   
-  type TradeState = 'choose' | 'generating' | 'showing' | 'scanning' | 'confirming' | 'success' | 'error'
+  type TradeState = 'choose' | 'requesting-location' | 'generating' | 'showing' | 'scanning' | 'confirming' | 'success' | 'error'
   
   let tradeState = $state<TradeState>('choose')
   let qrDataUrl = $state<string | null>(null)
   let countdown = $state(60)
   let errorMessage = $state('')
   let tradeResult = $state<{ trade: Trade; newCard: Card } | null>(null)
+  let currentLocation = $state<GeoLocation | null>(null)
   let scanner: Html5Qrcode | null = null
   let countdownInterval: ReturnType<typeof setInterval> | null = null
+  
+  /**
+   * Request user's location using the browser's Geolocation API
+   */
+  async function requestLocation(): Promise<GeoLocation> {
+    return new Promise((resolve, reject) => {
+      if (!navigator.geolocation) {
+        reject(new Error('Geolocation is not supported by your browser'))
+        return
+      }
+      
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          resolve({
+            lat: position.coords.latitude,
+            lng: position.coords.longitude
+          })
+        },
+        (error) => {
+          switch (error.code) {
+            case error.PERMISSION_DENIED:
+              reject(new Error('Location permission denied. Please enable location access to trade.'))
+              break
+            case error.POSITION_UNAVAILABLE:
+              reject(new Error('Location information is unavailable.'))
+              break
+            case error.TIMEOUT:
+              reject(new Error('Location request timed out. Please try again.'))
+              break
+            default:
+              reject(new Error('An unknown error occurred while getting your location.'))
+          }
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 0 // Don't use cached location
+        }
+      )
+    })
+  }
   
   // Reset state when modal opens/closes
   $effect(() => {
@@ -31,6 +74,7 @@
       countdown = 60
       errorMessage = ''
       tradeResult = null
+      currentLocation = null
     } else {
       cleanup()
     }
@@ -49,11 +93,16 @@
   }
   
   async function generateQR() {
-    tradeState = 'generating'
+    tradeState = 'requesting-location'
     errorMessage = ''
     
     try {
-      const result = await initTrade()
+      // First, request location
+      currentLocation = await requestLocation()
+      
+      tradeState = 'generating'
+      
+      const result = await initTrade(currentLocation)
       
       // Generate QR code from payload
       qrDataUrl = await QRCode.toDataURL(result.payload, {
@@ -87,13 +136,18 @@
   }
   
   async function startScanning() {
-    tradeState = 'scanning'
+    tradeState = 'requesting-location'
     errorMessage = ''
     
-    // Wait for the DOM to update with the #qr-reader element
-    await tick()
-    
     try {
+      // First, request location
+      currentLocation = await requestLocation()
+      
+      tradeState = 'scanning'
+      
+      // Wait for the DOM to update with the #qr-reader element
+      await tick()
+      
       scanner = new Html5Qrcode('qr-reader')
       
       await scanner.start(
@@ -107,7 +161,7 @@
       )
     } catch (err) {
       console.error('Failed to start scanner:', err)
-      errorMessage = err instanceof Error ? err.message : 'Failed to access camera'
+      errorMessage = err instanceof Error ? err.message : 'Failed to access camera or location'
       tradeState = 'error'
     }
   }
@@ -128,7 +182,13 @@
     tradeState = 'confirming'
     
     try {
-      const result = await confirmTrade(decodedText)
+      if (!currentLocation) {
+        errorMessage = 'Location not available. Please try again.'
+        tradeState = 'error'
+        return
+      }
+      
+      const result = await confirmTrade(decodedText, currentLocation)
       
       if (result.success && result.trade && result.newCard) {
         tradeResult = { trade: result.trade, newCard: result.newCard }
@@ -180,6 +240,7 @@
       <div class="modal-header">
         <h2>
           {#if tradeState === 'choose'}Trade Card
+          {:else if tradeState === 'requesting-location'}Getting Location...
           {:else if tradeState === 'generating'}Generating...
           {:else if tradeState === 'showing'}Show This QR
           {:else if tradeState === 'scanning'}Scan QR Code
@@ -202,6 +263,10 @@
             Trade your card with another player. Either show your QR code for them to scan, or scan their code.
           </p>
           
+          <p class="location-notice">
+            📍 Both players must be within {TRADE_PROXIMITY_METERS} meters of each other to trade
+          </p>
+          
           <div class="action-buttons">
             <button class="action-btn" onclick={generateQR}>
               <span class="action-icon">📱</span>
@@ -218,6 +283,14 @@
                 <small>Scan other player's code</small>
               </span>
             </button>
+          </div>
+          
+        {:else if tradeState === 'requesting-location'}
+          <div class="loading-state">
+            <div class="location-icon">📍</div>
+            <div class="spinner-large"></div>
+            <p>Requesting your location...</p>
+            <small class="location-hint">Please allow location access when prompted</small>
           </div>
           
         {:else if tradeState === 'generating'}
@@ -269,8 +342,8 @@
             {#if tradeResult}
               <p>You received a new card:</p>
               <div class="new-card-preview">
-                <strong>{tradeResult.newCard.founderName}</strong>
-                <span>{tradeResult.newCard.company}</span>
+                <strong>{tradeResult.newCard.name}</strong>
+                <span>{tradeResult.newCard.sector || tradeResult.newCard.type || 'Project'}</span>
               </div>
             {/if}
           </div>
@@ -367,6 +440,27 @@
     text-align: center;
     margin-bottom: var(--space-lg);
     line-height: 1.6;
+  }
+  
+  .location-notice {
+    background: var(--color-primary-light);
+    color: var(--color-primary);
+    padding: var(--space-sm) var(--space-md);
+    border-radius: var(--radius-md);
+    text-align: center;
+    font-size: 0.85rem;
+    margin-bottom: var(--space-lg);
+  }
+  
+  .location-icon {
+    font-size: 2.5rem;
+    margin-bottom: var(--space-sm);
+  }
+  
+  .location-hint {
+    color: var(--color-text-muted);
+    font-size: 0.8rem;
+    margin-top: var(--space-sm);
   }
   
   /* Action buttons */

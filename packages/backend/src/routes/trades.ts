@@ -20,7 +20,27 @@ tradeRoutes.post('/init', requirePlayer, async (c: Context) => {
   const player = c.get('player')!
   
   try {
-    const result = await createTradePayload(player.xHandle)
+    let body: { location?: { lat: number; lng: number } }
+    
+    try {
+      body = await c.req.json<{ location?: { lat: number; lng: number } }>()
+    } catch (parseError) {
+      console.error('Trade init JSON parse error:', parseError)
+      return c.json({
+        error: 'Invalid request body - JSON parsing failed',
+        code: ErrorCodes.VALIDATION_ERROR
+      }, 400)
+    }
+    
+    if (!body.location || typeof body.location.lat !== 'number' || typeof body.location.lng !== 'number') {
+      console.error('Trade init missing location:', body)
+      return c.json({
+        error: 'Location is required to initiate a trade',
+        code: ErrorCodes.TRADE_LOCATION_REQUIRED
+      }, 400)
+    }
+    
+    const result = await createTradePayload(player.xHandle, body.location)
     
     if ('error' in result) {
       return c.json({
@@ -47,7 +67,7 @@ tradeRoutes.post('/confirm', requirePlayer, async (c: Context) => {
   const player = c.get('player')!
   
   try {
-    const body = await c.req.json<{ payload: string }>()
+    const body = await c.req.json<{ payload: string; location?: { lat: number; lng: number } }>()
     
     if (!body.payload) {
       return c.json({
@@ -56,7 +76,14 @@ tradeRoutes.post('/confirm', requirePlayer, async (c: Context) => {
       }, 400)
     }
     
-    const result = await executeTrade(body.payload, player.xHandle)
+    if (!body.location || typeof body.location.lat !== 'number' || typeof body.location.lng !== 'number') {
+      return c.json({
+        error: 'Location is required to confirm a trade',
+        code: ErrorCodes.TRADE_LOCATION_REQUIRED
+      }, 400)
+    }
+    
+    const result = await executeTrade(body.payload, player.xHandle, body.location)
     
     if (!result.success) {
       return c.json({
