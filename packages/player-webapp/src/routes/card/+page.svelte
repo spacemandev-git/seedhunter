@@ -3,7 +3,7 @@
   import { getPlayerProject } from '$lib/api/client'
   import { goto } from '$app/navigation'
   import { onMount } from 'svelte'
-  import type { GridProject, Trade, Card } from '@seedhunter/shared'
+  import type { GridProject, Trade } from '@seedhunter/shared'
   import FounderCard from '$lib/components/FounderCard.svelte'
   import TradeModal from '$lib/components/TradeModal.svelte'
   
@@ -47,7 +47,7 @@
     }
   }
   
-  function handleTradeComplete(result: { trade: Trade; newCard: Card }) {
+  function handleTradeComplete(result: { trade: Trade; newProject: GridProject }) {
     // Reload the project after trade completes
     loadProject()
     tradeStore.addTrade(result.trade)

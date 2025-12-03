@@ -3,13 +3,13 @@
   import QRCode from 'qrcode'
   import { Html5Qrcode } from 'html5-qrcode'
   import { initTrade, confirmTrade } from '$lib/api/client'
-  import type { Trade, Card, GeoLocation } from '@seedhunter/shared'
+  import type { Trade, GridProject, GeoLocation } from '@seedhunter/shared'
   import { TRADE_PROXIMITY_METERS } from '@seedhunter/shared'
   
   interface Props {
     open: boolean
     onClose: () => void
-    onTradeComplete: (result: { trade: Trade; newCard: Card }) => void
+    onTradeComplete: (result: { trade: Trade; newProject: GridProject }) => void
   }
   
   let { open, onClose, onTradeComplete }: Props = $props()
@@ -20,7 +20,7 @@
   let qrDataUrl = $state<string | null>(null)
   let countdown = $state(60)
   let errorMessage = $state('')
-  let tradeResult = $state<{ trade: Trade; newCard: Card } | null>(null)
+  let tradeResult = $state<{ trade: Trade; newProject: GridProject } | null>(null)
   let currentLocation = $state<GeoLocation | null>(null)
   let scanner: Html5Qrcode | null = null
   let countdownInterval: ReturnType<typeof setInterval> | null = null
@@ -190,8 +190,8 @@
       
       const result = await confirmTrade(decodedText, currentLocation)
       
-      if (result.success && result.trade && result.newCard) {
-        tradeResult = { trade: result.trade, newCard: result.newCard }
+      if (result.success && result.trade && result.newProject) {
+        tradeResult = { trade: result.trade, newProject: result.newProject }
         tradeState = 'success'
         
         // Notify parent after a delay
@@ -342,8 +342,8 @@
             {#if tradeResult}
               <p>You received a new card:</p>
               <div class="new-card-preview">
-                <strong>{tradeResult.newCard.name}</strong>
-                <span>{tradeResult.newCard.sector || tradeResult.newCard.type || 'Project'}</span>
+                <strong>{tradeResult.newProject.name}</strong>
+                <span>{tradeResult.newProject.sector || 'Project'}</span>
               </div>
             {/if}
           </div>

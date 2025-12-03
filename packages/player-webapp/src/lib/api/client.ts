@@ -104,7 +104,7 @@ export async function initTrade(location: GeoLocation): Promise<{ payload: strin
   })
 }
 
-export async function confirmTrade(payload: string, location: GeoLocation): Promise<{ success: boolean; trade?: Trade; newCard?: Card; error?: string }> {
+export async function confirmTrade(payload: string, location: GeoLocation): Promise<{ success: boolean; trade?: Trade; newProject?: GridProject; error?: string }> {
   return api(Routes.TRADE_CONFIRM, {
     method: 'POST',
     body: JSON.stringify({ payload, location }),
