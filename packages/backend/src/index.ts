@@ -10,7 +10,7 @@ import { adminRoutes } from './routes/admin'
 import { chatRoutes } from './routes/chat'
 import { websocket } from './ws/handler'
 import { initDB } from './db'
-import { getTotalProjects, getProjectByIndex } from './services/grid'
+import { TOTAL_FOUNDERS, getFounderById } from './services/founders'
 
 // Initialize database (async)
 await initDB()
@@ -58,36 +58,57 @@ app.use('/static/*', serveStatic({ root: './' }))
 // Health check
 app.get('/health', (c) => c.json({ status: 'ok', timestamp: Date.now() }))
 
-// Grid API endpoints
-app.get('/grid/stats', async (c) => {
-  try {
-    const totalProjects = await getTotalProjects()
-    return c.json({ totalProjects })
-  } catch (error) {
-    console.error('Grid stats error:', error)
-    return c.json({ error: 'Failed to get grid stats' }, 500)
-  }
+// Founders API endpoints
+app.get('/founders/stats', (c) => {
+  return c.json({ totalFounders: TOTAL_FOUNDERS })
 })
 
-app.get('/grid/project/:index', async (c) => {
+app.get('/founders/:id', (c) => {
+  const id = parseInt(c.req.param('id'))
+  
+  if (isNaN(id) || id < 0) {
+    return c.json({ error: 'Invalid founder ID' }, 400)
+  }
+  
+  const founder = getFounderById(id)
+  
+  if (!founder) {
+    return c.json({ error: 'Founder not found' }, 404)
+  }
+  
+  return c.json(founder)
+})
+
+// Grid API endpoints (backwards compatibility - calls founders internally)
+app.get('/grid/stats', (c) => {
+  return c.json({ totalProjects: TOTAL_FOUNDERS })
+})
+
+app.get('/grid/project/:index', (c) => {
   const index = parseInt(c.req.param('index'))
   
   if (isNaN(index) || index < 0) {
     return c.json({ error: 'Invalid project index' }, 400)
   }
   
-  try {
-    const project = await getProjectByIndex(index)
-    
-    if (!project) {
-      return c.json({ error: 'Project not found' }, 404)
-    }
-    
-    return c.json(project)
-  } catch (error) {
-    console.error('Grid project error:', error)
-    return c.json({ error: 'Failed to get project' }, 500)
+  const founder = getFounderById(index)
+  
+  if (!founder) {
+    return c.json({ error: 'Project not found' }, 404)
   }
+  
+  // Return founder data in a format compatible with old GridProject type
+  return c.json({
+    gridIndex: founder.id,
+    name: founder.name,
+    logo: null,
+    tagLine: founder.company,
+    description: founder.description,
+    sector: null,
+    type: null,
+    websiteUrl: null,
+    xHandle: null
+  })
 })
 
 // API routes

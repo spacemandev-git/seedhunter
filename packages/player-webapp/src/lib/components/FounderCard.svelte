@@ -1,9 +1,8 @@
 <script lang="ts">
-  import type { GridProject } from '@seedhunter/shared'
-  import { CATEGORY_COLORS, CATEGORY_LABELS } from '@seedhunter/shared'
+  import type { Founder } from '@seedhunter/shared'
   
   interface Props {
-    project: GridProject | null
+    founder: Founder | null
     ownerHandle?: string
     isOwn?: boolean
     tradeCount?: number
@@ -13,7 +12,7 @@
   }
   
   let { 
-    project, 
+    founder, 
     ownerHandle = '', 
     isOwn = false, 
     tradeCount = 0, 
@@ -30,20 +29,36 @@
     }
   }
   
-  function getSectorColor(sector: string | null): string {
-    if (!sector) return CATEGORY_COLORS.other
-    // Map sector names to category colors
-    const sectorLower = sector.toLowerCase()
-    if (sectorLower.includes('gaming')) return '#9B59B6'
-    if (sectorLower.includes('defi') || sectorLower.includes('finance')) return '#2ECC71'
-    if (sectorLower.includes('infrastructure')) return '#4A90D9'
-    if (sectorLower.includes('nft') || sectorLower.includes('art')) return '#E74C3C'
-    if (sectorLower.includes('social')) return '#3498DB'
-    if (sectorLower.includes('dao') || sectorLower.includes('governance')) return '#F39C12'
-    return CATEGORY_COLORS.crypto
+  // Color palette for founder cards based on ID
+  const FOUNDER_COLORS = [
+    '#FF6B6B', // Red
+    '#4ECDC4', // Teal
+    '#45B7D1', // Blue
+    '#96CEB4', // Green
+    '#FFEAA7', // Yellow
+    '#DDA0DD', // Plum
+    '#98D8C8', // Mint
+    '#F7DC6F', // Gold
+    '#BB8FCE', // Purple
+    '#85C1E9', // Sky
+  ]
+  
+  // Emoji icons for founders based on ID
+  const FOUNDER_ICONS = ['🚀', '💡', '🎯', '⭐', '🔥', '💎', '🌟', '🏆', '⚡', '🎨']
+  
+  function getFounderColor(id: number): string {
+    return FOUNDER_COLORS[id % FOUNDER_COLORS.length]
   }
   
-  const API_BASE = import.meta.env.VITE_API_URL || 'https://seedhunterapi.seedplex.io'
+  function getFounderIcon(id: number): string {
+    return FOUNDER_ICONS[id % FOUNDER_ICONS.length]
+  }
+  
+  function getGradient(id: number): string {
+    const color = getFounderColor(id)
+    // Create a gradient variant
+    return `linear-gradient(135deg, ${color}cc 0%, ${color}88 50%, ${color}55 100%)`
+  }
 </script>
 
 <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
@@ -58,49 +73,33 @@
   <div class="card-inner" class:flipped={isFlipped}>
     <!-- Front of card -->
     <div class="card-face card-front">
-      {#if project}
-        <!-- Card image -->
-        <div class="card-image">
-          {#if project.logo}
-            <img 
-              src={project.logo} 
-              alt={project.name}
-              onerror={(e) => {
-                const target = e.currentTarget as HTMLImageElement
-                target.style.display = 'none'
-                target.nextElementSibling?.classList.remove('hidden')
-              }}
-            />
-            <div class="placeholder hidden">
-              <span class="placeholder-icon">🎴</span>
-            </div>
-          {:else}
-            <div class="placeholder">
-              <span class="placeholder-icon">🎴</span>
-            </div>
-          {/if}
+      {#if founder}
+        <!-- Card header with gradient background -->
+        <div class="card-header" style="background: {getGradient(founder.id)}">
+          <div class="founder-icon">
+            {getFounderIcon(founder.id)}
+          </div>
+          <div class="founded-badge">
+            Est. {founder.founded}
+          </div>
         </div>
         
         <!-- Card info -->
         <div class="card-info">
-          <h3 class="founder-name">{project.name}</h3>
-          {#if project.tagLine}
-            <p class="company">{project.tagLine}</p>
-          {/if}
-          {#if project.xHandle}
-            <p class="x-handle">@{project.xHandle}</p>
-          {/if}
+          <h3 class="founder-name">{founder.name}</h3>
+          <p class="company">{founder.company}</p>
+          <p class="description">{founder.description}</p>
         </div>
         
         <!-- Card footer -->
         <div class="card-footer">
           <span 
-            class="category-badge" 
-            style="background-color: {getSectorColor(project.sector)}"
+            class="valuation-badge" 
+            style="background-color: {getFounderColor(founder.id)}"
           >
-            {project.sector || project.type || 'Project'}
+            {founder.valuation}
           </span>
-          <span class="card-id">#{project.gridIndex}</span>
+          <span class="card-id">#{founder.id}</span>
         </div>
         
         <!-- Owner badge if not own card -->
@@ -146,23 +145,13 @@
           </div>
         {/if}
         
-        {#if project}
+        {#if founder}
           <div class="card-details">
-            <p><strong>Project:</strong> {project.name}</p>
-            {#if project.sector}
-              <p><strong>Sector:</strong> {project.sector}</p>
-            {/if}
-            {#if project.type}
-              <p><strong>Type:</strong> {project.type}</p>
-            {/if}
-            {#if project.description}
-              <p class="project-description">{project.description}</p>
-            {/if}
-            {#if project.websiteUrl}
-              <a href={project.websiteUrl} target="_blank" rel="noopener noreferrer" class="project-link">
-                Visit Website →
-              </a>
-            {/if}
+            <p><strong>Founder:</strong> {founder.name}</p>
+            <p><strong>Company:</strong> {founder.company}</p>
+            <p><strong>Founded:</strong> {founder.founded}</p>
+            <p><strong>Valuation:</strong> {founder.valuation}</p>
+            <p class="founder-description">{founder.description}</p>
           </div>
         {/if}
         
@@ -227,65 +216,68 @@
     flex-direction: column;
   }
   
-  .card-image {
-    flex: 1;
+  .card-header {
+    flex: 0 0 auto;
+    height: 45%;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, var(--color-teal-pale), #EEF9F8);
-    overflow: hidden;
     position: relative;
+    overflow: hidden;
   }
   
-  .card-image img {
-    max-width: 80%;
-    max-height: 80%;
-    width: auto;
-    height: auto;
-    object-fit: contain;
-  }
-  
-  .placeholder {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    height: 100%;
-  }
-  
-  .placeholder.hidden {
-    display: none;
-  }
-  
-  .placeholder-icon {
+  .founder-icon {
     font-size: 4rem;
-    opacity: 0.5;
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+  }
+  
+  .founded-badge {
+    position: absolute;
+    top: var(--space-sm);
+    right: var(--space-sm);
+    background: rgba(255, 255, 255, 0.95);
+    color: var(--color-text);
+    padding: 4px 10px;
+    border-radius: var(--radius-full);
+    font-size: 0.7rem;
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   }
   
   .card-info {
+    flex: 1;
     padding: var(--space-md);
     text-align: center;
     background: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
   }
   
   .founder-name {
-    font-size: 1.1rem;
+    font-size: 1.2rem;
     font-weight: 700;
     color: var(--color-text);
-    margin-bottom: 2px;
+    margin-bottom: 4px;
     line-height: 1.2;
   }
   
   .company {
-    font-size: 0.9rem;
+    font-size: 1rem;
     color: var(--color-primary);
     font-weight: 600;
-    margin-bottom: 2px;
+    margin-bottom: 8px;
   }
   
-  .x-handle {
+  .description {
     font-size: 0.8rem;
     color: var(--color-text-muted);
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   
   .card-footer {
@@ -297,7 +289,7 @@
     border-top: 1px solid var(--color-border-light);
   }
   
-  .category-badge {
+  .valuation-badge {
     font-size: 0.65rem;
     font-weight: 600;
     text-transform: uppercase;
@@ -305,6 +297,10 @@
     padding: 3px 8px;
     border-radius: var(--radius-full);
     letter-spacing: 0.03em;
+    max-width: 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
   
   .card-id {
@@ -431,7 +427,7 @@
     margin: 2px 0;
   }
   
-  .project-description {
+  .founder-description {
     margin-top: var(--space-sm) !important;
     font-size: 0.75rem;
     opacity: 0.85;
@@ -439,23 +435,6 @@
     max-height: 60px;
     overflow: hidden;
     text-overflow: ellipsis;
-  }
-  
-  .project-link {
-    display: inline-block;
-    margin-top: var(--space-sm);
-    color: white;
-    background: rgba(255, 255, 255, 0.2);
-    padding: 4px 12px;
-    border-radius: var(--radius-full);
-    font-size: 0.75rem;
-    font-weight: 600;
-    text-decoration: none;
-    transition: background var(--transition-fast);
-  }
-  
-  .project-link:hover {
-    background: rgba(255, 255, 255, 0.3);
   }
   
   .card-back .flip-hint {
@@ -494,11 +473,19 @@
     padding: var(--space-sm);
   }
   
+  .size-small .founder-icon {
+    font-size: 3rem;
+  }
+  
   .size-large .founder-name {
-    font-size: 1.3rem;
+    font-size: 1.4rem;
   }
   
   .size-large .company {
-    font-size: 1rem;
+    font-size: 1.1rem;
+  }
+  
+  .size-large .founder-icon {
+    font-size: 5rem;
   }
 </style>

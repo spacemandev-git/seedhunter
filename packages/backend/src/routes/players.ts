@@ -77,7 +77,7 @@ playerRoutes.get('/:handle', async (c: Context) => {
   }
 })
 
-// Get player's current project from The Grid
+// Get player's current founder (their card)
 playerRoutes.get('/:handle/project', async (c: Context) => {
   const handle = c.req.param('handle')
   

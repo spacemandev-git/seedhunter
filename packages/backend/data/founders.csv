@@ -1,0 +1,120 @@
+Founder,Company / Project,Description,Founded,Valuation / Status
+Steve Jobs,Apple,"Co-founded Apple, driving personal computing and later the iPhone and iPad era",1976,Public – ~$3.0T
+Steve Wozniak,Apple,Co-founded Apple and engineered the early Apple I and Apple II computers,1976,Public – ~$3.0T
+Bill Gates,Microsoft,"Co-founded Microsoft, standardizing PC operating systems and productivity software",1975,Public – ~$3.8T
+Paul Allen,Microsoft,Co-founded Microsoft and helped launch the PC software industry,1975,Public – ~$3.8T
+Larry Page,Google (Alphabet),"Co-founded Google, building a dominant search and online ads business",1998,Public – ~$2.9T
+Sergey Brin,Google (Alphabet),"Co-founded Google, focusing on search, ads, and special projects",1998,Public – ~$2.9T
+Jeff Bezos,Amazon,"Founded Amazon, expanding from e-commerce into cloud and logistics",1994,Public – ~$2.5T
+Mark Zuckerberg,Meta Platforms (Facebook),"Founded Facebook, creating a global social network and ads platform",2004,Public – ~$1.6T
+Elon Musk,Tesla,"Led Tesla, popularizing electric vehicles and energy storage",2003,Public – ~$1.4T
+Larry Ellison,Oracle,"Co-founded Oracle, a leading enterprise database and cloud company",1977,Public – ~$430B
+Michael Dell,Dell Technologies,"Founded Dell, pioneering direct-to-consumer PCs and later enterprise IT",1984,Public – ~$90B
+Gordon Moore,Intel,Co-founded Intel and articulated Moore's Law for semiconductor progress,1968,Public – ~$200B
+Robert Noyce,Intel,Co-founded Intel and helped invent the integrated circuit,1968,Public – ~$200B
+Bill Hewlett,Hewlett-Packard,"Co-founded HP, an early Silicon Valley electronics and computing firm",1939,Public – ~$65B combined
+Dave Packard,Hewlett-Packard,Co-founded HP and helped shape modern Silicon Valley corporate culture,1939,Public – ~$65B combined
+Akio Morita,Sony,"Co-founded Sony, a global consumer electronics and media company",1946,Public – ~$120B
+Masaru Ibuka,Sony,"Co-founded Sony, driving post-war electronics innovation",1946,Public – ~$120B
+Morris Chang,TSMC,"Founded TSMC, pioneering the pure-play semiconductor foundry model",1987,Public – ~$850B
+Jensen Huang,Nvidia,"Co-founded Nvidia, leading GPUs from graphics to AI computing",1993,Public – ~$4.4T
+Chris Malachowsky,Nvidia,Co-founded Nvidia and worked on early GPU architectures,1993,Public – ~$4.4T
+Curtis Priem,Nvidia,Co-founded Nvidia and contributed to early graphics technology,1993,Public – ~$4.4T
+Jerry Sanders,AMD,"Founded AMD, competing in CPUs, GPUs, and semiconductors",1969,Public – ~$300B
+Tim Berners-Lee,World Wide Web / W3C,Invented the World Wide Web and founded the W3C standards body,1989,Standards body / web – ~$0
+Vint Cerf,Internet (TCP/IP),Co-designed the TCP/IP protocols foundational to the modern internet,1970,Protocol/standard – ~$0
+Linus Torvalds,Linux,"Created the Linux kernel, widely used in servers, mobile, and cloud",1991,Open-source ecosystem – ~$0
+Dennis Ritchie,Unix / C,Co-created the Unix operating system and the C programming language,1969,No standalone valuation – ~$0
+Ken Thompson,Unix,"Co-created the Unix operating system, shaping modern OS design",1969,No standalone valuation – ~$0
+James Gosling,Java (Sun Microsystems),Created the Java programming language at Sun Microsystems,1995,Part of Oracle – est. included in ~$430B
+Guido van Rossum,Python,"Created the Python programming language, now key in AI and data science",1991,Open-source ecosystem – ~$0
+Brendan Eich,JavaScript / Mozilla,Created JavaScript and co-founded Mozilla,1995,Open standard / foundation – ~$0
+Bjarne Stroustrup,C++,"Created C++, a widely-used systems programming language",1985,Open standard – ~$0
+Marc Benioff,Salesforce,"Founded Salesforce, a leading cloud-based CRM and SaaS platform",1999,Public – ~$300B
+Diane Greene,VMware,"Co-founded VMware, pioneering server virtualization",1998,Acquired – $69B (2023)
+Reed Hastings,Netflix,"Co-founded Netflix, transforming media with subscription streaming",1997,Public – ~$300B
+Marc Randolph,Netflix,Co-founded Netflix and shaped its early product and brand,1997,Public – ~$300B
+Jeff Lawson,Twilio,"Founded Twilio, providing communications APIs for developers",2008,Public – ~$20B
+Stewart Butterfield,Slack,"Co-founded Slack, a workplace messaging platform",2013,Acquired – $27.7B
+Daniel Dines,UiPath,"Founded UiPath, a leader in robotic process automation software",2005,Public – ~$30B
+Ryan Smith,Qualtrics,"Co-founded Qualtrics, an experience-management software company",2002,Acquired – $8B
+Pierre Omidyar,eBay,"Founded eBay, an early online auction and marketplace platform",1995,Public – ~$35B
+Jerry Yang,Yahoo,"Co-founded Yahoo, an early web portal and search company",1994,Acquired – $4.5B
+David Filo,Yahoo,"Co-founded Yahoo, an early web portal and search company",1994,Acquired – $4.5B
+Brian Chesky,Airbnb,"Co-founded Airbnb, a global home-sharing and experiences marketplace",2008,Public – ~$110B
+Joe Gebbia,Airbnb,"Co-founded Airbnb, a global home-sharing and experiences marketplace",2008,Public – ~$110B
+Nathan Blecharczyk,Airbnb,"Co-founded Airbnb, serving as technical co-founder and early CTO",2008,Public – ~$110B
+Travis Kalanick,Uber,"Co-founded Uber, popularizing ride-hailing via smartphone apps",2009,Public – ~$180B
+Garrett Camp,Uber,"Co-founded Uber, and previously founded StumbleUpon",2009,Public – ~$180B
+Reid Hoffman,LinkedIn,"Founded LinkedIn, a professional social networking platform",2002,Acquired – $26.2B
+Drew Houston,Dropbox,"Co-founded Dropbox, a cloud file-sync and collaboration service",2007,Public – ~$12B
+Arash Ferdowsi,Dropbox,"Co-founded Dropbox, a cloud file-sync and collaboration service",2007,Public – ~$12B
+Daniel Ek,Spotify,"Co-founded Spotify, a global music streaming service",2006,Public – ~$90B
+Martin Lorentzon,Spotify,"Co-founded Spotify, focusing on growth and advertising",2006,Public – ~$90B
+Evan Spiegel,Snap,"Co-founded Snap, focusing on ephemeral messaging and AR lenses",2011,Public – ~$30B
+Bobby Murphy,Snap,Co-founded Snap and served as technical leader,2011,Public – ~$30B
+Jan Koum,WhatsApp,"Co-founded WhatsApp, a global encrypted messaging app",2009,Acquired – $19B
+Brian Acton,WhatsApp,Co-founded WhatsApp and later co-founded the Signal Foundation,2009,Acquired – $19B
+Jack Dorsey,Twitter (X),"Co-founded Twitter, a real-time microblogging platform",2006,Acquired – $44B
+Biz Stone,Twitter (X),"Co-founded Twitter, helping shape early blogging and social tools",2006,Acquired – $44B
+Noah Glass,Twitter (X),Early co-founder of Twitter and helped name and conceptualize the service,2006,Acquired – $44B
+Kevin Systrom,Instagram,"Co-founded Instagram, a mobile photo-sharing social network",2010,Acquired – $1B
+Mike Krieger,Instagram,"Co-founded Instagram, leading engineering and product",2010,Acquired – $1B
+Evan Williams,Blogger,"Founded Blogger, helping popularize online publishing",1999,Acquired – est. ~$20M
+Jack Ma,Alibaba Group,"Founded Alibaba, a Chinese e-commerce and cloud conglomerate",1999,Public – ~$220B
+Pony Ma,Tencent,"Founded Tencent, a Chinese social media, gaming, and payments giant",1998,Public – ~$450B
+Robin Li,Baidu,"Founded Baidu, a major Chinese search and AI company",2000,Public – ~$100B
+Lei Jun,Xiaomi,"Founded Xiaomi, a consumer electronics and smartphone company",2010,Public – ~$140B
+Zhang Yiming,ByteDance,"Founded ByteDance, an AI-driven content and social media company (TikTok)",2012,Private – ~$325B
+Hiroshi Mikitani,Rakuten,"Founded Rakuten, a Japanese e-commerce and fintech group",1997,Public – ~$10B
+Lee Hae-jin,Naver,"Founded Naver, a leading Korean portal and search company",1999,Public – ~$30B
+Patrick Collison,Stripe,"Co-founded Stripe, a developer-focused online payments platform",2010,Private – ~$95B
+John Collison,Stripe,"Co-founded Stripe, a developer-focused online payments platform",2010,Private – ~$95B
+Max Levchin,PayPal,"Co-founded PayPal, an early online payments company",1998,Public – ~$85B
+Peter Thiel,PayPal,Co-founded PayPal and later became a major tech investor,1998,Public – ~$85B
+Demis Hassabis,DeepMind,"Co-founded DeepMind, a deep learning and reinforcement learning research lab",2010,Acquired – ~$500M
+Mustafa Suleyman,DeepMind,"Co-founded DeepMind, later co-founding Inflection AI and joining Microsoft AI",2010,Acquired – ~$500M
+Shane Legg,DeepMind,"Co-founded DeepMind, with focus on theoretical AI and safety",2010,Acquired – ~$500M
+Sam Altman,OpenAI,"Co-founded OpenAI, a frontier AI research and product company",2015,Private – ~$500B
+Greg Brockman,OpenAI,Co-founded OpenAI and served as key technical and product leader,2015,Private – ~$500B
+Ilya Sutskever,OpenAI,Co-founded OpenAI and served as chief scientist in deep learning,2015,Private – ~$500B
+Dario Amodei,Anthropic,"Co-founded Anthropic, a safety-focused frontier AI company",2021,Private – ~$180B
+Daniela Amodei,Anthropic,"Co-founded Anthropic, overseeing operations and governance",2021,Private – ~$180B
+Narayana Murthy,Infosys,"Founded Infosys, a major Indian IT services and consulting company",1981,Public – ~$80B
+Tan Le,Emotiv,"Co-founded Emotiv, a neurotechnology and brain-computer interface company",2003,Private – est. ~$100M
+Weili Dai,Marvell Technology,"Co-founded Marvell, a fabless semiconductor company",1995,Public – ~$50B
+Melanie Perkins,Canva,"Co-founded Canva, an online design and publishing platform",2012,Private – ~$45B
+Cliff Obrecht,Canva,"Co-founded Canva, focusing on operations and growth",2012,Private – ~$45B
+Cameron Adams,Canva,"Co-founded Canva, leading product and user experience",2012,Private – ~$45B
+Whitney Wolfe Herd,Bumble,"Founded Bumble, a women-first dating and social networking app",2014,Public – ~$10B
+Anne Wojcicki,23andMe,"Co-founded 23andMe, a consumer genetics and genomics company",2006,Public – ~$1B
+Reshma Saujani,Girls Who Code,"Founded Girls Who Code, a non-profit to close the gender gap in tech",2012,Non-profit – ~$0
+Katrina Lake,Stitch Fix,"Founded Stitch Fix, an online personal styling and apparel company",2011,Public – ~$1B
+Soichiro Honda,Honda Motor,"Founded Honda, a global engines and automotive company",1948,Public – ~$60B
+Konosuke Matsushita,Panasonic,"Founded Panasonic, a major electronics and appliances company",1918,Public – ~$25B
+Ken Olsen,Digital Equipment Corporation,"Founded DEC, a pioneer in minicomputers",1957,Acquired – ~$9.6B
+Masayoshi Son,SoftBank,"Founded SoftBank, a telecom and technology investment conglomerate",1981,Public – ~$70B
+Jason Citron,Discord,"Founded Discord, a real-time chat and communities platform",2015,Private – ~$15B
+Palmer Luckey,Oculus,"Founded Oculus, reviving consumer virtual reality hardware",2012,Acquired – $2B
+Satoshi Nakamoto,Bitcoin,Created the first decentralized cryptocurrency and blockchain enabling peer-to-peer digital cash,2009,Protocol – ~$800B
+Vitalik Buterin,Ethereum,"Created Ethereum, a programmable smart contract blockchain for decentralized applications",2015,Protocol – ~$450B
+Changpeng Zhao,Binance,"Founded Binance, one of the world’s largest cryptocurrency exchanges",2017,Private – ~$90B
+Brian Armstrong,Coinbase,"Founded Coinbase, a major U.S.-regulated cryptocurrency exchange",2012,Public – ~$60B
+Jesse Powell,Kraken,"Founded Kraken, an early major cryptocurrency exchange",2011,Private – ~$12B
+Jed McCaleb,Stellar,"Founded Stellar, a blockchain network for low-cost cross-border payments",2014,Protocol – ~$7B
+Chris Larsen,Ripple,"Co-founded Ripple, focusing on cross-border payments with XRP",2012,Protocol – ~$38B
+Charles Hoskinson,Cardano,"Founded Cardano, a research-driven proof-of-stake blockchain",2015,Protocol – ~$28B
+Gavin Wood,Polkadot,"Founded Polkadot, a multi-chain interoperability network",2016,Protocol – ~$11B
+Anatoly Yakovenko,Solana,"Founded Solana, a high-performance Layer-1 blockchain using Proof-of-History",2017,Protocol – ~$85B
+Raj Gokal,Solana,"Co-founded Solana, helping build its ecosystem and business",2017,Protocol – ~$85B
+Tristan Yver,Backpack,"Co-founded Backpack, a Solana-focused wallet and exchange ecosystem",2022,Private – ~$750M
+Armani Ferrante,Backpack,"Co-founded Backpack, a Solana-focused wallet and exchange ecosystem",2022,Private – ~$750M
+Mert Mumtaz,Helius,"Founded Helius, a Solana infrastructure and developer tooling company",2022,Private – ~$400M
+Hayden Adams,Uniswap,"Founded Uniswap, a decentralized exchange based on automated market makers",2018,Protocol – ~$9B
+Stani Kulechov,Aave,"Founded Aave, a decentralized lending and borrowing protocol",2017,Protocol – ~$1.8B
+Rune Christensen,MakerDAO,"Founded MakerDAO, a decentralized stablecoin and lending system issuing DAI",2015,Protocol – ~$1.8B
+Andre Cronje,Yearn Finance,"Founded Yearn Finance, a DeFi protocol for yield aggregation",2020,Protocol – ~$0.8B
+Justin Sun,TRON,"Founded TRON, a high-throughput smart contract blockchain",2017,Protocol – ~$13B
+Jihan Wu,Bitmain,"Co-founded Bitmain, a major manufacturer of cryptocurrency mining hardware",2013,Private – ~$6B
+Barry Silbert,Digital Currency Group,"Founded Digital Currency Group, a crypto holding and investment company",2015,Private – ~$10B
+Andreessen Horowitz,a16z Crypto,"Leads a16z Crypto, a major crypto-focused venture capital arm",2018,AUM – ~$30B

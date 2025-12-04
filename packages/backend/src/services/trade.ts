@@ -1,7 +1,7 @@
 import { prisma } from '../db'
-import type { Trade, TradePayload, TradeResult, GridProject, GeoLocation } from '@seedhunter/shared'
+import type { Trade, TradePayload, TradeResult, Founder, GeoLocation } from '@seedhunter/shared'
 import { TRADE_EXPIRY_SECONDS, TRADE_PROXIMITY_METERS, ErrorCodes } from '@seedhunter/shared'
-import { getProjectByIndex } from './grid'
+import { getFounderById } from './founders'
 
 // ============================================
 // Location Utilities
@@ -352,8 +352,8 @@ export async function executeTrade(
       timestamp: result.trade.tradedAt.getTime()
     }
     
-    // Fetch the project that confirmer received (initiator's old project)
-    const newProject = await getProjectByIndex(result.initiatorGridIndex)
+    // Fetch the founder that confirmer received (initiator's old founder)
+    const newProject = getFounderById(result.initiatorGridIndex)
     
     return {
       success: true,

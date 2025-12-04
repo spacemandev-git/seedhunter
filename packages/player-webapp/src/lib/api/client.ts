@@ -1,4 +1,4 @@
-import { Routes, type Player, type LeaderboardEntry, type Card, type Trade, type AdminLocation, type ApiResponse, type PaginatedResponse, type GridProject, type GeoLocation } from '@seedhunter/shared'
+import { Routes, type Player, type LeaderboardEntry, type Card, type Trade, type AdminLocation, type ApiResponse, type PaginatedResponse, type GridProject, type GeoLocation, type Founder } from '@seedhunter/shared'
 
 const API_BASE = import.meta.env.VITE_API_URL || '/api'
 
@@ -82,7 +82,7 @@ export async function getPlayerCard(handle: string): Promise<Card> {
   return api(Routes.PLAYER_CARD(handle))
 }
 
-export async function getPlayerProject(handle: string): Promise<GridProject> {
+export async function getPlayerProject(handle: string): Promise<Founder> {
   return api(Routes.PLAYER_PROJECT(handle))
 }
 
@@ -104,7 +104,7 @@ export async function initTrade(location: GeoLocation): Promise<{ payload: strin
   })
 }
 
-export async function confirmTrade(payload: string, location: GeoLocation): Promise<{ success: boolean; trade?: Trade; newProject?: GridProject; error?: string }> {
+export async function confirmTrade(payload: string, location: GeoLocation): Promise<{ success: boolean; trade?: Trade; newProject?: Founder; error?: string }> {
   return api(Routes.TRADE_CONFIRM, {
     method: 'POST',
     body: JSON.stringify({ payload, location }),

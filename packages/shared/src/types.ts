@@ -40,7 +40,20 @@ export interface NearbyPlayer {
 }
 
 // ============================================
-// Grid Project Types (from The Grid API)
+// Founder Types
+// ============================================
+
+export interface Founder {
+  id: number
+  name: string       // Founder's name (e.g., "Steve Jobs")
+  company: string    // Company/Project name (e.g., "Apple")
+  description: string // Description of what they did
+  founded: number    // Year founded
+  valuation: string  // Current valuation status
+}
+
+// ============================================
+// Grid Project Types (from The Grid API) - DEPRECATED
 // ============================================
 
 export interface GridProject {
@@ -88,7 +101,7 @@ export interface TradePayload {
 export interface TradeResult {
   success: boolean
   trade?: Trade
-  newProject?: GridProject
+  newProject?: Founder
   error?: string
 }
 

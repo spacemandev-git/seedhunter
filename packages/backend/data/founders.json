@@ -1,0 +1,954 @@
+{
+  "0": {
+    "id": 0,
+    "name": "Steve Jobs",
+    "company": "Apple",
+    "description": "Co-founded Apple, driving personal computing and later the iPhone and iPad era",
+    "founded": 1976,
+    "valuation": "Public – ~$3.0T"
+  },
+  "1": {
+    "id": 1,
+    "name": "Steve Wozniak",
+    "company": "Apple",
+    "description": "Co-founded Apple and engineered the early Apple I and Apple II computers",
+    "founded": 1976,
+    "valuation": "Public – ~$3.0T"
+  },
+  "2": {
+    "id": 2,
+    "name": "Bill Gates",
+    "company": "Microsoft",
+    "description": "Co-founded Microsoft, standardizing PC operating systems and productivity software",
+    "founded": 1975,
+    "valuation": "Public – ~$3.8T"
+  },
+  "3": {
+    "id": 3,
+    "name": "Paul Allen",
+    "company": "Microsoft",
+    "description": "Co-founded Microsoft and helped launch the PC software industry",
+    "founded": 1975,
+    "valuation": "Public – ~$3.8T"
+  },
+  "4": {
+    "id": 4,
+    "name": "Larry Page",
+    "company": "Google (Alphabet)",
+    "description": "Co-founded Google, building a dominant search and online ads business",
+    "founded": 1998,
+    "valuation": "Public – ~$2.9T"
+  },
+  "5": {
+    "id": 5,
+    "name": "Sergey Brin",
+    "company": "Google (Alphabet)",
+    "description": "Co-founded Google, focusing on search, ads, and special projects",
+    "founded": 1998,
+    "valuation": "Public – ~$2.9T"
+  },
+  "6": {
+    "id": 6,
+    "name": "Jeff Bezos",
+    "company": "Amazon",
+    "description": "Founded Amazon, expanding from e-commerce into cloud and logistics",
+    "founded": 1994,
+    "valuation": "Public – ~$2.5T"
+  },
+  "7": {
+    "id": 7,
+    "name": "Mark Zuckerberg",
+    "company": "Meta Platforms (Facebook)",
+    "description": "Founded Facebook, creating a global social network and ads platform",
+    "founded": 2004,
+    "valuation": "Public – ~$1.6T"
+  },
+  "8": {
+    "id": 8,
+    "name": "Elon Musk",
+    "company": "Tesla",
+    "description": "Led Tesla, popularizing electric vehicles and energy storage",
+    "founded": 2003,
+    "valuation": "Public – ~$1.4T"
+  },
+  "9": {
+    "id": 9,
+    "name": "Larry Ellison",
+    "company": "Oracle",
+    "description": "Co-founded Oracle, a leading enterprise database and cloud company",
+    "founded": 1977,
+    "valuation": "Public – ~$430B"
+  },
+  "10": {
+    "id": 10,
+    "name": "Michael Dell",
+    "company": "Dell Technologies",
+    "description": "Founded Dell, pioneering direct-to-consumer PCs and later enterprise IT",
+    "founded": 1984,
+    "valuation": "Public – ~$90B"
+  },
+  "11": {
+    "id": 11,
+    "name": "Gordon Moore",
+    "company": "Intel",
+    "description": "Co-founded Intel and articulated Moore's Law for semiconductor progress",
+    "founded": 1968,
+    "valuation": "Public – ~$200B"
+  },
+  "12": {
+    "id": 12,
+    "name": "Robert Noyce",
+    "company": "Intel",
+    "description": "Co-founded Intel and helped invent the integrated circuit",
+    "founded": 1968,
+    "valuation": "Public – ~$200B"
+  },
+  "13": {
+    "id": 13,
+    "name": "Bill Hewlett",
+    "company": "Hewlett-Packard",
+    "description": "Co-founded HP, an early Silicon Valley electronics and computing firm",
+    "founded": 1939,
+    "valuation": "Public – ~$65B combined"
+  },
+  "14": {
+    "id": 14,
+    "name": "Dave Packard",
+    "company": "Hewlett-Packard",
+    "description": "Co-founded HP and helped shape modern Silicon Valley corporate culture",
+    "founded": 1939,
+    "valuation": "Public – ~$65B combined"
+  },
+  "15": {
+    "id": 15,
+    "name": "Akio Morita",
+    "company": "Sony",
+    "description": "Co-founded Sony, a global consumer electronics and media company",
+    "founded": 1946,
+    "valuation": "Public – ~$120B"
+  },
+  "16": {
+    "id": 16,
+    "name": "Masaru Ibuka",
+    "company": "Sony",
+    "description": "Co-founded Sony, driving post-war electronics innovation",
+    "founded": 1946,
+    "valuation": "Public – ~$120B"
+  },
+  "17": {
+    "id": 17,
+    "name": "Morris Chang",
+    "company": "TSMC",
+    "description": "Founded TSMC, pioneering the pure-play semiconductor foundry model",
+    "founded": 1987,
+    "valuation": "Public – ~$850B"
+  },
+  "18": {
+    "id": 18,
+    "name": "Jensen Huang",
+    "company": "Nvidia",
+    "description": "Co-founded Nvidia, leading GPUs from graphics to AI computing",
+    "founded": 1993,
+    "valuation": "Public – ~$4.4T"
+  },
+  "19": {
+    "id": 19,
+    "name": "Chris Malachowsky",
+    "company": "Nvidia",
+    "description": "Co-founded Nvidia and worked on early GPU architectures",
+    "founded": 1993,
+    "valuation": "Public – ~$4.4T"
+  },
+  "20": {
+    "id": 20,
+    "name": "Curtis Priem",
+    "company": "Nvidia",
+    "description": "Co-founded Nvidia and contributed to early graphics technology",
+    "founded": 1993,
+    "valuation": "Public – ~$4.4T"
+  },
+  "21": {
+    "id": 21,
+    "name": "Jerry Sanders",
+    "company": "AMD",
+    "description": "Founded AMD, competing in CPUs, GPUs, and semiconductors",
+    "founded": 1969,
+    "valuation": "Public – ~$300B"
+  },
+  "22": {
+    "id": 22,
+    "name": "Tim Berners-Lee",
+    "company": "World Wide Web / W3C",
+    "description": "Invented the World Wide Web and founded the W3C standards body",
+    "founded": 1989,
+    "valuation": "Standards body / web – ~$0"
+  },
+  "23": {
+    "id": 23,
+    "name": "Vint Cerf",
+    "company": "Internet (TCP/IP)",
+    "description": "Co-designed the TCP/IP protocols foundational to the modern internet",
+    "founded": 1970,
+    "valuation": "Protocol/standard – ~$0"
+  },
+  "24": {
+    "id": 24,
+    "name": "Linus Torvalds",
+    "company": "Linux",
+    "description": "Created the Linux kernel, widely used in servers, mobile, and cloud",
+    "founded": 1991,
+    "valuation": "Open-source ecosystem – ~$0"
+  },
+  "25": {
+    "id": 25,
+    "name": "Dennis Ritchie",
+    "company": "Unix / C",
+    "description": "Co-created the Unix operating system and the C programming language",
+    "founded": 1969,
+    "valuation": "No standalone valuation – ~$0"
+  },
+  "26": {
+    "id": 26,
+    "name": "Ken Thompson",
+    "company": "Unix",
+    "description": "Co-created the Unix operating system, shaping modern OS design",
+    "founded": 1969,
+    "valuation": "No standalone valuation – ~$0"
+  },
+  "27": {
+    "id": 27,
+    "name": "James Gosling",
+    "company": "Java (Sun Microsystems)",
+    "description": "Created the Java programming language at Sun Microsystems",
+    "founded": 1995,
+    "valuation": "Part of Oracle – est. included in ~$430B"
+  },
+  "28": {
+    "id": 28,
+    "name": "Guido van Rossum",
+    "company": "Python",
+    "description": "Created the Python programming language, now key in AI and data science",
+    "founded": 1991,
+    "valuation": "Open-source ecosystem – ~$0"
+  },
+  "29": {
+    "id": 29,
+    "name": "Brendan Eich",
+    "company": "JavaScript / Mozilla",
+    "description": "Created JavaScript and co-founded Mozilla",
+    "founded": 1995,
+    "valuation": "Open standard / foundation – ~$0"
+  },
+  "30": {
+    "id": 30,
+    "name": "Bjarne Stroustrup",
+    "company": "C++",
+    "description": "Created C++, a widely-used systems programming language",
+    "founded": 1985,
+    "valuation": "Open standard – ~$0"
+  },
+  "31": {
+    "id": 31,
+    "name": "Marc Benioff",
+    "company": "Salesforce",
+    "description": "Founded Salesforce, a leading cloud-based CRM and SaaS platform",
+    "founded": 1999,
+    "valuation": "Public – ~$300B"
+  },
+  "32": {
+    "id": 32,
+    "name": "Diane Greene",
+    "company": "VMware",
+    "description": "Co-founded VMware, pioneering server virtualization",
+    "founded": 1998,
+    "valuation": "Acquired – $69B (2023)"
+  },
+  "33": {
+    "id": 33,
+    "name": "Reed Hastings",
+    "company": "Netflix",
+    "description": "Co-founded Netflix, transforming media with subscription streaming",
+    "founded": 1997,
+    "valuation": "Public – ~$300B"
+  },
+  "34": {
+    "id": 34,
+    "name": "Marc Randolph",
+    "company": "Netflix",
+    "description": "Co-founded Netflix and shaped its early product and brand",
+    "founded": 1997,
+    "valuation": "Public – ~$300B"
+  },
+  "35": {
+    "id": 35,
+    "name": "Jeff Lawson",
+    "company": "Twilio",
+    "description": "Founded Twilio, providing communications APIs for developers",
+    "founded": 2008,
+    "valuation": "Public – ~$20B"
+  },
+  "36": {
+    "id": 36,
+    "name": "Stewart Butterfield",
+    "company": "Slack",
+    "description": "Co-founded Slack, a workplace messaging platform",
+    "founded": 2013,
+    "valuation": "Acquired – $27.7B"
+  },
+  "37": {
+    "id": 37,
+    "name": "Daniel Dines",
+    "company": "UiPath",
+    "description": "Founded UiPath, a leader in robotic process automation software",
+    "founded": 2005,
+    "valuation": "Public – ~$30B"
+  },
+  "38": {
+    "id": 38,
+    "name": "Ryan Smith",
+    "company": "Qualtrics",
+    "description": "Co-founded Qualtrics, an experience-management software company",
+    "founded": 2002,
+    "valuation": "Acquired – $8B"
+  },
+  "39": {
+    "id": 39,
+    "name": "Pierre Omidyar",
+    "company": "eBay",
+    "description": "Founded eBay, an early online auction and marketplace platform",
+    "founded": 1995,
+    "valuation": "Public – ~$35B"
+  },
+  "40": {
+    "id": 40,
+    "name": "Jerry Yang",
+    "company": "Yahoo",
+    "description": "Co-founded Yahoo, an early web portal and search company",
+    "founded": 1994,
+    "valuation": "Acquired – $4.5B"
+  },
+  "41": {
+    "id": 41,
+    "name": "David Filo",
+    "company": "Yahoo",
+    "description": "Co-founded Yahoo, an early web portal and search company",
+    "founded": 1994,
+    "valuation": "Acquired – $4.5B"
+  },
+  "42": {
+    "id": 42,
+    "name": "Brian Chesky",
+    "company": "Airbnb",
+    "description": "Co-founded Airbnb, a global home-sharing and experiences marketplace",
+    "founded": 2008,
+    "valuation": "Public – ~$110B"
+  },
+  "43": {
+    "id": 43,
+    "name": "Joe Gebbia",
+    "company": "Airbnb",
+    "description": "Co-founded Airbnb, a global home-sharing and experiences marketplace",
+    "founded": 2008,
+    "valuation": "Public – ~$110B"
+  },
+  "44": {
+    "id": 44,
+    "name": "Nathan Blecharczyk",
+    "company": "Airbnb",
+    "description": "Co-founded Airbnb, serving as technical co-founder and early CTO",
+    "founded": 2008,
+    "valuation": "Public – ~$110B"
+  },
+  "45": {
+    "id": 45,
+    "name": "Travis Kalanick",
+    "company": "Uber",
+    "description": "Co-founded Uber, popularizing ride-hailing via smartphone apps",
+    "founded": 2009,
+    "valuation": "Public – ~$180B"
+  },
+  "46": {
+    "id": 46,
+    "name": "Garrett Camp",
+    "company": "Uber",
+    "description": "Co-founded Uber, and previously founded StumbleUpon",
+    "founded": 2009,
+    "valuation": "Public – ~$180B"
+  },
+  "47": {
+    "id": 47,
+    "name": "Reid Hoffman",
+    "company": "LinkedIn",
+    "description": "Founded LinkedIn, a professional social networking platform",
+    "founded": 2002,
+    "valuation": "Acquired – $26.2B"
+  },
+  "48": {
+    "id": 48,
+    "name": "Drew Houston",
+    "company": "Dropbox",
+    "description": "Co-founded Dropbox, a cloud file-sync and collaboration service",
+    "founded": 2007,
+    "valuation": "Public – ~$12B"
+  },
+  "49": {
+    "id": 49,
+    "name": "Arash Ferdowsi",
+    "company": "Dropbox",
+    "description": "Co-founded Dropbox, a cloud file-sync and collaboration service",
+    "founded": 2007,
+    "valuation": "Public – ~$12B"
+  },
+  "50": {
+    "id": 50,
+    "name": "Daniel Ek",
+    "company": "Spotify",
+    "description": "Co-founded Spotify, a global music streaming service",
+    "founded": 2006,
+    "valuation": "Public – ~$90B"
+  },
+  "51": {
+    "id": 51,
+    "name": "Martin Lorentzon",
+    "company": "Spotify",
+    "description": "Co-founded Spotify, focusing on growth and advertising",
+    "founded": 2006,
+    "valuation": "Public – ~$90B"
+  },
+  "52": {
+    "id": 52,
+    "name": "Evan Spiegel",
+    "company": "Snap",
+    "description": "Co-founded Snap, focusing on ephemeral messaging and AR lenses",
+    "founded": 2011,
+    "valuation": "Public – ~$30B"
+  },
+  "53": {
+    "id": 53,
+    "name": "Bobby Murphy",
+    "company": "Snap",
+    "description": "Co-founded Snap and served as technical leader",
+    "founded": 2011,
+    "valuation": "Public – ~$30B"
+  },
+  "54": {
+    "id": 54,
+    "name": "Jan Koum",
+    "company": "WhatsApp",
+    "description": "Co-founded WhatsApp, a global encrypted messaging app",
+    "founded": 2009,
+    "valuation": "Acquired – $19B"
+  },
+  "55": {
+    "id": 55,
+    "name": "Brian Acton",
+    "company": "WhatsApp",
+    "description": "Co-founded WhatsApp and later co-founded the Signal Foundation",
+    "founded": 2009,
+    "valuation": "Acquired – $19B"
+  },
+  "56": {
+    "id": 56,
+    "name": "Jack Dorsey",
+    "company": "Twitter (X)",
+    "description": "Co-founded Twitter, a real-time microblogging platform",
+    "founded": 2006,
+    "valuation": "Acquired – $44B"
+  },
+  "57": {
+    "id": 57,
+    "name": "Biz Stone",
+    "company": "Twitter (X)",
+    "description": "Co-founded Twitter, helping shape early blogging and social tools",
+    "founded": 2006,
+    "valuation": "Acquired – $44B"
+  },
+  "58": {
+    "id": 58,
+    "name": "Noah Glass",
+    "company": "Twitter (X)",
+    "description": "Early co-founder of Twitter and helped name and conceptualize the service",
+    "founded": 2006,
+    "valuation": "Acquired – $44B"
+  },
+  "59": {
+    "id": 59,
+    "name": "Kevin Systrom",
+    "company": "Instagram",
+    "description": "Co-founded Instagram, a mobile photo-sharing social network",
+    "founded": 2010,
+    "valuation": "Acquired – $1B"
+  },
+  "60": {
+    "id": 60,
+    "name": "Mike Krieger",
+    "company": "Instagram",
+    "description": "Co-founded Instagram, leading engineering and product",
+    "founded": 2010,
+    "valuation": "Acquired – $1B"
+  },
+  "61": {
+    "id": 61,
+    "name": "Evan Williams",
+    "company": "Blogger",
+    "description": "Founded Blogger, helping popularize online publishing",
+    "founded": 1999,
+    "valuation": "Acquired – est. ~$20M"
+  },
+  "62": {
+    "id": 62,
+    "name": "Jack Ma",
+    "company": "Alibaba Group",
+    "description": "Founded Alibaba, a Chinese e-commerce and cloud conglomerate",
+    "founded": 1999,
+    "valuation": "Public – ~$220B"
+  },
+  "63": {
+    "id": 63,
+    "name": "Pony Ma",
+    "company": "Tencent",
+    "description": "Founded Tencent, a Chinese social media, gaming, and payments giant",
+    "founded": 1998,
+    "valuation": "Public – ~$450B"
+  },
+  "64": {
+    "id": 64,
+    "name": "Robin Li",
+    "company": "Baidu",
+    "description": "Founded Baidu, a major Chinese search and AI company",
+    "founded": 2000,
+    "valuation": "Public – ~$100B"
+  },
+  "65": {
+    "id": 65,
+    "name": "Lei Jun",
+    "company": "Xiaomi",
+    "description": "Founded Xiaomi, a consumer electronics and smartphone company",
+    "founded": 2010,
+    "valuation": "Public – ~$140B"
+  },
+  "66": {
+    "id": 66,
+    "name": "Zhang Yiming",
+    "company": "ByteDance",
+    "description": "Founded ByteDance, an AI-driven content and social media company (TikTok)",
+    "founded": 2012,
+    "valuation": "Private – ~$325B"
+  },
+  "67": {
+    "id": 67,
+    "name": "Hiroshi Mikitani",
+    "company": "Rakuten",
+    "description": "Founded Rakuten, a Japanese e-commerce and fintech group",
+    "founded": 1997,
+    "valuation": "Public – ~$10B"
+  },
+  "68": {
+    "id": 68,
+    "name": "Lee Hae-jin",
+    "company": "Naver",
+    "description": "Founded Naver, a leading Korean portal and search company",
+    "founded": 1999,
+    "valuation": "Public – ~$30B"
+  },
+  "69": {
+    "id": 69,
+    "name": "Patrick Collison",
+    "company": "Stripe",
+    "description": "Co-founded Stripe, a developer-focused online payments platform",
+    "founded": 2010,
+    "valuation": "Private – ~$95B"
+  },
+  "70": {
+    "id": 70,
+    "name": "John Collison",
+    "company": "Stripe",
+    "description": "Co-founded Stripe, a developer-focused online payments platform",
+    "founded": 2010,
+    "valuation": "Private – ~$95B"
+  },
+  "71": {
+    "id": 71,
+    "name": "Max Levchin",
+    "company": "PayPal",
+    "description": "Co-founded PayPal, an early online payments company",
+    "founded": 1998,
+    "valuation": "Public – ~$85B"
+  },
+  "72": {
+    "id": 72,
+    "name": "Peter Thiel",
+    "company": "PayPal",
+    "description": "Co-founded PayPal and later became a major tech investor",
+    "founded": 1998,
+    "valuation": "Public – ~$85B"
+  },
+  "73": {
+    "id": 73,
+    "name": "Demis Hassabis",
+    "company": "DeepMind",
+    "description": "Co-founded DeepMind, a deep learning and reinforcement learning research lab",
+    "founded": 2010,
+    "valuation": "Acquired – ~$500M"
+  },
+  "74": {
+    "id": 74,
+    "name": "Mustafa Suleyman",
+    "company": "DeepMind",
+    "description": "Co-founded DeepMind, later co-founding Inflection AI and joining Microsoft AI",
+    "founded": 2010,
+    "valuation": "Acquired – ~$500M"
+  },
+  "75": {
+    "id": 75,
+    "name": "Shane Legg",
+    "company": "DeepMind",
+    "description": "Co-founded DeepMind, with focus on theoretical AI and safety",
+    "founded": 2010,
+    "valuation": "Acquired – ~$500M"
+  },
+  "76": {
+    "id": 76,
+    "name": "Sam Altman",
+    "company": "OpenAI",
+    "description": "Co-founded OpenAI, a frontier AI research and product company",
+    "founded": 2015,
+    "valuation": "Private – ~$500B"
+  },
+  "77": {
+    "id": 77,
+    "name": "Greg Brockman",
+    "company": "OpenAI",
+    "description": "Co-founded OpenAI and served as key technical and product leader",
+    "founded": 2015,
+    "valuation": "Private – ~$500B"
+  },
+  "78": {
+    "id": 78,
+    "name": "Ilya Sutskever",
+    "company": "OpenAI",
+    "description": "Co-founded OpenAI and served as chief scientist in deep learning",
+    "founded": 2015,
+    "valuation": "Private – ~$500B"
+  },
+  "79": {
+    "id": 79,
+    "name": "Dario Amodei",
+    "company": "Anthropic",
+    "description": "Co-founded Anthropic, a safety-focused frontier AI company",
+    "founded": 2021,
+    "valuation": "Private – ~$180B"
+  },
+  "80": {
+    "id": 80,
+    "name": "Daniela Amodei",
+    "company": "Anthropic",
+    "description": "Co-founded Anthropic, overseeing operations and governance",
+    "founded": 2021,
+    "valuation": "Private – ~$180B"
+  },
+  "81": {
+    "id": 81,
+    "name": "Narayana Murthy",
+    "company": "Infosys",
+    "description": "Founded Infosys, a major Indian IT services and consulting company",
+    "founded": 1981,
+    "valuation": "Public – ~$80B"
+  },
+  "82": {
+    "id": 82,
+    "name": "Tan Le",
+    "company": "Emotiv",
+    "description": "Co-founded Emotiv, a neurotechnology and brain-computer interface company",
+    "founded": 2003,
+    "valuation": "Private – est. ~$100M"
+  },
+  "83": {
+    "id": 83,
+    "name": "Weili Dai",
+    "company": "Marvell Technology",
+    "description": "Co-founded Marvell, a fabless semiconductor company",
+    "founded": 1995,
+    "valuation": "Public – ~$50B"
+  },
+  "84": {
+    "id": 84,
+    "name": "Melanie Perkins",
+    "company": "Canva",
+    "description": "Co-founded Canva, an online design and publishing platform",
+    "founded": 2012,
+    "valuation": "Private – ~$45B"
+  },
+  "85": {
+    "id": 85,
+    "name": "Cliff Obrecht",
+    "company": "Canva",
+    "description": "Co-founded Canva, focusing on operations and growth",
+    "founded": 2012,
+    "valuation": "Private – ~$45B"
+  },
+  "86": {
+    "id": 86,
+    "name": "Cameron Adams",
+    "company": "Canva",
+    "description": "Co-founded Canva, leading product and user experience",
+    "founded": 2012,
+    "valuation": "Private – ~$45B"
+  },
+  "87": {
+    "id": 87,
+    "name": "Whitney Wolfe Herd",
+    "company": "Bumble",
+    "description": "Founded Bumble, a women-first dating and social networking app",
+    "founded": 2014,
+    "valuation": "Public – ~$10B"
+  },
+  "88": {
+    "id": 88,
+    "name": "Anne Wojcicki",
+    "company": "23andMe",
+    "description": "Co-founded 23andMe, a consumer genetics and genomics company",
+    "founded": 2006,
+    "valuation": "Public – ~$1B"
+  },
+  "89": {
+    "id": 89,
+    "name": "Reshma Saujani",
+    "company": "Girls Who Code",
+    "description": "Founded Girls Who Code, a non-profit to close the gender gap in tech",
+    "founded": 2012,
+    "valuation": "Non-profit – ~$0"
+  },
+  "90": {
+    "id": 90,
+    "name": "Katrina Lake",
+    "company": "Stitch Fix",
+    "description": "Founded Stitch Fix, an online personal styling and apparel company",
+    "founded": 2011,
+    "valuation": "Public – ~$1B"
+  },
+  "91": {
+    "id": 91,
+    "name": "Soichiro Honda",
+    "company": "Honda Motor",
+    "description": "Founded Honda, a global engines and automotive company",
+    "founded": 1948,
+    "valuation": "Public – ~$60B"
+  },
+  "92": {
+    "id": 92,
+    "name": "Konosuke Matsushita",
+    "company": "Panasonic",
+    "description": "Founded Panasonic, a major electronics and appliances company",
+    "founded": 1918,
+    "valuation": "Public – ~$25B"
+  },
+  "93": {
+    "id": 93,
+    "name": "Ken Olsen",
+    "company": "Digital Equipment Corporation",
+    "description": "Founded DEC, a pioneer in minicomputers",
+    "founded": 1957,
+    "valuation": "Acquired – ~$9.6B"
+  },
+  "94": {
+    "id": 94,
+    "name": "Masayoshi Son",
+    "company": "SoftBank",
+    "description": "Founded SoftBank, a telecom and technology investment conglomerate",
+    "founded": 1981,
+    "valuation": "Public – ~$70B"
+  },
+  "95": {
+    "id": 95,
+    "name": "Jason Citron",
+    "company": "Discord",
+    "description": "Founded Discord, a real-time chat and communities platform",
+    "founded": 2015,
+    "valuation": "Private – ~$15B"
+  },
+  "96": {
+    "id": 96,
+    "name": "Palmer Luckey",
+    "company": "Oculus",
+    "description": "Founded Oculus, reviving consumer virtual reality hardware",
+    "founded": 2012,
+    "valuation": "Acquired – $2B"
+  },
+  "97": {
+    "id": 97,
+    "name": "Satoshi Nakamoto",
+    "company": "Bitcoin",
+    "description": "Created the first decentralized cryptocurrency and blockchain enabling peer-to-peer digital cash",
+    "founded": 2009,
+    "valuation": "Protocol – ~$800B"
+  },
+  "98": {
+    "id": 98,
+    "name": "Vitalik Buterin",
+    "company": "Ethereum",
+    "description": "Created Ethereum, a programmable smart contract blockchain for decentralized applications",
+    "founded": 2015,
+    "valuation": "Protocol – ~$450B"
+  },
+  "99": {
+    "id": 99,
+    "name": "Changpeng Zhao",
+    "company": "Binance",
+    "description": "Founded Binance, one of the world’s largest cryptocurrency exchanges",
+    "founded": 2017,
+    "valuation": "Private – ~$90B"
+  },
+  "100": {
+    "id": 100,
+    "name": "Brian Armstrong",
+    "company": "Coinbase",
+    "description": "Founded Coinbase, a major U.S.-regulated cryptocurrency exchange",
+    "founded": 2012,
+    "valuation": "Public – ~$60B"
+  },
+  "101": {
+    "id": 101,
+    "name": "Jesse Powell",
+    "company": "Kraken",
+    "description": "Founded Kraken, an early major cryptocurrency exchange",
+    "founded": 2011,
+    "valuation": "Private – ~$12B"
+  },
+  "102": {
+    "id": 102,
+    "name": "Jed McCaleb",
+    "company": "Stellar",
+    "description": "Founded Stellar, a blockchain network for low-cost cross-border payments",
+    "founded": 2014,
+    "valuation": "Protocol – ~$7B"
+  },
+  "103": {
+    "id": 103,
+    "name": "Chris Larsen",
+    "company": "Ripple",
+    "description": "Co-founded Ripple, focusing on cross-border payments with XRP",
+    "founded": 2012,
+    "valuation": "Protocol – ~$38B"
+  },
+  "104": {
+    "id": 104,
+    "name": "Charles Hoskinson",
+    "company": "Cardano",
+    "description": "Founded Cardano, a research-driven proof-of-stake blockchain",
+    "founded": 2015,
+    "valuation": "Protocol – ~$28B"
+  },
+  "105": {
+    "id": 105,
+    "name": "Gavin Wood",
+    "company": "Polkadot",
+    "description": "Founded Polkadot, a multi-chain interoperability network",
+    "founded": 2016,
+    "valuation": "Protocol – ~$11B"
+  },
+  "106": {
+    "id": 106,
+    "name": "Anatoly Yakovenko",
+    "company": "Solana",
+    "description": "Founded Solana, a high-performance Layer-1 blockchain using Proof-of-History",
+    "founded": 2017,
+    "valuation": "Protocol – ~$85B"
+  },
+  "107": {
+    "id": 107,
+    "name": "Raj Gokal",
+    "company": "Solana",
+    "description": "Co-founded Solana, helping build its ecosystem and business",
+    "founded": 2017,
+    "valuation": "Protocol – ~$85B"
+  },
+  "108": {
+    "id": 108,
+    "name": "Tristan Yver",
+    "company": "Backpack",
+    "description": "Co-founded Backpack, a Solana-focused wallet and exchange ecosystem",
+    "founded": 2022,
+    "valuation": "Private – ~$750M"
+  },
+  "109": {
+    "id": 109,
+    "name": "Armani Ferrante",
+    "company": "Backpack",
+    "description": "Co-founded Backpack, a Solana-focused wallet and exchange ecosystem",
+    "founded": 2022,
+    "valuation": "Private – ~$750M"
+  },
+  "110": {
+    "id": 110,
+    "name": "Mert Mumtaz",
+    "company": "Helius",
+    "description": "Founded Helius, a Solana infrastructure and developer tooling company",
+    "founded": 2022,
+    "valuation": "Private – ~$400M"
+  },
+  "111": {
+    "id": 111,
+    "name": "Hayden Adams",
+    "company": "Uniswap",
+    "description": "Founded Uniswap, a decentralized exchange based on automated market makers",
+    "founded": 2018,
+    "valuation": "Protocol – ~$9B"
+  },
+  "112": {
+    "id": 112,
+    "name": "Stani Kulechov",
+    "company": "Aave",
+    "description": "Founded Aave, a decentralized lending and borrowing protocol",
+    "founded": 2017,
+    "valuation": "Protocol – ~$1.8B"
+  },
+  "113": {
+    "id": 113,
+    "name": "Rune Christensen",
+    "company": "MakerDAO",
+    "description": "Founded MakerDAO, a decentralized stablecoin and lending system issuing DAI",
+    "founded": 2015,
+    "valuation": "Protocol – ~$1.8B"
+  },
+  "114": {
+    "id": 114,
+    "name": "Andre Cronje",
+    "company": "Yearn Finance",
+    "description": "Founded Yearn Finance, a DeFi protocol for yield aggregation",
+    "founded": 2020,
+    "valuation": "Protocol – ~$0.8B"
+  },
+  "115": {
+    "id": 115,
+    "name": "Justin Sun",
+    "company": "TRON",
+    "description": "Founded TRON, a high-throughput smart contract blockchain",
+    "founded": 2017,
+    "valuation": "Protocol – ~$13B"
+  },
+  "116": {
+    "id": 116,
+    "name": "Jihan Wu",
+    "company": "Bitmain",
+    "description": "Co-founded Bitmain, a major manufacturer of cryptocurrency mining hardware",
+    "founded": 2013,
+    "valuation": "Private – ~$6B"
+  },
+  "117": {
+    "id": 117,
+    "name": "Barry Silbert",
+    "company": "Digital Currency Group",
+    "description": "Founded Digital Currency Group, a crypto holding and investment company",
+    "founded": 2015,
+    "valuation": "Private – ~$10B"
+  },
+  "118": {
+    "id": 118,
+    "name": "Andreessen Horowitz",
+    "company": "a16z Crypto",
+    "description": "Leads a16z Crypto, a major crypto-focused venture capital arm",
+    "founded": 2018,
+    "valuation": "AUM – ~$30B"
+  }
+}

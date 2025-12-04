@@ -1,6 +1,6 @@
 import { prisma } from '../db'
-import type { Player, PlayerStats, LeaderboardEntry, GridProject } from '@seedhunter/shared'
-import { getProjectByIndex } from './grid'
+import type { Player, PlayerStats, LeaderboardEntry, Founder } from '@seedhunter/shared'
+import { getFounderById } from './founders'
 
 // ============================================
 // Player CRUD Operations
@@ -31,16 +31,16 @@ export async function getPlayerByHandle(handle: string): Promise<Player | null> 
 }
 
 /**
- * Get a player's project from The Grid
+ * Get a player's founder (their current card)
  */
-export async function getPlayerProject(handle: string): Promise<GridProject | null> {
+export async function getPlayerProject(handle: string): Promise<Founder | null> {
   const player = await prisma.player.findUnique({
     where: { xHandle: handle }
   })
   
   if (!player || player.gridIndex === null) return null
   
-  return getProjectByIndex(player.gridIndex)
+  return getFounderById(player.gridIndex)
 }
 
 /**

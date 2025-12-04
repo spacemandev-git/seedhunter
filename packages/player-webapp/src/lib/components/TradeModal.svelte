@@ -4,13 +4,13 @@
   import { Html5Qrcode } from 'html5-qrcode'
   import { initTrade, confirmTrade, connectWebSocket, removeWSHandler, getPlayerProject } from '$lib/api/client'
   import { auth } from '$lib/stores'
-  import type { Trade, GridProject, GeoLocation, WSServerMessage } from '@seedhunter/shared'
+  import type { Trade, Founder, GeoLocation, WSServerMessage } from '@seedhunter/shared'
   import { TRADE_PROXIMITY_METERS } from '@seedhunter/shared'
   
   interface Props {
     open: boolean
     onClose: () => void
-    onTradeComplete: (result: { trade: Trade; newProject: GridProject }) => void
+    onTradeComplete: (result: { trade: Trade; newProject: Founder }) => void
   }
   
   let { open, onClose, onTradeComplete }: Props = $props()
@@ -21,7 +21,7 @@
   let qrDataUrl = $state<string | null>(null)
   let countdown = $state(60)
   let errorMessage = $state('')
-  let tradeResult = $state<{ trade: Trade; newProject: GridProject } | null>(null)
+  let tradeResult = $state<{ trade: Trade; newProject: Founder } | null>(null)
   let currentLocation = $state<GeoLocation | null>(null)
   let scanner: Html5Qrcode | null = null
   let countdownInterval: ReturnType<typeof setInterval> | null = null
@@ -159,9 +159,9 @@
                 onTradeComplete(tradeResult!)
               }, 2000)
             } catch (err) {
-              console.error('Failed to fetch new project:', err)
-              // Still show success but without project details
-              tradeResult = { trade, newProject: { name: 'Your new card', sector: '' } as GridProject }
+              console.error('Failed to fetch new founder:', err)
+              // Still show success but without founder details
+              tradeResult = { trade, newProject: { id: 0, name: 'Your new card', company: '', description: '', founded: 0, valuation: '' } as Founder }
               tradeState = 'success'
               
               setTimeout(() => {
@@ -390,7 +390,7 @@
               <p>You received a new card:</p>
               <div class="new-card-preview">
                 <strong>{tradeResult.newProject.name}</strong>
-                <span>{tradeResult.newProject.sector || 'Project'}</span>
+                <span>{tradeResult.newProject.company || 'Founder Card'}</span>
               </div>
             {/if}
           </div>
