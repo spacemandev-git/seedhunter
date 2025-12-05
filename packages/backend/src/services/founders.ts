@@ -15,8 +15,34 @@ const founders = foundersData as Record<string, {
   valuation: string
 }>
 
+// Art styles available
+export const ART_STYLES = ['lowpoly', 'popart'] as const
+export type ArtStyle = typeof ART_STYLES[number]
+
+// Total unique card variants = founders × art styles
+export const TOTAL_CARD_VARIANTS = TOTAL_FOUNDERS * ART_STYLES.length
+
+/**
+ * Get a random card variant (gridIndex + artStyle) for a new player
+ * Each founder has 2 copies - one per art style
+ */
+export function getRandomCardVariant(): { gridIndex: number; artStyle: ArtStyle } {
+  // Pick a random variant from all possible (founders × art styles)
+  const variantIndex = Math.floor(Math.random() * TOTAL_CARD_VARIANTS)
+  
+  // Convert to gridIndex and artStyle
+  const gridIndex = variantIndex % TOTAL_FOUNDERS
+  const artStyleIndex = Math.floor(variantIndex / TOTAL_FOUNDERS)
+  
+  return {
+    gridIndex,
+    artStyle: ART_STYLES[artStyleIndex]
+  }
+}
+
 /**
  * Get a random founder index for a new player
+ * @deprecated Use getRandomCardVariant() instead
  */
 export function getRandomFounderIndex(): number {
   return Math.floor(Math.random() * TOTAL_FOUNDERS)
@@ -25,43 +51,8 @@ export function getRandomFounderIndex(): number {
 /**
  * Get a random art style for a founder card
  */
-export function getRandomArtStyle(): string {
-  const styles = ['lowpoly', 'popart']
-  return styles[Math.floor(Math.random() * styles.length)]
-}
-
-/**
- * Get the art style for a card (gridIndex), creating one if it doesn't exist
- * Art style is permanent and persists through trades
- */
-export async function getOrCreateCardArtStyle(gridIndex: number): Promise<string> {
-  // Try to find existing art style for this card
-  const existing = await prisma.cardArtStyle.findUnique({
-    where: { gridIndex }
-  })
-  
-  if (existing) {
-    return existing.artStyle
-  }
-  
-  // Create a new art style for this card
-  const artStyle = getRandomArtStyle()
-  await prisma.cardArtStyle.create({
-    data: { gridIndex, artStyle }
-  })
-  
-  return artStyle
-}
-
-/**
- * Get the art style for a card if it exists (doesn't create)
- */
-export async function getCardArtStyle(gridIndex: number): Promise<string | null> {
-  const record = await prisma.cardArtStyle.findUnique({
-    where: { gridIndex }
-  })
-  
-  return record?.artStyle ?? null
+export function getRandomArtStyle(): ArtStyle {
+  return ART_STYLES[Math.floor(Math.random() * ART_STYLES.length)]
 }
 
 /**

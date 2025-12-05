@@ -1,7 +1,7 @@
 import { prisma } from '../db'
 import type { Trade, TradePayload, TradeResult, Founder, GeoLocation } from '@seedhunter/shared'
 import { TRADE_EXPIRY_SECONDS, TRADE_PROXIMITY_METERS, ErrorCodes } from '@seedhunter/shared'
-import { getFounderById, getOrCreateCardArtStyle } from './founders'
+import { getFounderById } from './founders'
 
 // ============================================
 // Location Utilities
@@ -306,6 +306,12 @@ export async function executeTrade(
     return { success: false, error: 'Confirmer has no project to trade' }
   }
   
+  // Get full player data including artStyle
+  const initiatorFull = await prisma.player.findUnique({
+    where: { id: initiator.id },
+    select: { artStyle: true }
+  })
+  
   // Execute the trade in a transaction
   try {
     const result = await prisma.$transaction(async (tx) => {
@@ -314,15 +320,22 @@ export async function executeTrade(
         where: { nonce: payload.nonce }
       })
       
-      // Swap projects (grid indices) - art styles stay with the cards, not the players
+      // Swap complete card variants (gridIndex + artStyle)
+      // Each card is uniquely identified by both gridIndex and artStyle
       await tx.player.update({
         where: { id: initiator.id },
-        data: { gridIndex: confirmer.gridIndex }
+        data: { 
+          gridIndex: confirmer.gridIndex,
+          artStyle: confirmer.artStyle
+        }
       })
       
       await tx.player.update({
         where: { id: confirmer.id },
-        data: { gridIndex: initiator.gridIndex }
+        data: { 
+          gridIndex: initiator.gridIndex,
+          artStyle: initiatorFull?.artStyle
+        }
       })
       
       // Record the trade
@@ -338,6 +351,7 @@ export async function executeTrade(
       return {
         trade,
         initiatorGridIndex: initiator.gridIndex,
+        initiatorArtStyle: initiatorFull?.artStyle,
         confirmerGridIndex: confirmer.gridIndex!
       }
     })
@@ -352,11 +366,8 @@ export async function executeTrade(
       timestamp: result.trade.tradedAt.getTime()
     }
     
-    // Get the art style for the card that confirmer received (the card's art style, not the player's)
-    const cardArtStyle = await getOrCreateCardArtStyle(result.initiatorGridIndex)
-    
-    // Fetch the founder that confirmer received (initiator's old founder) with the card's art style
-    const newProject = getFounderById(result.initiatorGridIndex, cardArtStyle)
+    // Fetch the founder that confirmer received (initiator's old card variant)
+    const newProject = getFounderById(result.initiatorGridIndex, result.initiatorArtStyle)
     
     return {
       success: true,

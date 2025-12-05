@@ -1,7 +1,7 @@
 import { SignJWT, jwtVerify, type JWTPayload } from 'jose'
 import { prisma } from '../db'
 import type { TokenPayload, Admin, XProfile } from '@seedhunter/shared'
-import { getRandomFounderIndex, getOrCreateCardArtStyle } from './founders'
+import { getRandomCardVariant } from './founders'
 
 // JWT secret as Uint8Array for jose
 const JWT_SECRET = new TextEncoder().encode(
@@ -325,19 +325,18 @@ export async function handleXCallback(
   const isNew = !player
   
   if (isNew) {
-    // Get a random founder index for the new player
-    const gridIndex = getRandomFounderIndex()
+    // Get a random card variant (gridIndex + artStyle) for the new player
+    // Each founder has 2 copies - one per art style
+    const { gridIndex, artStyle } = getRandomCardVariant()
     
-    // Ensure this card has an art style (creates one if doesn't exist)
-    await getOrCreateCardArtStyle(gridIndex)
-    
-    // Create new player with random founder (art style is stored per card)
+    // Create new player with random card variant
     player = await prisma.player.create({
       data: {
         xHandle: profile.username,
         xId: profile.id,
         xProfilePic: profile.profile_image_url,
-        gridIndex
+        gridIndex,
+        artStyle
       }
     })
   } else {
