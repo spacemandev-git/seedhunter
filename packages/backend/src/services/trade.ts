@@ -1,7 +1,7 @@
 import { prisma } from '../db'
 import type { Trade, TradePayload, TradeResult, Founder, GeoLocation } from '@seedhunter/shared'
 import { TRADE_EXPIRY_SECONDS, TRADE_PROXIMITY_METERS, ErrorCodes } from '@seedhunter/shared'
-import { getFounderById } from './founders'
+import { getFounderById, getRandomArtStyle } from './founders'
 
 // ============================================
 // Location Utilities
@@ -210,7 +210,7 @@ export async function validateTrade(
   // Get initiator player
   const initiator = await prisma.player.findUnique({
     where: { xHandle: payload.initiator },
-    select: { id: true, xHandle: true, gridIndex: true }
+    select: { id: true, xHandle: true, gridIndex: true, artStyle: true }
   })
   
   if (!initiator) {
@@ -295,7 +295,7 @@ export async function executeTrade(
   // Get confirmer player
   const confirmer = await prisma.player.findUnique({
     where: { xHandle: confirmerHandle },
-    select: { id: true, xHandle: true, gridIndex: true }
+    select: { id: true, xHandle: true, gridIndex: true, artStyle: true }
   })
   
   if (!confirmer) {
@@ -314,15 +314,25 @@ export async function executeTrade(
         where: { nonce: payload.nonce }
       })
       
-      // Swap projects (grid indices)
+      // Generate new random art styles for both players
+      const initiatorNewArtStyle = getRandomArtStyle()
+      const confirmerNewArtStyle = getRandomArtStyle()
+      
+      // Swap projects (grid indices) and assign new art styles
       await tx.player.update({
         where: { id: initiator.id },
-        data: { gridIndex: confirmer.gridIndex }
+        data: { 
+          gridIndex: confirmer.gridIndex,
+          artStyle: initiatorNewArtStyle
+        }
       })
       
       await tx.player.update({
         where: { id: confirmer.id },
-        data: { gridIndex: initiator.gridIndex }
+        data: { 
+          gridIndex: initiator.gridIndex,
+          artStyle: confirmerNewArtStyle
+        }
       })
       
       // Record the trade
@@ -338,7 +348,8 @@ export async function executeTrade(
       return {
         trade,
         initiatorGridIndex: initiator.gridIndex,
-        confirmerGridIndex: confirmer.gridIndex!
+        confirmerGridIndex: confirmer.gridIndex!,
+        confirmerNewArtStyle
       }
     })
     
@@ -352,8 +363,8 @@ export async function executeTrade(
       timestamp: result.trade.tradedAt.getTime()
     }
     
-    // Fetch the founder that confirmer received (initiator's old founder)
-    const newProject = getFounderById(result.initiatorGridIndex)
+    // Fetch the founder that confirmer received (initiator's old founder) with their new art style
+    const newProject = getFounderById(result.initiatorGridIndex, result.confirmerNewArtStyle)
     
     return {
       success: true,

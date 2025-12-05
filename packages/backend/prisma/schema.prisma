@@ -23,6 +23,7 @@ model Player {
   
   // Current project from The Grid (index in the profileInfos list)
   gridIndex     Int?     @map("grid_index")
+  artStyle      String?  @map("art_style") // 'lowpoly' or 'popart'
   
   // Verification status
   verified      Boolean  @default(false)

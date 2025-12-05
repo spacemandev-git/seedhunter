@@ -21,6 +21,7 @@ export async function getPlayerByHandle(handle: string): Promise<Player | null> 
     xHandle: player.xHandle,
     xProfilePic: player.xProfilePic,
     gridIndex: player.gridIndex,
+    artStyle: player.artStyle,
     verified: player.verified,
     verifiedAt: player.verifiedAt?.getTime() ?? null,
     createdAt: player.createdAt.getTime(),
@@ -40,16 +41,16 @@ export async function getPlayerProject(handle: string): Promise<Founder | null> 
   
   if (!player || player.gridIndex === null) return null
   
-  return getFounderById(player.gridIndex)
+  return getFounderById(player.gridIndex, player.artStyle)
 }
 
 /**
- * Assign a project (by grid index) to a player
+ * Assign a project (by grid index) to a player with a new art style
  */
-export async function assignProject(playerId: string, gridIndex: number): Promise<void> {
+export async function assignProject(playerId: string, gridIndex: number, artStyle: string): Promise<void> {
   await prisma.player.update({
     where: { id: playerId },
-    data: { gridIndex }
+    data: { gridIndex, artStyle }
   })
 }
 
@@ -255,6 +256,7 @@ export async function verifyPlayer(
         xHandle: player.xHandle,
         xProfilePic: player.xProfilePic,
         gridIndex: player.gridIndex,
+        artStyle: player.artStyle,
         verified: true,
         verifiedAt: player.verifiedAt?.getTime() ?? null,
         createdAt: player.createdAt.getTime(),
@@ -295,6 +297,7 @@ export async function verifyPlayer(
       xHandle: updatedPlayer.xHandle,
       xProfilePic: updatedPlayer.xProfilePic,
       gridIndex: updatedPlayer.gridIndex,
+      artStyle: updatedPlayer.artStyle,
       verified: true,
       verifiedAt: updatedPlayer.verifiedAt?.getTime() ?? null,
       createdAt: updatedPlayer.createdAt.getTime(),

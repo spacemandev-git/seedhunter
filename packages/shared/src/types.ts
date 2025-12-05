@@ -7,6 +7,7 @@ export interface Player {
   xHandle: string
   xProfilePic: string | null
   gridIndex: number | null // Index into The Grid's profileInfos
+  artStyle: string | null // Art style variant: 'lowpoly' or 'popart'
   verified: boolean
   verifiedAt: number | null
   createdAt: number
@@ -50,6 +51,7 @@ export interface Founder {
   description: string // Description of what they did
   founded: number    // Year founded
   valuation: string  // Current valuation status
+  artStyle?: string  // Art style variant: 'lowpoly' or 'popart'
 }
 
 // ============================================

@@ -44,6 +44,7 @@ export type PlayerMinAggregateOutputType = {
   xId: string | null
   xProfilePic: string | null
   gridIndex: number | null
+  artStyle: string | null
   verified: boolean | null
   verifiedAt: Date | null
   verifiedBy: string | null
@@ -60,6 +61,7 @@ export type PlayerMaxAggregateOutputType = {
   xId: string | null
   xProfilePic: string | null
   gridIndex: number | null
+  artStyle: string | null
   verified: boolean | null
   verifiedAt: Date | null
   verifiedBy: string | null
@@ -76,6 +78,7 @@ export type PlayerCountAggregateOutputType = {
   xId: number
   xProfilePic: number
   gridIndex: number
+  artStyle: number
   verified: number
   verifiedAt: number
   verifiedBy: number
@@ -106,6 +109,7 @@ export type PlayerMinAggregateInputType = {
   xId?: true
   xProfilePic?: true
   gridIndex?: true
+  artStyle?: true
   verified?: true
   verifiedAt?: true
   verifiedBy?: true
@@ -122,6 +126,7 @@ export type PlayerMaxAggregateInputType = {
   xId?: true
   xProfilePic?: true
   gridIndex?: true
+  artStyle?: true
   verified?: true
   verifiedAt?: true
   verifiedBy?: true
@@ -138,6 +143,7 @@ export type PlayerCountAggregateInputType = {
   xId?: true
   xProfilePic?: true
   gridIndex?: true
+  artStyle?: true
   verified?: true
   verifiedAt?: true
   verifiedBy?: true
@@ -241,6 +247,7 @@ export type PlayerGroupByOutputType = {
   xId: string | null
   xProfilePic: string | null
   gridIndex: number | null
+  artStyle: string | null
   verified: boolean
   verifiedAt: Date | null
   verifiedBy: string | null
@@ -280,6 +287,7 @@ export type PlayerWhereInput = {
   xId?: Prisma.StringNullableFilter<"Player"> | string | null
   xProfilePic?: Prisma.StringNullableFilter<"Player"> | string | null
   gridIndex?: Prisma.IntNullableFilter<"Player"> | number | null
+  artStyle?: Prisma.StringNullableFilter<"Player"> | string | null
   verified?: Prisma.BoolFilter<"Player"> | boolean
   verifiedAt?: Prisma.DateTimeNullableFilter<"Player"> | Date | string | null
   verifiedBy?: Prisma.StringNullableFilter<"Player"> | string | null
@@ -299,6 +307,7 @@ export type PlayerOrderByWithRelationInput = {
   xId?: Prisma.SortOrderInput | Prisma.SortOrder
   xProfilePic?: Prisma.SortOrderInput | Prisma.SortOrder
   gridIndex?: Prisma.SortOrderInput | Prisma.SortOrder
+  artStyle?: Prisma.SortOrderInput | Prisma.SortOrder
   verified?: Prisma.SortOrder
   verifiedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   verifiedBy?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -321,6 +330,7 @@ export type PlayerWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.PlayerWhereInput | Prisma.PlayerWhereInput[]
   xProfilePic?: Prisma.StringNullableFilter<"Player"> | string | null
   gridIndex?: Prisma.IntNullableFilter<"Player"> | number | null
+  artStyle?: Prisma.StringNullableFilter<"Player"> | string | null
   verified?: Prisma.BoolFilter<"Player"> | boolean
   verifiedAt?: Prisma.DateTimeNullableFilter<"Player"> | Date | string | null
   verifiedBy?: Prisma.StringNullableFilter<"Player"> | string | null
@@ -340,6 +350,7 @@ export type PlayerOrderByWithAggregationInput = {
   xId?: Prisma.SortOrderInput | Prisma.SortOrder
   xProfilePic?: Prisma.SortOrderInput | Prisma.SortOrder
   gridIndex?: Prisma.SortOrderInput | Prisma.SortOrder
+  artStyle?: Prisma.SortOrderInput | Prisma.SortOrder
   verified?: Prisma.SortOrder
   verifiedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   verifiedBy?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -364,6 +375,7 @@ export type PlayerScalarWhereWithAggregatesInput = {
   xId?: Prisma.StringNullableWithAggregatesFilter<"Player"> | string | null
   xProfilePic?: Prisma.StringNullableWithAggregatesFilter<"Player"> | string | null
   gridIndex?: Prisma.IntNullableWithAggregatesFilter<"Player"> | number | null
+  artStyle?: Prisma.StringNullableWithAggregatesFilter<"Player"> | string | null
   verified?: Prisma.BoolWithAggregatesFilter<"Player"> | boolean
   verifiedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Player"> | Date | string | null
   verifiedBy?: Prisma.StringNullableWithAggregatesFilter<"Player"> | string | null
@@ -380,6 +392,7 @@ export type PlayerCreateInput = {
   xId?: string | null
   xProfilePic?: string | null
   gridIndex?: number | null
+  artStyle?: string | null
   verified?: boolean
   verifiedAt?: Date | string | null
   verifiedBy?: string | null
@@ -399,6 +412,7 @@ export type PlayerUncheckedCreateInput = {
   xId?: string | null
   xProfilePic?: string | null
   gridIndex?: number | null
+  artStyle?: string | null
   verified?: boolean
   verifiedAt?: Date | string | null
   verifiedBy?: string | null
@@ -418,6 +432,7 @@ export type PlayerUpdateInput = {
   xId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   xProfilePic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gridIndex?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  artStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   verified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   verifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   verifiedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -437,6 +452,7 @@ export type PlayerUncheckedUpdateInput = {
   xId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   xProfilePic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gridIndex?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  artStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   verified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   verifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   verifiedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -456,6 +472,7 @@ export type PlayerCreateManyInput = {
   xId?: string | null
   xProfilePic?: string | null
   gridIndex?: number | null
+  artStyle?: string | null
   verified?: boolean
   verifiedAt?: Date | string | null
   verifiedBy?: string | null
@@ -472,6 +489,7 @@ export type PlayerUpdateManyMutationInput = {
   xId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   xProfilePic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gridIndex?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  artStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   verified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   verifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   verifiedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -488,6 +506,7 @@ export type PlayerUncheckedUpdateManyInput = {
   xId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   xProfilePic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gridIndex?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  artStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   verified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   verifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   verifiedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -504,6 +523,7 @@ export type PlayerCountOrderByAggregateInput = {
   xId?: Prisma.SortOrder
   xProfilePic?: Prisma.SortOrder
   gridIndex?: Prisma.SortOrder
+  artStyle?: Prisma.SortOrder
   verified?: Prisma.SortOrder
   verifiedAt?: Prisma.SortOrder
   verifiedBy?: Prisma.SortOrder
@@ -526,6 +546,7 @@ export type PlayerMaxOrderByAggregateInput = {
   xId?: Prisma.SortOrder
   xProfilePic?: Prisma.SortOrder
   gridIndex?: Prisma.SortOrder
+  artStyle?: Prisma.SortOrder
   verified?: Prisma.SortOrder
   verifiedAt?: Prisma.SortOrder
   verifiedBy?: Prisma.SortOrder
@@ -542,6 +563,7 @@ export type PlayerMinOrderByAggregateInput = {
   xId?: Prisma.SortOrder
   xProfilePic?: Prisma.SortOrder
   gridIndex?: Prisma.SortOrder
+  artStyle?: Prisma.SortOrder
   verified?: Prisma.SortOrder
   verifiedAt?: Prisma.SortOrder
   verifiedBy?: Prisma.SortOrder
@@ -647,6 +669,7 @@ export type PlayerCreateWithoutTradesAsPlayerAInput = {
   xId?: string | null
   xProfilePic?: string | null
   gridIndex?: number | null
+  artStyle?: string | null
   verified?: boolean
   verifiedAt?: Date | string | null
   verifiedBy?: string | null
@@ -665,6 +688,7 @@ export type PlayerUncheckedCreateWithoutTradesAsPlayerAInput = {
   xId?: string | null
   xProfilePic?: string | null
   gridIndex?: number | null
+  artStyle?: string | null
   verified?: boolean
   verifiedAt?: Date | string | null
   verifiedBy?: string | null
@@ -688,6 +712,7 @@ export type PlayerCreateWithoutTradesAsPlayerBInput = {
   xId?: string | null
   xProfilePic?: string | null
   gridIndex?: number | null
+  artStyle?: string | null
   verified?: boolean
   verifiedAt?: Date | string | null
   verifiedBy?: string | null
@@ -706,6 +731,7 @@ export type PlayerUncheckedCreateWithoutTradesAsPlayerBInput = {
   xId?: string | null
   xProfilePic?: string | null
   gridIndex?: number | null
+  artStyle?: string | null
   verified?: boolean
   verifiedAt?: Date | string | null
   verifiedBy?: string | null
@@ -740,6 +766,7 @@ export type PlayerUpdateWithoutTradesAsPlayerAInput = {
   xId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   xProfilePic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gridIndex?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  artStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   verified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   verifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   verifiedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -758,6 +785,7 @@ export type PlayerUncheckedUpdateWithoutTradesAsPlayerAInput = {
   xId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   xProfilePic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gridIndex?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  artStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   verified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   verifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   verifiedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -787,6 +815,7 @@ export type PlayerUpdateWithoutTradesAsPlayerBInput = {
   xId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   xProfilePic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gridIndex?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  artStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   verified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   verifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   verifiedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -805,6 +834,7 @@ export type PlayerUncheckedUpdateWithoutTradesAsPlayerBInput = {
   xId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   xProfilePic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gridIndex?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  artStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   verified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   verifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   verifiedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -823,6 +853,7 @@ export type PlayerCreateWithoutChatMessagesInput = {
   xId?: string | null
   xProfilePic?: string | null
   gridIndex?: number | null
+  artStyle?: string | null
   verified?: boolean
   verifiedAt?: Date | string | null
   verifiedBy?: string | null
@@ -841,6 +872,7 @@ export type PlayerUncheckedCreateWithoutChatMessagesInput = {
   xId?: string | null
   xProfilePic?: string | null
   gridIndex?: number | null
+  artStyle?: string | null
   verified?: boolean
   verifiedAt?: Date | string | null
   verifiedBy?: string | null
@@ -875,6 +907,7 @@ export type PlayerUpdateWithoutChatMessagesInput = {
   xId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   xProfilePic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gridIndex?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  artStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   verified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   verifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   verifiedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -893,6 +926,7 @@ export type PlayerUncheckedUpdateWithoutChatMessagesInput = {
   xId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   xProfilePic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gridIndex?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  artStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   verified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   verifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   verifiedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -960,6 +994,7 @@ export type PlayerSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   xId?: boolean
   xProfilePic?: boolean
   gridIndex?: boolean
+  artStyle?: boolean
   verified?: boolean
   verifiedAt?: boolean
   verifiedBy?: boolean
@@ -980,6 +1015,7 @@ export type PlayerSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extens
   xId?: boolean
   xProfilePic?: boolean
   gridIndex?: boolean
+  artStyle?: boolean
   verified?: boolean
   verifiedAt?: boolean
   verifiedBy?: boolean
@@ -996,6 +1032,7 @@ export type PlayerSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extens
   xId?: boolean
   xProfilePic?: boolean
   gridIndex?: boolean
+  artStyle?: boolean
   verified?: boolean
   verifiedAt?: boolean
   verifiedBy?: boolean
@@ -1012,6 +1049,7 @@ export type PlayerSelectScalar = {
   xId?: boolean
   xProfilePic?: boolean
   gridIndex?: boolean
+  artStyle?: boolean
   verified?: boolean
   verifiedAt?: boolean
   verifiedBy?: boolean
@@ -1022,7 +1060,7 @@ export type PlayerSelectScalar = {
   updatedAt?: boolean
 }
 
-export type PlayerOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "xHandle" | "xId" | "xProfilePic" | "gridIndex" | "verified" | "verifiedAt" | "verifiedBy" | "lastLocationLat" | "lastLocationLng" | "lastLocationAt" | "createdAt" | "updatedAt", ExtArgs["result"]["player"]>
+export type PlayerOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "xHandle" | "xId" | "xProfilePic" | "gridIndex" | "artStyle" | "verified" | "verifiedAt" | "verifiedBy" | "lastLocationLat" | "lastLocationLng" | "lastLocationAt" | "createdAt" | "updatedAt", ExtArgs["result"]["player"]>
 export type PlayerInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   tradesAsPlayerA?: boolean | Prisma.Player$tradesAsPlayerAArgs<ExtArgs>
   tradesAsPlayerB?: boolean | Prisma.Player$tradesAsPlayerBArgs<ExtArgs>
@@ -1045,6 +1083,7 @@ export type $PlayerPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     xId: string | null
     xProfilePic: string | null
     gridIndex: number | null
+    artStyle: string | null
     verified: boolean
     verifiedAt: Date | null
     verifiedBy: string | null
@@ -1484,6 +1523,7 @@ export interface PlayerFieldRefs {
   readonly xId: Prisma.FieldRef<"Player", 'String'>
   readonly xProfilePic: Prisma.FieldRef<"Player", 'String'>
   readonly gridIndex: Prisma.FieldRef<"Player", 'Int'>
+  readonly artStyle: Prisma.FieldRef<"Player", 'String'>
   readonly verified: Prisma.FieldRef<"Player", 'Boolean'>
   readonly verifiedAt: Prisma.FieldRef<"Player", 'DateTime'>
   readonly verifiedBy: Prisma.FieldRef<"Player", 'String'>

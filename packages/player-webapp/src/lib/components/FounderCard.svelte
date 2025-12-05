@@ -59,6 +59,18 @@
     // Create a gradient variant
     return `linear-gradient(135deg, ${color}cc 0%, ${color}88 50%, ${color}55 100%)`
   }
+  
+  function getFounderImageUrl(founder: Founder): string {
+    if (!founder.artStyle) {
+      return '' // No art style assigned yet
+    }
+    
+    // Map art style to file suffix
+    const suffix = founder.artStyle === 'lowpoly' ? '_lowpoly' : '_popart'
+    
+    // Format: FounderName_artstyle.png (e.g., "Steve Jobs_lowpoly.png")
+    return `/assets/processed/${founder.name}${suffix}.png`
+  }
 </script>
 
 <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
@@ -74,11 +86,23 @@
     <!-- Front of card -->
     <div class="card-face card-front">
       {#if founder}
-        <!-- Card header with gradient background -->
+        <!-- Card header with founder image or gradient background -->
         <div class="card-header" style="background: {getGradient(founder.id)}">
-          <div class="founder-icon">
-            {getFounderIcon(founder.id)}
-          </div>
+          {#if founder.artStyle}
+            <img 
+              src={getFounderImageUrl(founder)} 
+              alt={founder.name}
+              class="founder-image"
+              onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"
+            />
+            <div class="founder-icon" style="display: none;">
+              {getFounderIcon(founder.id)}
+            </div>
+          {:else}
+            <div class="founder-icon">
+              {getFounderIcon(founder.id)}
+            </div>
+          {/if}
           <div class="founded-badge">
             Est. {founder.founded}
           </div>
@@ -229,6 +253,13 @@
   .founder-icon {
     font-size: 4rem;
     filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+  }
+  
+  .founder-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
   }
   
   .founded-badge {

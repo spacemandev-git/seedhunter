@@ -823,6 +823,7 @@ export const PlayerScalarFieldEnum = {
   xId: 'xId',
   xProfilePic: 'xProfilePic',
   gridIndex: 'gridIndex',
+  artStyle: 'artStyle',
   verified: 'verified',
   verifiedAt: 'verifiedAt',
   verifiedBy: 'verifiedBy',

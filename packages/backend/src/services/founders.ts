@@ -22,9 +22,17 @@ export function getRandomFounderIndex(): number {
 }
 
 /**
- * Get a founder by their ID/index
+ * Get a random art style for a founder card
  */
-export function getFounderById(id: number): Founder | null {
+export function getRandomArtStyle(): string {
+  const styles = ['lowpoly', 'popart']
+  return styles[Math.floor(Math.random() * styles.length)]
+}
+
+/**
+ * Get a founder by their ID/index with optional art style
+ */
+export function getFounderById(id: number, artStyle?: string | null): Founder | null {
   const founder = founders[String(id)]
   if (!founder) return null
   
@@ -34,7 +42,8 @@ export function getFounderById(id: number): Founder | null {
     company: founder.company,
     description: founder.description,
     founded: founder.founded,
-    valuation: founder.valuation
+    valuation: founder.valuation,
+    artStyle: artStyle || undefined
   }
 }
 
