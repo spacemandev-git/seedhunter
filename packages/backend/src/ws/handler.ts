@@ -27,7 +27,7 @@ export const websocket = {
     // Initialize connection data
     ws.data.playerHandle = null
     ws.data.isAdmin = false
-    ws.data.channels = new Set(['chat', 'verifications', 'locations']) // Subscribe to these by default
+    ws.data.channels = new Set(['chat', 'verifications', 'locations', 'trades']) // Subscribe to these by default
     
     // Store the connection
     connections.set(ws.data.id, ws)

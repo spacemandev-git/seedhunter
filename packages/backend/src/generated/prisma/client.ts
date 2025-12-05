@@ -64,3 +64,8 @@ export type TradeNonce = Prisma.TradeNonceModel
  * 
  */
 export type ChatMessage = Prisma.ChatMessageModel
+/**
+ * Model CardArtStyle
+ * 
+ */
+export type CardArtStyle = Prisma.CardArtStyleModel

@@ -55,7 +55,8 @@ export const ModelName = {
   Admin: 'Admin',
   Trade: 'Trade',
   TradeNonce: 'TradeNonce',
-  ChatMessage: 'ChatMessage'
+  ChatMessage: 'ChatMessage',
+  CardArtStyle: 'CardArtStyle'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -140,6 +141,15 @@ export const ChatMessageScalarFieldEnum = {
 } as const
 
 export type ChatMessageScalarFieldEnum = (typeof ChatMessageScalarFieldEnum)[keyof typeof ChatMessageScalarFieldEnum]
+
+
+export const CardArtStyleScalarFieldEnum = {
+  gridIndex: 'gridIndex',
+  artStyle: 'artStyle',
+  createdAt: 'createdAt'
+} as const
+
+export type CardArtStyleScalarFieldEnum = (typeof CardArtStyleScalarFieldEnum)[keyof typeof CardArtStyleScalarFieldEnum]
 
 
 export const SortOrder = {

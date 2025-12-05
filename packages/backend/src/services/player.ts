@@ -1,6 +1,6 @@
 import { prisma } from '../db'
 import type { Player, PlayerStats, LeaderboardEntry, Founder } from '@seedhunter/shared'
-import { getFounderById } from './founders'
+import { getFounderById, getOrCreateCardArtStyle } from './founders'
 
 // ============================================
 // Player CRUD Operations
@@ -41,7 +41,10 @@ export async function getPlayerProject(handle: string): Promise<Founder | null> 
   
   if (!player || player.gridIndex === null) return null
   
-  return getFounderById(player.gridIndex, player.artStyle)
+  // Get the art style from the CardArtStyle table (per-card, not per-player)
+  const artStyle = await getOrCreateCardArtStyle(player.gridIndex)
+  
+  return getFounderById(player.gridIndex, artStyle)
 }
 
 /**

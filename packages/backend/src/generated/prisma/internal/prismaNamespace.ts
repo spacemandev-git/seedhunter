@@ -388,7 +388,8 @@ export const ModelName = {
   Admin: 'Admin',
   Trade: 'Trade',
   TradeNonce: 'TradeNonce',
-  ChatMessage: 'ChatMessage'
+  ChatMessage: 'ChatMessage',
+  CardArtStyle: 'CardArtStyle'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -404,7 +405,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "player" | "admin" | "trade" | "tradeNonce" | "chatMessage"
+    modelProps: "player" | "admin" | "trade" | "tradeNonce" | "chatMessage" | "cardArtStyle"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -778,6 +779,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    CardArtStyle: {
+      payload: Prisma.$CardArtStylePayload<ExtArgs>
+      fields: Prisma.CardArtStyleFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CardArtStyleFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CardArtStylePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CardArtStyleFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CardArtStylePayload>
+        }
+        findFirst: {
+          args: Prisma.CardArtStyleFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CardArtStylePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CardArtStyleFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CardArtStylePayload>
+        }
+        findMany: {
+          args: Prisma.CardArtStyleFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CardArtStylePayload>[]
+        }
+        create: {
+          args: Prisma.CardArtStyleCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CardArtStylePayload>
+        }
+        createMany: {
+          args: Prisma.CardArtStyleCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.CardArtStyleCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CardArtStylePayload>[]
+        }
+        delete: {
+          args: Prisma.CardArtStyleDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CardArtStylePayload>
+        }
+        update: {
+          args: Prisma.CardArtStyleUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CardArtStylePayload>
+        }
+        deleteMany: {
+          args: Prisma.CardArtStyleDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CardArtStyleUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.CardArtStyleUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CardArtStylePayload>[]
+        }
+        upsert: {
+          args: Prisma.CardArtStyleUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CardArtStylePayload>
+        }
+        aggregate: {
+          args: Prisma.CardArtStyleAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCardArtStyle>
+        }
+        groupBy: {
+          args: Prisma.CardArtStyleGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CardArtStyleGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CardArtStyleCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CardArtStyleCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -883,6 +958,15 @@ export const ChatMessageScalarFieldEnum = {
 } as const
 
 export type ChatMessageScalarFieldEnum = (typeof ChatMessageScalarFieldEnum)[keyof typeof ChatMessageScalarFieldEnum]
+
+
+export const CardArtStyleScalarFieldEnum = {
+  gridIndex: 'gridIndex',
+  artStyle: 'artStyle',
+  createdAt: 'createdAt'
+} as const
+
+export type CardArtStyleScalarFieldEnum = (typeof CardArtStyleScalarFieldEnum)[keyof typeof CardArtStyleScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -1061,6 +1145,7 @@ export type GlobalOmitConfig = {
   trade?: Prisma.TradeOmit
   tradeNonce?: Prisma.TradeNonceOmit
   chatMessage?: Prisma.ChatMessageOmit
+  cardArtStyle?: Prisma.CardArtStyleOmit
 }
 
 /* Types for Logging */

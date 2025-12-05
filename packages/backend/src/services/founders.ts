@@ -1,4 +1,5 @@
 import type { Founder } from '@seedhunter/shared'
+import { prisma } from '../db'
 import foundersData from '../../data/founders.json'
 
 // Total number of founders in our dataset (indexed 0-118)
@@ -27,6 +28,40 @@ export function getRandomFounderIndex(): number {
 export function getRandomArtStyle(): string {
   const styles = ['lowpoly', 'popart']
   return styles[Math.floor(Math.random() * styles.length)]
+}
+
+/**
+ * Get the art style for a card (gridIndex), creating one if it doesn't exist
+ * Art style is permanent and persists through trades
+ */
+export async function getOrCreateCardArtStyle(gridIndex: number): Promise<string> {
+  // Try to find existing art style for this card
+  const existing = await prisma.cardArtStyle.findUnique({
+    where: { gridIndex }
+  })
+  
+  if (existing) {
+    return existing.artStyle
+  }
+  
+  // Create a new art style for this card
+  const artStyle = getRandomArtStyle()
+  await prisma.cardArtStyle.create({
+    data: { gridIndex, artStyle }
+  })
+  
+  return artStyle
+}
+
+/**
+ * Get the art style for a card if it exists (doesn't create)
+ */
+export async function getCardArtStyle(gridIndex: number): Promise<string | null> {
+  const record = await prisma.cardArtStyle.findUnique({
+    where: { gridIndex }
+  })
+  
+  return record?.artStyle ?? null
 }
 
 /**
