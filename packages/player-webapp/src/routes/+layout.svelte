@@ -25,9 +25,12 @@
     { href: "/card", icon: "card", label: "Card", authRequired: true },
     { href: "/chat", icon: "chat", label: "Chat", authRequired: false },
     { href: "/map", icon: "map", label: "Map", authRequired: false },
-    { href: "https://t.me/+VvlOcxlAbH1lNzcx", icon: "telegram", label: "Telegram", authRequired: true, external: true },
-    { href: "https://x.com/seedplex_io", icon: "x", label: "X", authRequired: false, external: true },
-    { href: "/profile", icon: "user", label: "Profile", authRequired: true },
+  ];
+
+  // Social links for header
+  const socialLinks = [
+    { href: "https://t.me/+VvlOcxlAbH1lNzcx", icon: "telegram", label: "Telegram" },
+    { href: "https://x.com/seedplex_io", icon: "x", label: "X" },
   ];
 
   onMount(() => {
@@ -55,21 +58,44 @@
         </div>
       {:else if auth.isLoggedIn}
         <div class="auth-status logged-in">
-          {#if auth.player?.xProfilePic}
-            <img 
-              src={auth.player.xProfilePic} 
-              alt="@{auth.player.xHandle}" 
-              class="user-avatar"
-            />
-          {:else}
-            <div class="user-avatar-placeholder">
-              {auth.player?.xHandle?.charAt(0).toUpperCase() || '?'}
-            </div>
-          {/if}
-          <span class="user-handle">@{auth.player?.xHandle}</span>
-          {#if auth.player?.verified}
-            <span class="verified-icon" title="Verified">✓</span>
-          {/if}
+          <a href="/profile" class="profile-link" title="View Profile">
+            {#if auth.player?.xProfilePic}
+              <img 
+                src={auth.player.xProfilePic} 
+                alt="@{auth.player.xHandle}" 
+                class="user-avatar"
+              />
+            {:else}
+              <div class="user-avatar-placeholder">
+                {auth.player?.xHandle?.charAt(0).toUpperCase() || '?'}
+              </div>
+            {/if}
+            <span class="user-handle">@{auth.player?.xHandle}</span>
+            {#if auth.player?.verified}
+              <span class="verified-icon" title="Verified">✓</span>
+            {/if}
+          </a>
+          <div class="social-links">
+            {#each socialLinks as link}
+              <a
+                href={link.href}
+                class="social-link"
+                target="_blank"
+                rel="noopener noreferrer"
+                title={link.label}
+              >
+                {#if link.icon === "telegram"}
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 5L2 12.5l7 1M21 5l-3 15-8-6.5M21 5L9 13.5m0 0V19l3.25-3.25" />
+                  </svg>
+                {:else if link.icon === "x"}
+                  <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                  </svg>
+                {/if}
+              </a>
+            {/each}
+          </div>
           <button 
             class="btn-logout" 
             onclick={handleLogout}
@@ -244,6 +270,20 @@
     gap: var(--space-xs);
   }
 
+  .profile-link {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    text-decoration: none;
+    padding: 4px 8px 4px 4px;
+    border-radius: var(--radius-md);
+    transition: background-color var(--transition-fast);
+  }
+
+  .profile-link:hover {
+    background-color: var(--color-bg-secondary);
+  }
+
   .user-avatar {
     width: 32px;
     height: 32px;
@@ -282,6 +322,38 @@
     border-radius: 50%;
     font-size: 0.7rem;
     font-weight: bold;
+  }
+
+  .social-links {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+  }
+
+  .social-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    background: transparent;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    color: var(--color-text-muted);
+    text-decoration: none;
+    transition: all var(--transition-fast);
+  }
+
+  .social-link:hover {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+    color: white;
+  }
+
+  .social-link svg {
+    width: 16px;
+    height: 16px;
   }
 
   .btn-logout {
