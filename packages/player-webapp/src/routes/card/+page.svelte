@@ -81,7 +81,7 @@
             {founder}
             ownerHandle={auth.player?.xHandle}
             isOwn={true}
-            tradeCount={Math.floor((auth.player?.stats.trades ?? 0) / 2)}
+            tradeCount={auth.player?.stats.trades ?? 0}
             points={auth.player?.stats.points ?? 0}
             size="large"
             flippable={true}
@@ -105,7 +105,7 @@
           <div class="stat-card">
             <span class="stat-icon">🔄</span>
             <div class="stat-content">
-              <span class="stat-value">{Math.floor((auth.player?.stats.trades ?? 0) / 2)}</span>
+              <span class="stat-value">{auth.player?.stats.trades ?? 0}</span>
               <span class="stat-label">Total Trades</span>
             </div>
           </div>
