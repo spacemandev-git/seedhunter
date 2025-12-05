@@ -384,7 +384,114 @@
     line-height: 1.6;
   }
   
-  /* Responsive */
+  /* Desktop responsive - use more space */
+  @media (min-width: 768px) {
+    .card-page {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 var(--space-xl);
+    }
+    
+    .page-header h1 {
+      font-size: 2rem;
+    }
+    
+    .subtitle {
+      font-size: 1rem;
+    }
+    
+    /* Larger card container for desktop */
+    .card-container {
+      margin: var(--space-lg) 0;
+    }
+    
+    /* Trade button and stats in a row on desktop */
+    .trade-btn {
+      max-width: 400px;
+    }
+    
+    .stats-row {
+      max-width: 800px;
+    }
+    
+    .stat-card {
+      padding: var(--space-lg);
+    }
+    
+    .stat-icon {
+      font-size: 2rem;
+    }
+    
+    .stat-value {
+      font-size: 2rem;
+    }
+    
+    .stat-label {
+      font-size: 0.8rem;
+    }
+    
+    .verification-prompt,
+    .verified-status {
+      max-width: 800px;
+    }
+    
+    .trade-history-section {
+      max-width: 900px;
+    }
+  }
+  
+  /* Extra large desktop - even more space */
+  @media (min-width: 1024px) {
+    .card-page {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: auto auto auto auto;
+      gap: var(--space-xl);
+      align-items: start;
+    }
+    
+    .page-header {
+      grid-column: 1 / -1;
+      text-align: center;
+    }
+    
+    .card-container {
+      grid-column: 1;
+      grid-row: 2 / 4;
+      display: flex;
+      justify-content: center;
+      margin: 0;
+    }
+    
+    .trade-btn {
+      grid-column: 2;
+      grid-row: 2;
+      max-width: none;
+      align-self: start;
+    }
+    
+    .stats-row {
+      grid-column: 2;
+      grid-row: 3;
+      max-width: none;
+      gap: var(--space-lg);
+    }
+    
+    .verification-prompt,
+    .verified-status {
+      grid-column: 1 / -1;
+      grid-row: 4;
+      max-width: none;
+    }
+    
+    .trade-history-section {
+      grid-column: 1 / -1;
+      grid-row: 5;
+      max-width: none;
+    }
+  }
+  
+  /* Mobile responsive */
   @media (max-width: 360px) {
     .stats-row {
       flex-direction: column;

@@ -22,11 +22,27 @@
   }: Props = $props()
   
   let isFlipped = $state(false)
+  let imageError = $state(false)
+  
+  // Reset image error when founder changes
+  $effect(() => {
+    if (founder) {
+      imageError = false
+    }
+  })
   
   function handleFlip() {
     if (flippable) {
       isFlipped = !isFlipped
     }
+  }
+  
+  function handleImageError() {
+    imageError = true
+  }
+  
+  function handleImageLoad() {
+    imageError = false
   }
   
   // Color palette for founder cards based on ID
@@ -87,15 +103,19 @@
       {#if founder}
         <!-- Card header with founder image or gradient background -->
         <div class="card-header" style="background: {getGradient(founder.id)}">
-          <img 
-            src={getFounderImageUrl(founder)} 
-            alt={founder.name}
-            class="founder-image"
-            onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"
-          />
-          <div class="founder-icon" style="display: none;">
-            {getFounderIcon(founder.id)}
-          </div>
+          {#if !imageError}
+            <img 
+              src={getFounderImageUrl(founder)} 
+              alt={founder.name}
+              class="founder-image"
+              onerror={handleImageError}
+              onload={handleImageLoad}
+            />
+          {:else}
+            <div class="founder-icon">
+              {getFounderIcon(founder.id)}
+            </div>
+          {/if}
           <div class="founded-badge">
             Est. {founder.founded}
           </div>
