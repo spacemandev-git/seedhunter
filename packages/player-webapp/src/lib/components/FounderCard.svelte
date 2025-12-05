@@ -61,12 +61,11 @@
   }
   
   function getFounderImageUrl(founder: Founder): string {
-    if (!founder.artStyle) {
-      return '' // No art style assigned yet
-    }
+    // Default to a deterministic art style based on founder ID if not set
+    const artStyle = founder.artStyle || (founder.id % 2 === 0 ? 'lowpoly' : 'popart')
     
     // Map art style to file suffix
-    const suffix = founder.artStyle === 'lowpoly' ? '_lowpoly' : '_popart'
+    const suffix = artStyle === 'lowpoly' ? '_lowpoly' : '_popart'
     
     // Format: FounderName_artstyle.png (e.g., "Steve Jobs_lowpoly.png")
     return `/assets/processed/${founder.name}${suffix}.png`
@@ -88,21 +87,15 @@
       {#if founder}
         <!-- Card header with founder image or gradient background -->
         <div class="card-header" style="background: {getGradient(founder.id)}">
-          {#if founder.artStyle}
-            <img 
-              src={getFounderImageUrl(founder)} 
-              alt={founder.name}
-              class="founder-image"
-              onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"
-            />
-            <div class="founder-icon" style="display: none;">
-              {getFounderIcon(founder.id)}
-            </div>
-          {:else}
-            <div class="founder-icon">
-              {getFounderIcon(founder.id)}
-            </div>
-          {/if}
+          <img 
+            src={getFounderImageUrl(founder)} 
+            alt={founder.name}
+            class="founder-image"
+            onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"
+          />
+          <div class="founder-icon" style="display: none;">
+            {getFounderIcon(founder.id)}
+          </div>
           <div class="founded-badge">
             Est. {founder.founded}
           </div>
