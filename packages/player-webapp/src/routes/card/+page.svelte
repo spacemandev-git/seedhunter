@@ -59,10 +59,6 @@
   }
 </script>
 
-<svelte:head>
-  <title>My Card | Seedhunter</title>
-</svelte:head>
-
 <div class="page">
   <div class="container">
     {#if auth.loading || loading}
@@ -78,13 +74,7 @@
         <a href="/auth/login" class="btn-primary btn-large mt-lg">Connect with X</a>
       </div>
     {:else}
-      <div class="card-page">
-        <!-- Page header -->
-        <div class="page-header">
-          <h1>My Card</h1>
-          <p class="subtitle">Tap card to see stats</p>
-        </div>
-        
+      <div class="card-page">        
         <!-- Card display -->
         <div class="card-container">
           <FounderCard 
@@ -147,7 +137,6 @@
                 <span>Find an admin and show them your profile QR</span>
               </div>
             </div>
-            <a href="/profile" class="btn-secondary">Show QR</a>
           </div>
         {:else}
           <div class="verified-status">

@@ -255,7 +255,7 @@
   
   .card-header {
     flex: 0 0 auto;
-    height: 45%;
+    height: 60%;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -271,7 +271,7 @@
   .founder-image {
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit: contain;
     object-position: center;
   }
   
