@@ -6,6 +6,7 @@
   import type { Founder, Trade } from '@seedhunter/shared'
   import FounderCard from '$lib/components/FounderCard.svelte'
   import TradeModal from '$lib/components/TradeModal.svelte'
+  import TradeHistory from '$lib/components/TradeHistory.svelte'
   
   let founder = $state<Founder | null>(null)
   let loading = $state(true)
@@ -154,6 +155,11 @@
             <span>You're verified! Your trades count toward points.</span>
           </div>
         {/if}
+        
+        <!-- Trade History Section -->
+        <div class="trade-history-section">
+          <TradeHistory />
+        </div>
       </div>
     {/if}
   </div>
@@ -319,6 +325,13 @@
     border-radius: 50%;
     font-size: 0.8rem;
     font-weight: bold;
+  }
+  
+  /* Trade history section */
+  .trade-history-section {
+    width: 100%;
+    max-width: 600px;
+    margin-top: var(--space-xl);
   }
   
   /* Loading state */
