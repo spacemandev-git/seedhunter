@@ -343,14 +343,15 @@
   /* Bottom Tab Bar */
   .tab-bar {
     display: flex;
-    justify-content: space-around;
+    justify-content: space-evenly;
     align-items: center;
     background-color: var(--color-surface);
     border-top: 1px solid var(--color-border);
-    padding: var(--space-xs) 0;
+    padding: var(--space-xs) var(--space-xs);
     padding-bottom: calc(var(--space-xs) + var(--safe-area-bottom));
     flex-shrink: 0;
     z-index: 50;
+    overflow: hidden;
   }
 
   .tab-item {
@@ -358,11 +359,12 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: var(--space-xs) var(--space-md);
+    padding: var(--space-xs) var(--space-xs);
     text-decoration: none;
     color: var(--color-text-muted);
     transition: color var(--transition-fast);
-    min-width: 64px;
+    min-width: 0;
+    flex: 1;
     gap: 2px;
   }
 
@@ -418,7 +420,8 @@
     }
 
     .tab-item {
-      padding: var(--space-sm) var(--space-lg);
+      padding: var(--space-sm) var(--space-md);
+      flex: 0 0 auto;
     }
 
     .tab-icon {
