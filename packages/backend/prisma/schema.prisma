@@ -20,6 +20,7 @@ model Player {
   xHandle       String   @unique @map("x_handle")
   xId           String?  @unique @map("x_id")
   xProfilePic   String?  @map("x_profile_pic")
+  email         String?  @map("email") // Player's email address
   
   // Current project from The Grid (index in the profileInfos list)
   gridIndex     Int?     @map("grid_index")

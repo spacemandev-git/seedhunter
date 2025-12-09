@@ -80,6 +80,7 @@ export const PlayerScalarFieldEnum = {
   xHandle: 'xHandle',
   xId: 'xId',
   xProfilePic: 'xProfilePic',
+  email: 'email',
   gridIndex: 'gridIndex',
   artStyle: 'artStyle',
   verified: 'verified',

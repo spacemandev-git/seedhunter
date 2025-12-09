@@ -8,6 +8,20 @@
   let qrDataUrl = $state<string | null>(null)
   let showBrightness = $state(false)
   
+  // Email editing state
+  let emailValue = $state('')
+  let isEditingEmail = $state(false)
+  let emailSaving = $state(false)
+  let emailError = $state<string | null>(null)
+  let emailSuccess = $state(false)
+  
+  // Initialize email value when player loads
+  $effect(() => {
+    if (auth.player?.email !== undefined) {
+      emailValue = auth.player.email ?? ''
+    }
+  })
+  
   onMount(async () => {
     // Redirect if not logged in
     if (!auth.loading && !auth.isLoggedIn) {
@@ -61,6 +75,48 @@
   
   function toggleBrightness() {
     showBrightness = !showBrightness
+  }
+  
+  function startEditingEmail() {
+    isEditingEmail = true
+    emailError = null
+    emailSuccess = false
+  }
+  
+  function cancelEditingEmail() {
+    isEditingEmail = false
+    emailValue = auth.player?.email ?? ''
+    emailError = null
+  }
+  
+  async function saveEmail() {
+    emailError = null
+    emailSuccess = false
+    
+    // Basic email validation
+    if (emailValue && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailValue)) {
+      emailError = 'Please enter a valid email address'
+      return
+    }
+    
+    emailSaving = true
+    
+    try {
+      const result = await auth.updateProfile({ email: emailValue || null })
+      
+      if (result.success) {
+        isEditingEmail = false
+        emailSuccess = true
+        // Clear success message after 3 seconds
+        setTimeout(() => emailSuccess = false, 3000)
+      } else {
+        emailError = result.error || 'Failed to save email'
+      }
+    } catch (err) {
+      emailError = 'Failed to save email. Please try again.'
+    } finally {
+      emailSaving = false
+    }
   }
 </script>
 
@@ -118,6 +174,66 @@
               <span class="stat-label">Rank</span>
             </div>
           </div>
+        </div>
+        
+        <!-- Email Section -->
+        <div class="email-section">
+          <div class="section-header">
+            <h3>Email Address</h3>
+            {#if emailSuccess}
+              <span class="success-badge">✓ Saved</span>
+            {/if}
+          </div>
+          
+          {#if isEditingEmail}
+            <div class="email-edit">
+              <input 
+                type="email"
+                bind:value={emailValue}
+                placeholder="Enter your email address"
+                class="email-input"
+                disabled={emailSaving}
+              />
+              {#if emailError}
+                <p class="error-message">{emailError}</p>
+              {/if}
+              <div class="email-actions">
+                <button 
+                  class="btn-secondary" 
+                  onclick={cancelEditingEmail}
+                  disabled={emailSaving}
+                >
+                  Cancel
+                </button>
+                <button 
+                  class="btn-primary" 
+                  onclick={saveEmail}
+                  disabled={emailSaving}
+                >
+                  {emailSaving ? 'Saving...' : 'Save'}
+                </button>
+              </div>
+            </div>
+          {:else}
+            <div class="email-display">
+              {#if auth.player?.email}
+                <p class="email-value">{auth.player.email}</p>
+              {:else}
+                <p class="email-placeholder">No email added</p>
+              {/if}
+              <button class="btn-edit" onclick={startEditingEmail}>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                </svg>
+                {auth.player?.email ? 'Edit' : 'Add Email'}
+              </button>
+            </div>
+          {/if}
+          
+          <p class="email-hint">
+            Your email is used for important account notifications only.
+          </p>
         </div>
         
         <!-- Verification QR section -->
@@ -279,6 +395,175 @@
     font-size: 0.75rem;
     color: var(--color-text-muted);
     margin-top: 4px;
+  }
+  
+  /* Email Section */
+  .email-section {
+    background: var(--color-surface);
+    border-radius: var(--radius-xl);
+    padding: var(--space-lg);
+    box-shadow: var(--shadow-card);
+  }
+  
+  .email-section .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-md);
+  }
+  
+  .email-section .section-header h3 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--color-text);
+    margin: 0;
+  }
+  
+  .success-badge {
+    font-size: 0.85rem;
+    color: var(--color-success, #22c55e);
+    font-weight: 600;
+    animation: fadeIn 0.3s ease;
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  
+  .email-display {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--space-md);
+  }
+  
+  .email-value {
+    color: var(--color-text);
+    font-size: 1rem;
+    margin: 0;
+    word-break: break-all;
+  }
+  
+  .email-placeholder {
+    color: var(--color-text-muted);
+    font-size: 1rem;
+    font-style: italic;
+    margin: 0;
+  }
+  
+  .btn-edit {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    padding: var(--space-xs) var(--space-md);
+    background: var(--color-primary-light);
+    color: var(--color-primary);
+    border: none;
+    border-radius: var(--radius-md);
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    white-space: nowrap;
+  }
+  
+  .btn-edit:hover {
+    background: var(--color-primary);
+    color: white;
+  }
+  
+  .btn-edit svg {
+    width: 16px;
+    height: 16px;
+  }
+  
+  .email-edit {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+  }
+  
+  .email-input {
+    width: 100%;
+    padding: var(--space-md);
+    font-size: 1rem;
+    border: 2px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-bg);
+    color: var(--color-text);
+    transition: border-color var(--transition-fast);
+  }
+  
+  .email-input:focus {
+    outline: none;
+    border-color: var(--color-primary);
+  }
+  
+  .email-input:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+  
+  .email-actions {
+    display: flex;
+    gap: var(--space-sm);
+    justify-content: flex-end;
+  }
+  
+  .btn-secondary {
+    padding: var(--space-sm) var(--space-md);
+    background: transparent;
+    color: var(--color-text-muted);
+    border: 2px solid var(--color-border);
+    border-radius: var(--radius-md);
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+  }
+  
+  .btn-secondary:hover:not(:disabled) {
+    border-color: var(--color-text-muted);
+  }
+  
+  .btn-secondary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  
+  .btn-primary {
+    padding: var(--space-sm) var(--space-md);
+    background: var(--color-primary);
+    color: white;
+    border: none;
+    border-radius: var(--radius-md);
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+  }
+  
+  .btn-primary:hover:not(:disabled) {
+    background: var(--color-primary-dark, #0d4040);
+  }
+  
+  .btn-primary:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+  
+  .error-message {
+    color: var(--color-error, #ef4444);
+    font-size: 0.875rem;
+    margin: 0;
+  }
+  
+  .email-hint {
+    color: var(--color-text-muted);
+    font-size: 0.8rem;
+    margin: var(--space-md) 0 0 0;
+    line-height: 1.4;
   }
   
   /* QR Section */

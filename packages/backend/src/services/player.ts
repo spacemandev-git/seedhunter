@@ -20,6 +20,37 @@ export async function getPlayerByHandle(handle: string): Promise<Player | null> 
     id: player.id,
     xHandle: player.xHandle,
     xProfilePic: player.xProfilePic,
+    email: player.email,
+    gridIndex: player.gridIndex,
+    artStyle: player.artStyle,
+    verified: player.verified,
+    verifiedAt: player.verifiedAt?.getTime() ?? null,
+    createdAt: player.createdAt.getTime(),
+    lastLocationLat: player.lastLocationLat,
+    lastLocationLng: player.lastLocationLng,
+    lastLocationAt: player.lastLocationAt?.getTime() ?? null
+  }
+}
+
+/**
+ * Update a player's profile (email, etc.)
+ */
+export async function updatePlayerProfile(
+  playerId: string,
+  data: { email?: string | null }
+): Promise<Player | null> {
+  const player = await prisma.player.update({
+    where: { id: playerId },
+    data: {
+      email: data.email
+    }
+  })
+  
+  return {
+    id: player.id,
+    xHandle: player.xHandle,
+    xProfilePic: player.xProfilePic,
+    email: player.email,
     gridIndex: player.gridIndex,
     artStyle: player.artStyle,
     verified: player.verified,
@@ -256,6 +287,7 @@ export async function verifyPlayer(
         id: player.id,
         xHandle: player.xHandle,
         xProfilePic: player.xProfilePic,
+        email: player.email,
         gridIndex: player.gridIndex,
         artStyle: player.artStyle,
         verified: true,
@@ -297,6 +329,7 @@ export async function verifyPlayer(
       id: updatedPlayer.id,
       xHandle: updatedPlayer.xHandle,
       xProfilePic: updatedPlayer.xProfilePic,
+      email: updatedPlayer.email,
       gridIndex: updatedPlayer.gridIndex,
       artStyle: updatedPlayer.artStyle,
       verified: true,

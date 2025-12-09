@@ -86,6 +86,13 @@ export async function getPlayerProject(handle: string): Promise<Founder> {
   return api(Routes.PLAYER_PROJECT(handle))
 }
 
+export async function updatePlayerProfile(data: { email?: string | null }): Promise<Player & { stats: { trades: number; points: number; rank: number } }> {
+  return api(Routes.PLAYER_UPDATE, {
+    method: 'PATCH',
+    body: JSON.stringify(data)
+  })
+}
+
 export async function getLeaderboard(limit = 50, offset = 0): Promise<PaginatedResponse<LeaderboardEntry>> {
   return api(`${Routes.LEADERBOARD}?limit=${limit}&offset=${offset}`)
 }

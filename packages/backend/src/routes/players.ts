@@ -7,7 +7,8 @@ import {
   getPlayerStats,
   getLeaderboard,
   updatePlayerLocation,
-  getNearbyPlayers
+  getNearbyPlayers,
+  updatePlayerProfile
 } from '../services/player'
 import { optionalAuth, requirePlayer } from '../middleware/auth'
 import { defaultRateLimit } from '../middleware/rateLimit'
@@ -63,6 +64,7 @@ playerRoutes.get('/:handle', async (c: Context) => {
     return c.json({
       xHandle: player.xHandle,
       xProfilePic: player.xProfilePic,
+      email: player.email,
       verified: player.verified,
       verifiedAt: player.verifiedAt,
       project,
@@ -72,6 +74,50 @@ playerRoutes.get('/:handle', async (c: Context) => {
     console.error('Get player error:', error)
     return c.json({
       error: 'Failed to get player',
+      code: ErrorCodes.INTERNAL_ERROR
+    }, 500)
+  }
+})
+
+// Update current player's profile (email, etc.)
+playerRoutes.patch('/me', requirePlayer, async (c: Context) => {
+  const player = c.get('player')!
+  
+  try {
+    const body = await c.req.json<{ email?: string | null }>()
+    
+    // Validate email format if provided
+    if (body.email !== undefined && body.email !== null && body.email !== '') {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+      if (!emailRegex.test(body.email)) {
+        return c.json({
+          error: 'Invalid email format',
+          code: ErrorCodes.VALIDATION_ERROR
+        }, 400)
+      }
+    }
+    
+    const updatedPlayer = await updatePlayerProfile(player.id, {
+      email: body.email === '' ? null : body.email
+    })
+    
+    if (!updatedPlayer) {
+      return c.json({
+        error: 'Failed to update profile',
+        code: ErrorCodes.INTERNAL_ERROR
+      }, 500)
+    }
+    
+    const stats = await getPlayerStats(updatedPlayer.xHandle)
+    
+    return c.json({
+      ...updatedPlayer,
+      stats
+    })
+  } catch (error) {
+    console.error('Update profile error:', error)
+    return c.json({
+      error: 'Failed to update profile',
       code: ErrorCodes.INTERNAL_ERROR
     }, 500)
   }

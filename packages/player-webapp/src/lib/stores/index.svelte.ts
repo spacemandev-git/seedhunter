@@ -1,4 +1,4 @@
-import { getAuthToken, getPlayer, getLeaderboard, logout as apiLogout, setAuthToken, disconnectWebSocket } from '$lib/api/client'
+import { getAuthToken, getPlayer, getLeaderboard, logout as apiLogout, setAuthToken, disconnectWebSocket, updatePlayerProfile as apiUpdatePlayerProfile } from '$lib/api/client'
 import type { Player, LeaderboardEntry, Card, Trade, AdminLocation, ChatMessage } from '@seedhunter/shared'
 
 // ============================================
@@ -46,6 +46,16 @@ function createAuthStore() {
     setPlayer(player: AuthState['player']) {
       state.player = player
       state.loading = false
+    },
+    
+    async updateProfile(data: { email?: string | null }) {
+      try {
+        const updatedPlayer = await apiUpdatePlayerProfile(data)
+        state.player = updatedPlayer
+        return { success: true }
+      } catch (err) {
+        return { success: false, error: err instanceof Error ? err.message : 'Failed to update profile' }
+      }
     },
     
     async logout() {

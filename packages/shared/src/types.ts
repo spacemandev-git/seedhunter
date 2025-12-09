@@ -6,6 +6,7 @@ export interface Player {
   id: string
   xHandle: string
   xProfilePic: string | null
+  email: string | null
   gridIndex: number | null // Index into The Grid's profileInfos
   artStyle: string | null // Art style variant: 'lowpoly' or 'popart'
   verified: boolean

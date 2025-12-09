@@ -361,6 +361,7 @@ export async function handleXCallback(
       id: player!.id,
       xHandle: player!.xHandle,
       xProfilePic: player!.xProfilePic,
+      email: player!.email,
       gridIndex: player!.gridIndex,
       artStyle: player!.artStyle,
       verified: player!.verified,
