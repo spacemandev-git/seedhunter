@@ -7,9 +7,13 @@
   let mapContainer: HTMLDivElement;
   let map: any = null;
   let L: any = null;
-  let markers: any[] = [];
+  let adminMarkers: any[] = [];
+  let playerMarker: any = null;
   let refreshInterval: ReturnType<typeof setInterval> | null = null;
+  let locationWatchId: number | null = null;
   let isRefreshing = $state(false);
+  let playerLocationStatus = $state<'idle' | 'requesting' | 'granted' | 'denied' | 'error'>('idle');
+  let playerLocation = $state<{ lat: number; lng: number } | null>(null);
 
   async function loadLocations() {
     isRefreshing = true;
@@ -18,7 +22,7 @@
     try {
       const locations = await getAdminLocations();
       adminLocations.setLocations(locations);
-      updateMarkers(locations);
+      updateAdminMarkers(locations);
     } catch (err) {
       console.error("Failed to load admin locations:", err);
     } finally {
@@ -37,14 +41,86 @@
     return adminAvatars[username.toLowerCase()] || null;
   }
 
-  function updateMarkers(locations: AdminLocation[]) {
+  /**
+   * Request player's location - only shown locally on their device
+   */
+  async function requestPlayerLocation() {
+    if (!navigator.geolocation) {
+      playerLocationStatus = 'error';
+      return;
+    }
+
+    playerLocationStatus = 'requesting';
+
+    // Watch position for continuous updates
+    locationWatchId = navigator.geolocation.watchPosition(
+      (position) => {
+        playerLocationStatus = 'granted';
+        playerLocation = {
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
+        };
+        updatePlayerMarker();
+      },
+      (error) => {
+        console.error("Geolocation error:", error);
+        if (error.code === error.PERMISSION_DENIED) {
+          playerLocationStatus = 'denied';
+        } else {
+          playerLocationStatus = 'error';
+        }
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 5000,
+      }
+    );
+  }
+
+  /**
+   * Update player's marker on the map (only visible to them locally)
+   */
+  function updatePlayerMarker() {
+    if (!map || !L || !playerLocation) return;
+
+    const { lat, lng } = playerLocation;
+
+    if (playerMarker) {
+      // Update existing marker position
+      playerMarker.setLatLng([lat, lng]);
+    } else {
+      // Create new player marker with distinct style
+      const playerIcon = L.divIcon({
+        className: "player-marker",
+        html: `<div class="player-pin"><span>📍</span></div><div class="player-label">You</div>`,
+        iconSize: [40, 50],
+        iconAnchor: [20, 50],
+      });
+
+      playerMarker = L.marker([lat, lng], { icon: playerIcon }).addTo(map)
+        .bindPopup(`
+          <div style="text-align: center; padding: 8px;">
+            <strong>Your Location</strong><br/>
+            <small style="color: #3B82F6;">📍 Only visible to you</small>
+          </div>
+        `);
+
+      // Center map on player location if no admins are visible
+      if (adminMarkers.length === 0) {
+        map.setView([lat, lng], 16);
+      }
+    }
+  }
+
+  function updateAdminMarkers(locations: AdminLocation[]) {
     if (!map || !L) return;
 
-    // Clear existing markers
-    markers.forEach((m) => m.remove());
-    markers = [];
+    // Clear existing admin markers
+    adminMarkers.forEach((m) => m.remove());
+    adminMarkers = [];
 
-    // Add new markers
+    // Add new admin markers
     locations.forEach((admin) => {
       if (
         admin.location !== "<encrypted>" &&
@@ -73,13 +149,24 @@
             </div>
           `);
 
-        markers.push(marker);
+        adminMarkers.push(marker);
       }
     });
 
-    // Fit bounds if we have markers
-    if (markers.length > 0) {
-      const group = L.featureGroup(markers);
+    // Fit bounds to show all markers (admin + player if available)
+    fitMapBounds();
+  }
+
+  function fitMapBounds() {
+    if (!map || !L) return;
+
+    const allMarkers = [...adminMarkers];
+    if (playerMarker) {
+      allMarkers.push(playerMarker);
+    }
+
+    if (allMarkers.length > 0) {
+      const group = L.featureGroup(allMarkers);
       map.fitBounds(group.getBounds().pad(0.2));
     }
   }
@@ -96,24 +183,32 @@
     // Add zoom control to bottom right
     L.control.zoom({ position: "bottomright" }).addTo(map);
 
-    // Add tile layer with light theme
+    // Add tile layer with English labels (using CartoDB Positron with English names)
+    // CartoDB tiles use OpenStreetMap data which prioritizes English names for international labels
     L.tileLayer(
-      "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
+      "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",
       {
-        attribution: '&copy; <a href="https://carto.com/">CARTO</a>',
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
         maxZoom: 19,
+        language: 'en', // Request English labels where supported
       },
     ).addTo(map);
 
-    // Load initial locations
+    // Load initial admin locations
     await loadLocations();
 
-    // Auto-refresh every 30 seconds
+    // Request player's location
+    await requestPlayerLocation();
+
+    // Auto-refresh admin locations every 30 seconds
     refreshInterval = setInterval(loadLocations, 30000);
   });
 
   onDestroy(() => {
     if (refreshInterval) clearInterval(refreshInterval);
+    if (locationWatchId !== null) {
+      navigator.geolocation.clearWatch(locationWatchId);
+    }
     if (map) map.remove();
   });
 
@@ -163,6 +258,23 @@
     <!-- Map -->
     <div class="map-card">
       <div class="map-container" bind:this={mapContainer}></div>
+      
+      <!-- Player location status indicator -->
+      <div class="location-status-bar">
+        {#if playerLocationStatus === 'requesting'}
+          <span class="status-icon">📍</span>
+          <span>Requesting your location...</span>
+        {:else if playerLocationStatus === 'granted' && playerLocation}
+          <span class="status-icon">✅</span>
+          <span>Your location shown (only visible to you)</span>
+        {:else if playerLocationStatus === 'denied'}
+          <span class="status-icon">🚫</span>
+          <span>Location denied - enable it to see yourself on map</span>
+        {:else if playerLocationStatus === 'error'}
+          <span class="status-icon">⚠️</span>
+          <span>Could not get your location</span>
+        {/if}
+      </div>
     </div>
 
     <!-- Admin list -->
@@ -199,6 +311,7 @@
         <div class="admin-list">
           {#each adminLocations.locations as admin}
             {@const avatarUrl = getAdminAvatar(admin.username)}
+            {@const hasLocation = admin.location !== "<encrypted>" && typeof admin.location === "object"}
             <div class="admin-item">
               <div class="admin-avatar">
                 {#if avatarUrl}
@@ -222,8 +335,13 @@
                     </svg>
                     Location &lt;encrypted&gt;
                   </span>
-                {:else}
-                  <span class="location-status visible">
+                {:else if hasLocation}
+                  <a 
+                    href="https://www.google.com/maps?q={admin.location.lat},{admin.location.lng}" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    class="location-link"
+                  >
                     <svg
                       viewBox="0 0 24 24"
                       fill="none"
@@ -235,11 +353,16 @@
                         d="M12 21.7C17.3 17 20 13 20 10a8 8 0 1 0-16 0c0 3 2.7 6.9 8 11.7z"
                       />
                     </svg>
-                    On map
-                  </span>
+                    Open in Google Maps
+                    <svg class="external-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                      <polyline points="15 3 21 3 21 9" />
+                      <line x1="10" y1="14" x2="21" y2="3" />
+                    </svg>
+                  </a>
                 {/if}
               </div>
-              {#if admin.location !== "<encrypted>"}
+              {#if hasLocation}
                 <div class="admin-badge">✓</div>
               {/if}
             </div>
@@ -373,6 +496,65 @@
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   }
 
+  /* Player marker styles */
+  :global(.player-marker) {
+    background: transparent;
+  }
+
+  :global(.player-pin) {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, #3B82F6, #1D4ED8);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+    border: 3px solid white;
+    animation: playerPulse 2s ease-in-out infinite;
+  }
+
+  :global(.player-label) {
+    position: absolute;
+    bottom: -24px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #3B82F6;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    white-space: nowrap;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+  }
+
+  @keyframes playerPulse {
+    0%, 100% {
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+    }
+    50% {
+      box-shadow: 0 4px 20px rgba(59, 130, 246, 0.7);
+    }
+  }
+
+  /* Location status bar */
+  .location-status-bar {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: var(--space-sm) var(--space-md);
+    background: var(--color-bg-secondary);
+    border-top: 1px solid var(--color-border-light);
+    font-size: 0.8rem;
+    color: var(--color-text-secondary);
+  }
+
+  .location-status-bar .status-icon {
+    font-size: 1rem;
+  }
+
   /* Admin list card */
   .admin-card {
     background: var(--color-surface);
@@ -468,6 +650,35 @@
 
   .location-status.hidden {
     color: var(--color-text-muted);
+  }
+
+  .location-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.8rem;
+    margin-top: 2px;
+    color: var(--color-primary);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color var(--transition-fast);
+  }
+
+  .location-link:hover {
+    color: var(--color-primary-dark, #1a9e9a);
+    text-decoration: underline;
+  }
+
+  .location-link svg {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+  }
+
+  .location-link .external-icon {
+    width: 12px;
+    height: 12px;
+    opacity: 0.7;
   }
 
   .admin-badge {
