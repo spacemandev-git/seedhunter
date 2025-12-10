@@ -193,9 +193,15 @@ export async function getLeaderboard(
   limit: number = 50,
   offset: number = 0
 ): Promise<{ entries: LeaderboardEntry[]; total: number }> {
-  // Get all verified players with their trade counts
+  // Handles to exclude from leaderboard (admins/test accounts)
+  const excludedHandles = ['spacemandev', 'treggs6']
+
+  // Get all verified players with their trade counts (excluding specific handles)
   const verifiedPlayers = await prisma.player.findMany({
-    where: { verified: true },
+    where: {
+      verified: true,
+      xHandle: { notIn: excludedHandles }
+    },
     include: {
       tradesAsPlayerA: {
         include: { playerB: { select: { id: true, verified: true } } }
