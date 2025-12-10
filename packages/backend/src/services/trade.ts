@@ -1,34 +1,7 @@
 import { prisma } from '../db'
-import type { Trade, TradePayload, TradeResult, Founder, GeoLocation } from '@seedhunter/shared'
-import { TRADE_EXPIRY_SECONDS, TRADE_PROXIMITY_METERS, ErrorCodes } from '@seedhunter/shared'
+import type { Trade, TradePayload, TradeResult, Founder } from '@seedhunter/shared'
+import { TRADE_EXPIRY_SECONDS, ErrorCodes } from '@seedhunter/shared'
 import { getFounderById } from './founders'
-
-// ============================================
-// Location Utilities
-// ============================================
-
-/**
- * Calculate distance between two coordinates using Haversine formula
- * @returns distance in meters
- */
-function calculateDistance(loc1: GeoLocation, loc2: GeoLocation): number {
-  const R = 6371000 // Earth's radius in meters
-  const dLat = toRadians(loc2.lat - loc1.lat)
-  const dLng = toRadians(loc2.lng - loc1.lng)
-  
-  const a = 
-    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos(toRadians(loc1.lat)) * Math.cos(toRadians(loc2.lat)) *
-    Math.sin(dLng / 2) * Math.sin(dLng / 2)
-  
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
-  
-  return R * c
-}
-
-function toRadians(degrees: number): number {
-  return degrees * (Math.PI / 180)
-}
 
 // Secret key for signing trade payloads
 const TRADE_SECRET = new TextEncoder().encode(
@@ -96,14 +69,8 @@ function decodePayload(encoded: string): TradePayload | null {
  * Create a trade payload for the initiating player
  */
 export async function createTradePayload(
-  playerHandle: string,
-  location: GeoLocation
+  playerHandle: string
 ): Promise<{ payload: string; expiresAt: number } | { error: string; code: string }> {
-  // Validate location is provided
-  if (!location || typeof location.lat !== 'number' || typeof location.lng !== 'number') {
-    return { error: 'Location is required to trade', code: ErrorCodes.TRADE_LOCATION_REQUIRED }
-  }
-  
   // Get player and their current project
   const player = await prisma.player.findUnique({
     where: { xHandle: playerHandle }
@@ -138,13 +105,11 @@ export async function createTradePayload(
     signature
   }
   
-  // Store nonce to prevent replay attacks (with initiator's location)
+  // Store nonce to prevent replay attacks
   await prisma.tradeNonce.create({
     data: {
       nonce,
-      expiresAt: new Date(expiresAt),
-      locationLat: location.lat,
-      locationLng: location.lng
+      expiresAt: new Date(expiresAt)
     }
   })
   
@@ -242,56 +207,20 @@ export async function validateTrade(
  */
 export async function executeTrade(
   encodedPayload: string,
-  confirmerHandle: string,
-  confirmerLocation: GeoLocation
+  confirmerHandle: string
 ): Promise<TradeResult> {
-  // Validate location is provided
-  if (!confirmerLocation || typeof confirmerLocation.lat !== 'number' || typeof confirmerLocation.lng !== 'number') {
-    return {
-      success: false,
-      error: 'Location is required to trade'
-    }
-  }
-  
   // Validate the trade
   const validation = await validateTrade(encodedPayload, confirmerHandle)
-  
+
   if (!validation.valid || !validation.payload || !validation.initiator) {
     return {
       success: false,
       error: validation.error || 'Invalid trade'
     }
   }
-  
+
   const { payload, initiator } = validation
-  
-  // Get initiator's location from the nonce record
-  const nonceRecord = await prisma.tradeNonce.findUnique({
-    where: { nonce: payload.nonce }
-  })
-  
-  if (!nonceRecord || nonceRecord.locationLat === null || nonceRecord.locationLng === null) {
-    return {
-      success: false,
-      error: 'Trade initiator location not found'
-    }
-  }
-  
-  const initiatorLocation: GeoLocation = {
-    lat: nonceRecord.locationLat,
-    lng: nonceRecord.locationLng
-  }
-  
-  // Check proximity - both players must be within 25 meters
-  const distance = calculateDistance(initiatorLocation, confirmerLocation)
-  
-  if (distance > TRADE_PROXIMITY_METERS) {
-    return {
-      success: false,
-      error: `Players must be within ${TRADE_PROXIMITY_METERS} meters to trade. Current distance: ${Math.round(distance)} meters.`
-    }
-  }
-  
+
   // Get confirmer player
   const confirmer = await prisma.player.findUnique({
     where: { xHandle: confirmerHandle },

@@ -1,4 +1,4 @@
-import { Routes, type Player, type LeaderboardEntry, type Card, type Trade, type AdminLocation, type ApiResponse, type PaginatedResponse, type GridProject, type GeoLocation, type Founder } from '@seedhunter/shared'
+import { Routes, type Player, type LeaderboardEntry, type Card, type Trade, type AdminLocation, type ApiResponse, type PaginatedResponse, type GridProject, type Founder } from '@seedhunter/shared'
 
 const API_BASE = import.meta.env.VITE_API_URL || '/api'
 
@@ -101,20 +101,17 @@ export async function getLeaderboard(limit = 50, offset = 0): Promise<PaginatedR
 // Trading
 // ============================================
 
-export async function initTrade(location: GeoLocation): Promise<{ payload: string; expiresAt: number }> {
-  console.log('initTrade called with location:', location)
-  console.log('Auth token present:', !!getAuthToken())
-  
-  return api(Routes.TRADE_INIT, { 
+export async function initTrade(): Promise<{ payload: string; expiresAt: number }> {
+  return api(Routes.TRADE_INIT, {
     method: 'POST',
-    body: JSON.stringify({ location }),
+    body: JSON.stringify({}),
   })
 }
 
-export async function confirmTrade(payload: string, location: GeoLocation): Promise<{ success: boolean; trade?: Trade; newProject?: Founder; error?: string }> {
+export async function confirmTrade(payload: string): Promise<{ success: boolean; trade?: Trade; newProject?: Founder; error?: string }> {
   return api(Routes.TRADE_CONFIRM, {
     method: 'POST',
-    body: JSON.stringify({ payload, location }),
+    body: JSON.stringify({ payload }),
   })
 }
 
