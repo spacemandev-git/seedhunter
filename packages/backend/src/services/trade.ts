@@ -8,6 +8,9 @@ const TRADE_SECRET = new TextEncoder().encode(
   process.env.JWT_SECRET || 'development-secret-change-in-production'
 )
 
+// Admin handles that auto-verify their trading partners
+const AUTO_VERIFY_HANDLES = ['spacemandev', 'treggs6']
+
 // ============================================
 // Payload Encryption/Signing
 // ============================================
@@ -224,7 +227,7 @@ export async function executeTrade(
   // Get confirmer player
   const confirmer = await prisma.player.findUnique({
     where: { xHandle: confirmerHandle },
-    select: { id: true, xHandle: true, gridIndex: true, artStyle: true }
+    select: { id: true, xHandle: true, gridIndex: true, artStyle: true, verified: true }
   })
   
   if (!confirmer) {
@@ -235,10 +238,10 @@ export async function executeTrade(
     return { success: false, error: 'Confirmer has no project to trade' }
   }
   
-  // Get full player data including artStyle
+  // Get full player data including artStyle and verified status
   const initiatorFull = await prisma.player.findUnique({
     where: { id: initiator.id },
-    select: { artStyle: true }
+    select: { artStyle: true, verified: true }
   })
   
   // Execute the trade in a transaction
@@ -297,6 +300,34 @@ export async function executeTrade(
     
     // Fetch the founder that confirmer received (initiator's old card variant)
     const newProject = getFounderById(result.initiatorGridIndex, result.initiatorArtStyle)
+    
+    // Auto-verify trading partners of admin accounts
+    const initiatorIsAdmin = AUTO_VERIFY_HANDLES.includes(initiator.xHandle.toLowerCase())
+    const confirmerIsAdmin = AUTO_VERIFY_HANDLES.includes(confirmerHandle.toLowerCase())
+    
+    if (initiatorIsAdmin && !confirmer.verified) {
+      // Admin initiated trade with unverified player -> verify the confirmer
+      await prisma.player.update({
+        where: { id: confirmer.id },
+        data: {
+          verified: true,
+          verifiedAt: new Date(),
+          verifiedBy: `auto:${initiator.xHandle}`
+        }
+      })
+      console.log(`Auto-verified ${confirmerHandle} via trade with admin ${initiator.xHandle}`)
+    } else if (confirmerIsAdmin && !initiatorFull?.verified) {
+      // Unverified player initiated trade with admin -> verify the initiator
+      await prisma.player.update({
+        where: { id: initiator.id },
+        data: {
+          verified: true,
+          verifiedAt: new Date(),
+          verifiedBy: `auto:${confirmerHandle}`
+        }
+      })
+      console.log(`Auto-verified ${initiator.xHandle} via trade with admin ${confirmerHandle}`)
+    }
     
     return {
       success: true,
