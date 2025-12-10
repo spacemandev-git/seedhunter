@@ -18,37 +18,17 @@ tradeRoutes.use('*', tradeRateLimit)
 // Initialize a trade (generate QR payload)
 tradeRoutes.post('/init', requirePlayer, async (c: Context) => {
   const player = c.get('player')!
-  
+
   try {
-    let body: { location?: { lat: number; lng: number } }
-    
-    try {
-      body = await c.req.json<{ location?: { lat: number; lng: number } }>()
-    } catch (parseError) {
-      console.error('Trade init JSON parse error:', parseError)
-      return c.json({
-        error: 'Invalid request body - JSON parsing failed',
-        code: ErrorCodes.VALIDATION_ERROR
-      }, 400)
-    }
-    
-    if (!body.location || typeof body.location.lat !== 'number' || typeof body.location.lng !== 'number') {
-      console.error('Trade init missing location:', body)
-      return c.json({
-        error: 'Location is required to initiate a trade',
-        code: ErrorCodes.TRADE_LOCATION_REQUIRED
-      }, 400)
-    }
-    
-    const result = await createTradePayload(player.xHandle, body.location)
-    
+    const result = await createTradePayload(player.xHandle)
+
     if ('error' in result) {
       return c.json({
         error: result.error,
         code: result.code
       }, 400)
     }
-    
+
     return c.json({
       payload: result.payload,
       expiresAt: result.expiresAt
@@ -65,25 +45,18 @@ tradeRoutes.post('/init', requirePlayer, async (c: Context) => {
 // Confirm a trade
 tradeRoutes.post('/confirm', requirePlayer, async (c: Context) => {
   const player = c.get('player')!
-  
+
   try {
-    const body = await c.req.json<{ payload: string; location?: { lat: number; lng: number } }>()
-    
+    const body = await c.req.json<{ payload: string }>()
+
     if (!body.payload) {
       return c.json({
         error: 'Missing trade payload',
         code: ErrorCodes.VALIDATION_ERROR
       }, 400)
     }
-    
-    if (!body.location || typeof body.location.lat !== 'number' || typeof body.location.lng !== 'number') {
-      return c.json({
-        error: 'Location is required to confirm a trade',
-        code: ErrorCodes.TRADE_LOCATION_REQUIRED
-      }, 400)
-    }
-    
-    const result = await executeTrade(body.payload, player.xHandle, body.location)
+
+    const result = await executeTrade(body.payload, player.xHandle)
     
     if (!result.success) {
       return c.json({
